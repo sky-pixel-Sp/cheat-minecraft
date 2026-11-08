@@ -107,6 +107,10 @@ public final class SkyOPLanguage {
         put("gui.hud_text_edit_hint", "Click this line, then type. Enter to finish.");
         put("gui.profile_saved", "Profile saved");
         put("gui.profile_loaded", "Profile loaded");
+        put("gui.main_hud", "Main HUD");
+        put("gui.compass_direction", "Compass / Direction");
+        put("gui.drag_to_move", "DRAG TO MOVE");
+        put("gui.info", "INFO");
 
 
         put("category.combat", "Combat");
@@ -598,6 +602,13 @@ public final class SkyOPLanguage {
                 e("gui.hud_text_edit_hint", "Klik baris ini, lalu ketik. Tekan Enter untuk selesai."),
                 e("gui.profile_saved", "Profil disimpan"),
                 e("gui.profile_loaded", "Profil dimuat"),
+                e("gui.save", "SIMPAN"),
+                e("gui.load", "MUAT"),
+                e("gui.search", "CARI MODUL"),
+                e("gui.main_hud", "HUD Utama"),
+                e("gui.compass_direction", "Kompas / Arah"),
+                e("gui.drag_to_move", "SERET UNTUK PINDAH"),
+                e("gui.info", "INFO"),
                 e("category.combat", "Pertarungan"),
                 e("category.movement", "Pergerakan"),
                 e("category.visual", "Visual"),
