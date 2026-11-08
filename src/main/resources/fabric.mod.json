@@ -4,7 +4,9 @@
   "version": "${version}",
   "name": "SkyOP Client",
   "description": "Expanded client-side combat, movement, visual and HUD modules for Minecraft Java 26.3.",
-  "authors": ["SkyOP"],
+  "authors": [
+    "SkyOP"
+  ],
   "license": "MIT",
   "environment": "client",
   "entrypoints": {
@@ -17,5 +19,8 @@
     "minecraft": "~26.3",
     "java": ">=25",
     "fabric-api": "*"
-  }
+  },
+  "mixins": [
+    "skyop.mixins.json"
+  ]
 }

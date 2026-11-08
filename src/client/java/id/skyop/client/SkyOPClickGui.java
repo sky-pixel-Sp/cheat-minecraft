@@ -3,6 +3,8 @@ package id.skyop.client;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -26,6 +28,12 @@ public final class SkyOPClickGui extends Screen {
     private SkyOPClient.Category selectedCategory = SkyOPClient.Category.COMBAT;
     private SkyOPClient.Module selectedModule = SkyOPClient.Module.KILL_AURA;
     private int panelX, panelY, panelWidth, panelHeight;
+    private String searchQuery = "";
+    private boolean searchFocused, waitingForKeybind, hudEditMode, draggingHud, colorPickerOpen;
+    private int moduleScroll, settingsScroll, hudDragOffsetX, hudDragOffsetY;
+    private long animationTicks;
+    private String profileStatus = "";
+    private int profileStatusTicks;
 
     private enum SettingKind { TOGGLE, SLIDER, INFO }
     private record Setting(String label, String detail, SettingKind kind,
@@ -72,6 +80,15 @@ public final class SkyOPClickGui extends Screen {
         drawModuleList(graphics, mouseX, mouseY);
         drawInspector(graphics, mouseX, mouseY);
         drawFooter(graphics, mouseX, mouseY);
+        drawColorPicker(graphics, mouseX, mouseY);
+        drawHudEditorPreview(graphics);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        animationTicks++;
+        if (profileStatusTicks > 0) profileStatusTicks--;
     }
 
     private void drawHeader(GuiGraphicsExtractor g) {
@@ -79,6 +96,18 @@ public final class SkyOPClickGui extends Screen {
         g.text(font, Component.literal(SkyOPLanguage.text("gui.client")), panelX + 112, panelY + 14, MUTED, true);
         g.text(font, Component.literal(SkyOPLanguage.text("gui.control_center")), panelX + 20, panelY + 34, TEXT, true);
         g.text(font, Component.literal(SkyOPLanguage.text("gui.subtitle")), panelX + 210, panelY + 34, MUTED, true);
+
+        if (panelWidth >= 800) {
+            int colorX = panelX + panelWidth - 378;
+            int hudEditX = panelX + panelWidth - 320;
+            boolean colorHovered = inside(mouseX, mouseY, colorX, panelY + 12, 48, 24);
+            g.fill(colorX, panelY + 12, colorX + 48, panelY + 36, colorHovered ? PANEL_HOVER : PANEL_LIGHT);
+            g.fill(colorX + 16, panelY + 20, colorX + 32, panelY + 28, SkyOPClient.hudAccentColor());
+            boolean editHovered = inside(mouseX, mouseY, hudEditX, panelY + 12, 72, 24);
+            g.fill(hudEditX, panelY + 12, hudEditX + 72, panelY + 36, editHovered || hudEditMode ? 0xFF263D53 : PANEL_LIGHT);
+            g.text(font, Component.literal(hudEditMode ? "HUD EDIT ON" : "HUD EDIT"),
+                    hudEditX + 7, panelY + 20, hudEditMode ? GREEN : ACCENT, true);
+        }
 
         int statusX = panelX + panelWidth - 172;
         g.fill(statusX, panelY + 13, statusX + 104, panelY + 35, PANEL_LIGHT);
@@ -216,6 +245,11 @@ public final class SkyOPClickGui extends Screen {
         boolean hovered = inside(mouseX, mouseY, bx, y + 7, 124, 24);
         g.fill(bx, y + 7, bx + 124, y + 31, hovered ? 0xFF693542 : 0xFF482B35);
         g.text(font, Component.literal(SkyOPLanguage.text("gui.disable_all")), bx + 18, y + 15, 0xFFFFB8C0, true);
+        if (!profileStatus.isEmpty() && profileStatusTicks > 0) {
+            int alpha = 190 + (int) (35 * Math.sin(animationTicks * 0.25));
+            int color = (Math.min(255, alpha) << 24) | 0x00FFFFFF;
+            g.text(font, Component.literal(trim(profileStatus, 30)), panelX + 410, y + 15, color, true);
+        }
     }
 
     private void drawProfileButton(GuiGraphicsExtractor g, int mouseX, int mouseY,
@@ -228,8 +262,14 @@ public final class SkyOPClickGui extends Screen {
 
     private List<SkyOPClient.Module> modulesForCategory() {
         List<SkyOPClient.Module> modules = new ArrayList<>();
+        String query = searchQuery.toLowerCase(java.util.Locale.ROOT);
         for (SkyOPClient.Module module : SkyOPClient.Module.values()) {
-            if (module.category() == selectedCategory) modules.add(module);
+            boolean inCategory = selectedCategory == SkyOPClient.Category.FAVORITES
+                    ? SkyOPClient.isFavorite(module) : module.category() == selectedCategory;
+            boolean matches = query.isEmpty()
+                    || module.title().toLowerCase(java.util.Locale.ROOT).contains(query)
+                    || module.description().toLowerCase(java.util.Locale.ROOT).contains(query);
+            if ((inCategory || !query.isEmpty()) && matches) modules.add(module);
         }
         return modules;
     }
@@ -237,7 +277,8 @@ public final class SkyOPClickGui extends Screen {
     private int countModules(SkyOPClient.Category category) {
         int count = 0;
         for (SkyOPClient.Module module : SkyOPClient.Module.values()) {
-            if (module.category() == category) count++;
+            if (category == SkyOPClient.Category.FAVORITES ? SkyOPClient.isFavorite(module)
+                    : module.category() == category) count++;
         }
         return count;
     }

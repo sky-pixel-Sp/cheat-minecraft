@@ -29,6 +29,7 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.EnumSet;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -44,11 +45,16 @@ import java.util.UUID;
  */
 public final class SkyOPClient implements ClientModInitializer {
     public enum Category {
-        COMBAT("Combat"), MOVEMENT("Movement"), VISUAL("Visual"), PLAYER("Player");
+        COMBAT("Combat"), MOVEMENT("Movement"), VISUAL("Visual"), PLAYER("Player"),
+        INVENTORY("Inventory"), FAVORITES("Favorites");
 
         private final String fallbackTitle;
         Category(String title) { this.fallbackTitle = title; }
-        public String title() { return SkyOPLanguage.text("category." + name().toLowerCase()); }
+        public String title() {
+            String key = "category." + name().toLowerCase();
+            String translated = SkyOPLanguage.text(key);
+            return translated.equals(key) ? fallbackTitle : translated;
+        }
     }
 
     public enum Preset { PVE, OP, VISUAL }
@@ -73,8 +79,24 @@ public final class SkyOPClient implements ClientModInitializer {
         ARMOR_HUD("Armor HUD", "Displays health and armor status.", Category.VISUAL),
         SPEEDOMETER("Speedometer", "Displays horizontal movement speed in blocks per second.", Category.VISUAL),
         CPS_HUD("CPS HUD", "Displays successful attack actions per second.", Category.VISUAL),
+        POTION_HUD("Potion HUD", "Shows active potion effects and remaining duration.", Category.VISUAL),
+        DURABILITY_HUD("Durability HUD", "Displays main-hand item durability.", Category.VISUAL),
+        COMPASS_HUD("Compass HUD", "Shows compass direction and yaw.", Category.VISUAL),
+        DIRECTION_HUD("Direction HUD", "Shows cardinal direction and coordinates.", Category.VISUAL),
+        PING_HUD("Ping HUD", "Shows your current multiplayer latency.", Category.VISUAL),
+        FPS_HUD("FPS HUD", "Shows the current frame rate.", Category.VISUAL),
+        RADAR_HUD("Nearby Entity Radar", "Lists nearby entities already loaded by the client.", Category.VISUAL),
+        TEXT_GUI("Text GUI", "Displays a configurable custom HUD message.", Category.VISUAL),
 
-        NO_FALL("NoFall", "Clears the local fall-distance accumulator.", Category.PLAYER);
+        NO_FALL("NoFall", "Clears the local fall-distance accumulator.", Category.PLAYER),
+
+        AUTO_EAT("Auto Eat", "Uses safe food from your hotbar when hunger is low.", Category.INVENTORY),
+        AUTO_ARMOR("Auto Armor", "Equips armor into empty armor slots.", Category.INVENTORY),
+        AUTO_TOOL("Auto Tool", "Selects the best hotbar tool for the targeted block.", Category.INVENTORY),
+        AUTO_REFILL("Auto Refill", "Refills low hotbar stacks from matching inventory items.", Category.INVENTORY),
+        AUTO_FISH("Auto Fish", "Automatically reels on bite and recasts your fishing rod.", Category.INVENTORY),
+        INVENTORY_CLEANER("Inventory Cleaner", "Consolidates matching stacks without dropping items.", Category.INVENTORY),
+        HOTBAR_PRESETS("Hotbar Presets", "Saves and restores three hotbar layouts.", Category.INVENTORY);
 
         private final String title;
         private final String description;
@@ -105,6 +127,8 @@ public final class SkyOPClient implements ClientModInitializer {
     private static final KeyMapping KEY_DISABLE_ALL = key("key.skyop.disable_all", InputConstants.KEY_F12);
 
     private static final EnumSet<Module> ENABLED = EnumSet.of(Module.HUD);
+    private static final EnumSet<Module> FAVORITES = EnumSet.noneOf(Module.class);
+    private static final Map<Module, KeyMapping> MODULE_KEYBINDS = new EnumMap<>(Module.class);
     private static final Map<UUID, GlowState> ORIGINAL_GLOW = new HashMap<>();
     private static final Path CONFIG_FILE = FabricLoader.getInstance().getConfigDir().resolve("skyop-client.properties");
 
@@ -126,6 +150,15 @@ public final class SkyOPClient implements ClientModInitializer {
     public static double espRange = 48.0;
     public static boolean espPlayers = true;
     public static boolean espMobs = true;
+    public static int autoEatThreshold = 14;
+    public static int autoRefillThreshold = 2;
+    public static int hudX = 8;
+    public static int hudY = 8;
+    public static int hudAccentColor = 0xFF61C7F2;
+    public static String customHudText = "SkyOP Client • Have a great game!";
+    private static final int[] HUD_PALETTE = {
+            0xFF61C7F2, 0xFF8B7CFF, 0xFFFFB45B, 0xFF57D69A, 0xFFFF7885, 0xFFF1F6FB
+    };
 
     private static int auraCooldown;
     private static int triggerCooldown;
@@ -153,6 +186,7 @@ public final class SkyOPClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         loadConfig();
+        registerModuleKeybinds();
         HudElementRegistry.addLast(
                 Identifier.fromNamespaceAndPath("skyop", "overlay"),
                 (graphics, deltaTracker) -> renderHud(Minecraft.getInstance(), graphics)
@@ -162,6 +196,66 @@ public final class SkyOPClient implements ClientModInitializer {
 
     public static boolean isEnabled(Module module) { return ENABLED.contains(module); }
     public static int enabledModuleCount() { return ENABLED.size(); }
+    public static boolean isFavorite(Module module) { return FAVORITES.contains(module); }
+    public static int favoriteCount() { return FAVORITES.size(); }
+    public static int hudAccentColor() { return hudAccentColor; }
+    public static KeyMapping keybindFor(Module module) { return MODULE_KEYBINDS.get(module); }
+
+    public static void toggleFavorite(Module module) {
+        if (!FAVORITES.add(module)) FAVORITES.remove(module);
+        saveConfig();
+    }
+
+    public static void setModuleKeybind(Module module, int scancode) {
+        KeyMapping mapping = MODULE_KEYBINDS.get(module);
+        if (mapping == null) return;
+        mapping.setKey(scancode < 0
+                ? InputConstants.UNKNOWN
+                : InputConstants.Type.KEYBOARD.getOrCreate(scancode));
+        KeyMapping.resetMapping();
+        saveConfig();
+    }
+
+    public static void cycleHudColor() {
+        int index = 0;
+        for (int i = 0; i < HUD_PALETTE.length; i++) {
+            if (HUD_PALETTE[i] == hudAccentColor) index = i;
+        }
+        hudAccentColor = HUD_PALETTE[(index + 1) % HUD_PALETTE.length];
+        saveConfig();
+    }
+
+    public static Path configPath() { return CONFIG_FILE; }
+
+    public static void reloadConfigFromDisk() {
+        ENABLED.clear();
+        ENABLED.add(Module.HUD);
+        FAVORITES.clear();
+        loadConfig();
+        if (!ENABLED.contains(Module.ENTITY_ESP)) restoreGlow();
+        if (!ENABLED.contains(Module.GAMMA_BOOST)) restoreGamma(Minecraft.getInstance());
+        if (!ENABLED.contains(Module.FLIGHT)) restoreFlight(Minecraft.getInstance());
+    }
+
+    private static void registerModuleKeybinds() {
+        MODULE_KEYBINDS.put(Module.HUD, KEY_HUD);
+        MODULE_KEYBINDS.put(Module.AUTO_CLICKER, KEY_AUTO_CLICKER);
+        MODULE_KEYBINDS.put(Module.AUTO_SPRINT, KEY_SPRINT);
+        MODULE_KEYBINDS.put(Module.SPEED, KEY_SPEED);
+        MODULE_KEYBINDS.put(Module.KILL_AURA, KEY_AURA);
+        MODULE_KEYBINDS.put(Module.ENTITY_ESP, KEY_ESP);
+        MODULE_KEYBINDS.put(Module.NO_FALL, KEY_NO_FALL);
+        MODULE_KEYBINDS.put(Module.FLIGHT, KEY_FLIGHT);
+
+        for (Module module : Module.values()) {
+            if (MODULE_KEYBINDS.containsKey(module)) continue;
+            String keyName = "key.skyop.module." + module.name().toLowerCase();
+            KeyMapping mapping = KeyMappingHelper.registerKeyMapping(new KeyMapping(
+                    keyName, InputConstants.Type.KEYBOARD, -1, KEY_CATEGORY
+            ));
+            MODULE_KEYBINDS.put(module, mapping);
+        }
+    }
 
     public static void setEnabled(Minecraft client, Module module, boolean enabled) {
         if (enabled) ENABLED.add(module); else ENABLED.remove(module);
@@ -222,6 +316,7 @@ public final class SkyOPClient implements ClientModInitializer {
         if (!isEnabled(Module.ENTITY_ESP)) restoreGlow();
         if (!isEnabled(Module.FLIGHT)) restoreFlight(client);
         if (!isEnabled(Module.GAMMA_BOOST)) restoreGamma(client);
+        if (!isEnabled(Module.AUTO_FISH)) SkyOPInventoryManager.stop(client);
         saveConfig();
         if (client.player != null) {
             client.player.sendSystemMessage(Component.literal("[SkyOP] " + preset.name() + " profile loaded."));
@@ -238,6 +333,7 @@ public final class SkyOPClient implements ClientModInitializer {
         restoreGlow();
         restoreGamma(client);
         restoreFlight(client);
+        SkyOPInventoryManager.stop(client);
         saveConfig();
         if (client.player != null) {
             client.player.sendSystemMessage(Component.literal("[SkyOP] All modules disabled."));
@@ -272,19 +368,18 @@ public final class SkyOPClient implements ClientModInitializer {
         if (isEnabled(Module.KILL_AURA)) tickKillAura(client); else auraCooldown = 0;
         if (isEnabled(Module.TRIGGER_BOT)) tickTriggerBot(client); else triggerCooldown = 0;
         if (isEnabled(Module.AUTO_CLICKER)) tickAutoClicker(client); else clickerCooldown = 0;
+        SkyOPInventoryManager.tick(client);
     }
 
     private static void handleKeybinds(Minecraft client) {
         if (KEY_GUI.consumeClick()) client.gui.setScreen(new SkyOPClickGui());
-        if (KEY_HUD.consumeClick()) toggle(client, Module.HUD);
-        if (KEY_AUTO_CLICKER.consumeClick()) toggle(client, Module.AUTO_CLICKER);
-        if (KEY_SPRINT.consumeClick()) toggle(client, Module.AUTO_SPRINT);
-        if (KEY_SPEED.consumeClick()) toggle(client, Module.SPEED);
-        if (KEY_AURA.consumeClick()) toggle(client, Module.KILL_AURA);
-        if (KEY_ESP.consumeClick()) toggle(client, Module.ENTITY_ESP);
-        if (KEY_NO_FALL.consumeClick()) toggle(client, Module.NO_FALL);
-        if (KEY_FLIGHT.consumeClick()) toggle(client, Module.FLIGHT);
-        if (KEY_DISABLE_ALL.consumeClick()) disableAll(client);
+        if (KEY_DISABLE_ALL.consumeClick()) {
+            disableAll(client);
+            return;
+        }
+        for (Map.Entry<Module, KeyMapping> entry : MODULE_KEYBINDS.entrySet()) {
+            while (entry.getValue().consumeClick()) toggle(client, entry.getKey());
+        }
     }
 
     private static void tickAutoSprint(Minecraft client) {
@@ -557,7 +652,9 @@ public final class SkyOPClient implements ClientModInitializer {
         int screenHeight = client.getWindow().getGuiScaledHeight();
 
         if (isEnabled(Module.HUD)) {
-            int x = 8, y = 8, width = 184, lineHeight = 12;
+            int x = Mth.clamp(hudX, 0, Math.max(0, screenWidth - 190));
+            int y = Mth.clamp(hudY, 0, Math.max(0, screenHeight - 180));
+            int width = 184, lineHeight = 12;
             int activeCount = 0;
             for (Module module : Module.values()) {
                 if (module != Module.HUD && isEnabled(module)) activeCount++;
@@ -565,8 +662,8 @@ public final class SkyOPClient implements ClientModInitializer {
 
             int height = 44 + activeCount * lineHeight;
             graphics.fill(x, y, x + width, y + height, 0xC5101726);
-            graphics.fill(x, y, x + width, y + 2, 0xFF61C7F2);
-            graphics.text(client.font, Component.literal("SKYOP  /  CLIENT"), x + 10, y + 8, 0xFF76D5FF, true);
+            graphics.fill(x, y, x + width, y + 2, hudAccentColor);
+            graphics.text(client.font, Component.literal("SKYOP  /  CLIENT"), x + 10, y + 8, hudAccentColor, true);
             graphics.text(client.font, Component.literal("26.3  •  " + activeCount + " " + SkyOPLanguage.text("gui.active")),
                     x + 10, y + 22, 0xFFB9C8D8, true);
 
@@ -628,6 +725,82 @@ public final class SkyOPClient implements ClientModInitializer {
                     x + 8, y + 10, 0xFFF1F6FB, true);
         }
 
+        if (isEnabled(Module.POTION_HUD)) {
+            int x = screenWidth - 198, y = 76;
+            graphics.fill(x, y, x + 190, y + 8 + client.player.getActiveEffects().size() * 11, 0xC5101726);
+            graphics.text(client.font, Component.literal("EFFECTS"), x + 8, y + 4, hudAccentColor, true);
+            int row = 0;
+            for (var effect : client.player.getActiveEffects()) {
+                if (row >= 7) break;
+                String name = effect.getEffect().value().getDisplayName().getString();
+                graphics.text(client.font, Component.literal(trimText(name, 18) + "  " + effect.getDuration() / 20 + "s"),
+                        x + 8, y + 17 + row * 11, 0xFFF1F6FB, true);
+                row++;
+            }
+        }
+
+        if (isEnabled(Module.DURABILITY_HUD)) {
+            var stack = client.player.getMainHandItem();
+            int x = screenWidth / 2 - 82, y = screenHeight - 94;
+            if (!stack.isEmpty() && stack.isDamageableItem()) {
+                int remaining = Math.max(0, stack.getMaxDamage() - stack.getDamageValue());
+                int percent = (int) (100.0 * remaining / Math.max(1, stack.getMaxDamage()));
+                graphics.fill(x, y, x + 164, y + 24, 0xC5101726);
+                graphics.text(client.font, Component.literal("DURABILITY  " + percent + "%"),
+                        x + 8, y + 8, hudAccentColor, true);
+                graphics.fill(x + 8, y + 18, x + 156, y + 21, 0xFF36465A);
+                graphics.fill(x + 8, y + 18, x + 8 + (int) (148 * percent / 100.0), y + 21, hudAccentColor);
+            }
+        }
+
+        if (isEnabled(Module.COMPASS_HUD) || isEnabled(Module.DIRECTION_HUD)) {
+            int x = screenWidth / 2 - 48, y = 8;
+            String direction = compassDirection(client.player.getYRot());
+            graphics.fill(x, y, x + 96, y + 23, 0xC5101726);
+            graphics.text(client.font, Component.literal(direction + "  " + Math.round(client.player.getYRot()) + "°"),
+                    x + 8, y + 8, hudAccentColor, true);
+        }
+
+        if (isEnabled(Module.PING_HUD)) {
+            int x = screenWidth - 100, y = 8;
+            int ping = getCurrentPing(client);
+            graphics.fill(x, y, x + 92, y + 22, 0xC5101726);
+            graphics.text(client.font, Component.literal("PING  " + (ping < 0 ? "--" : ping + " ms")),
+                    x + 8, y + 7, hudAccentColor, true);
+        }
+
+        if (isEnabled(Module.FPS_HUD)) {
+            int x = screenWidth - 100, y = 34;
+            graphics.fill(x, y, x + 92, y + 22, 0xC5101726);
+            graphics.text(client.font, Component.literal("FPS  " + client.getFps()),
+                    x + 8, y + 7, hudAccentColor, true);
+        }
+
+        if (isEnabled(Module.RADAR_HUD)) {
+            List<LivingEntity> nearby = client.level.getEntitiesOfClass(LivingEntity.class,
+                    client.player.getBoundingBox().inflate(32.0),
+                    entity -> entity != client.player && entity.isAlive());
+            nearby.sort(java.util.Comparator.comparingDouble(client.player::distanceToSqr));
+            int count = Math.min(6, nearby.size());
+            int x = screenWidth - 202, y = screenHeight / 2 - 12;
+            graphics.fill(x, y, x + 194, y + 24 + count * 11, 0xC5101726);
+            graphics.text(client.font, Component.literal("NEARBY / LOADED ENTITIES"),
+                    x + 8, y + 5, hudAccentColor, true);
+            for (int i = 0; i < count; i++) {
+                LivingEntity entity = nearby.get(i);
+                graphics.text(client.font, Component.literal(
+                                trimText(entity.getName().getString(), 17) + "  " +
+                                        String.format("%.1fm", client.player.distanceTo(entity))),
+                        x + 8, y + 18 + i * 11, 0xFFF1F6FB, true);
+            }
+        }
+
+        if (isEnabled(Module.TEXT_GUI)) {
+            graphics.fill(8, screenHeight - 27, screenWidth - 8, screenHeight - 8, 0xA0101726);
+            graphics.text(client.font, Component.literal(customHudText), 16, screenHeight - 21,
+                    hudAccentColor, true);
+        }
+
         if (isEnabled(Module.SPEEDOMETER)) {
             int x = screenWidth / 2 - 58, y = screenHeight - 37;
             graphics.fill(x, y, x + 116, y + 25, 0xC5101726);
@@ -687,6 +860,16 @@ public final class SkyOPClient implements ClientModInitializer {
         p.setProperty("espRange", Double.toString(espRange));
         p.setProperty("espPlayers", Boolean.toString(espPlayers));
         p.setProperty("espMobs", Boolean.toString(espMobs));
+        p.setProperty("autoEatThreshold", Integer.toString(autoEatThreshold));
+        p.setProperty("autoRefillThreshold", Integer.toString(autoRefillThreshold));
+        p.setProperty("hudX", Integer.toString(hudX));
+        p.setProperty("hudY", Integer.toString(hudY));
+        p.setProperty("hudAccentColor", Integer.toString(hudAccentColor));
+        p.setProperty("customHudText", customHudText);
+        for (Module module : FAVORITES) p.setProperty("favorite." + module.name(), "true");
+        for (Map.Entry<Module, KeyMapping> entry : MODULE_KEYBINDS.entrySet()) {
+            p.setProperty("keybind." + entry.getKey().name(), Integer.toString(entry.getValue().getKey().getValue()));
+        }
 
         try {
             Files.createDirectories(CONFIG_FILE.getParent());
@@ -729,9 +912,46 @@ public final class SkyOPClient implements ClientModInitializer {
             espRange = number(p, "espRange", espRange, 8.0, 96.0);
             espPlayers = bool(p, "espPlayers", espPlayers);
             espMobs = bool(p, "espMobs", espMobs);
+            autoEatThreshold = (int) SkyOPSettingsSchema.validate("autoEatThreshold",
+                    integer(p, "autoEatThreshold", autoEatThreshold, 2, 18), autoEatThreshold);
+            autoRefillThreshold = (int) SkyOPSettingsSchema.validate("autoRefillThreshold",
+                    integer(p, "autoRefillThreshold", autoRefillThreshold, 1, 16), autoRefillThreshold);
+            hudX = integer(p, "hudX", hudX, 0, 10000);
+            hudY = integer(p, "hudY", hudY, 0, 10000);
+            hudAccentColor = integer(p, "hudAccentColor", hudAccentColor, Integer.MIN_VALUE, Integer.MAX_VALUE);
+            customHudText = p.getProperty("customHudText", customHudText);
+            FAVORITES.clear();
+            for (Module module : Module.values()) {
+                if (bool(p, "favorite." + module.name(), false)) FAVORITES.add(module);
+                String keybind = p.getProperty("keybind." + module.name());
+                KeyMapping mapping = MODULE_KEYBINDS.get(module);
+                if (keybind != null && mapping != null) {
+                    try {
+                        int code = Integer.parseInt(keybind);
+                        mapping.setKey(code < 0 ? InputConstants.UNKNOWN : InputConstants.Type.KEYBOARD.getOrCreate(code));
+                    } catch (NumberFormatException ignored) { }
+                }
+            }
+            KeyMapping.resetMapping();
         } catch (IOException exception) {
             System.err.println("[SkyOP] Could not load config: " + exception.getMessage());
         }
+    }
+
+    private static int getCurrentPing(Minecraft client) {
+        try {
+            if (client.getConnection() == null || client.player == null) return -1;
+            var info = client.getConnection().getPlayerInfo(client.player.getUUID());
+            return info == null ? -1 : info.getLatency();
+        } catch (RuntimeException ignored) {
+            return -1;
+        }
+    }
+
+    private static String compassDirection(float yaw) {
+        String[] directions = {"S", "SW", "W", "NW", "N", "NE", "E", "SE"};
+        int index = Math.floorMod(Math.round(yaw / 45.0F), 8);
+        return directions[index];
     }
 
     private static boolean bool(Properties p, String key, boolean fallback) {

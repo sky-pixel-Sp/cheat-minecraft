@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "id.skyop.client",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "SkyOPFishingHookAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
