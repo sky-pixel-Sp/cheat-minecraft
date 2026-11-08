@@ -131,6 +131,7 @@ public final class SkyOPClient implements ClientModInitializer {
     private static final EnumSet<Module> FAVORITES = EnumSet.noneOf(Module.class);
     private static final Map<Module, KeyMapping> MODULE_KEYBINDS = new EnumMap<>(Module.class);
     private static final Map<Module, Integer> MODULE_KEY_CODES = new EnumMap<>(Module.class);
+    private static final Map<Module, HudPosition> HUD_POSITIONS = new EnumMap<>(Module.class);
     private static final Map<UUID, GlowState> ORIGINAL_GLOW = new HashMap<>();
     private static final Path CONFIG_FILE = FabricLoader.getInstance().getConfigDir().resolve("skyop-client.properties");
 
@@ -178,6 +179,7 @@ public final class SkyOPClient implements ClientModInitializer {
     private static final float ATTACK_STRENGTH_THRESHOLD = 0.90F;
 
     private record GlowState(Entity entity, boolean wasGlowing) { }
+    private record HudPosition(int x, int y) { }
 
     private static KeyMapping key(String translationKey, int keyCode) {
         return KeyMappingHelper.registerKeyMapping(new KeyMapping(
@@ -202,6 +204,38 @@ public final class SkyOPClient implements ClientModInitializer {
     public static int favoriteCount() { return FAVORITES.size(); }
     public static int hudAccentColor() { return hudAccentColor; }
     public static KeyMapping keybindFor(Module module) { return MODULE_KEYBINDS.get(module); }
+
+    public static int hudXFor(Module module, int defaultX, int screenWidth, int elementWidth) {
+        HudPosition saved = HUD_POSITIONS.get(module);
+        int preferred = saved != null ? saved.x() : (module == Module.HUD ? hudX : defaultX);
+        return clamp(preferred, 0, Math.max(0, screenWidth - elementWidth));
+    }
+
+    public static int hudYFor(Module module, int defaultY, int screenHeight, int elementHeight) {
+        HudPosition saved = HUD_POSITIONS.get(module);
+        int preferred = saved != null ? saved.y() : (module == Module.HUD ? hudY : defaultY);
+        return clamp(preferred, 0, Math.max(0, screenHeight - elementHeight));
+    }
+
+    public static void setHudPosition(Module module, int x, int y,
+                                      int screenWidth, int screenHeight,
+                                      int elementWidth, int elementHeight) {
+        if (module == null) return;
+        int safeX = clamp(x, 0, Math.max(0, screenWidth - elementWidth));
+        int safeY = clamp(y, 0, Math.max(0, screenHeight - elementHeight));
+        HUD_POSITIONS.put(module, new HudPosition(safeX, safeY));
+        if (module == Module.HUD) {
+            hudX = safeX;
+            hudY = safeY;
+        }
+    }
+
+    public static void resetHudPositions() {
+        HUD_POSITIONS.clear();
+        hudX = 8;
+        hudY = 8;
+        saveConfig();
+    }
 
     public static void toggleFavorite(Module module) {
         if (!FAVORITES.add(module)) FAVORITES.remove(module);
@@ -230,12 +264,8 @@ public final class SkyOPClient implements ClientModInitializer {
     }
 
     public static void setHudAccentColor(int color) {
-        boolean valid = false;
-        for (int allowed : HUD_PALETTE) if (allowed == color) valid = true;
-        if (valid) {
-            hudAccentColor = color;
-            saveConfig();
-        }
+        hudAccentColor = 0xFF000000 | (color & 0x00FFFFFF);
+        saveConfig();
     }
 
     public static void setCustomHudText(String text) {
@@ -686,8 +716,8 @@ public final class SkyOPClient implements ClientModInitializer {
         int screenHeight = client.getWindow().getGuiScaledHeight();
 
         if (isEnabled(Module.HUD)) {
-            int x = Mth.clamp(hudX, 0, Math.max(0, screenWidth - 190));
-            int y = Mth.clamp(hudY, 0, Math.max(0, screenHeight - 180));
+            int x = hudXFor(Module.HUD, hudX, screenWidth, 190);
+            int y = hudYFor(Module.HUD, hudY, screenHeight, 180);
             int width = 184, lineHeight = 12;
             int activeCount = 0;
             for (Module module : Module.values()) {
@@ -718,7 +748,8 @@ public final class SkyOPClient implements ClientModInitializer {
         }
 
         if (isEnabled(Module.TARGET_HUD)) {
-            int x = screenWidth - 194, y = 8;
+            int x = hudXFor(Module.TARGET_HUD, screenWidth - 194, screenWidth, 186);
+            int y = hudYFor(Module.TARGET_HUD, 8, screenHeight, 58);
             graphics.fill(x, y, x + 186, y + 58, 0xC5101726);
             graphics.fill(x, y, x + 186, y + 2, 0xFF61C7F2);
             if (client.hitResult instanceof EntityHitResult hit
@@ -741,7 +772,8 @@ public final class SkyOPClient implements ClientModInitializer {
         }
 
         if (isEnabled(Module.KEYSTROKES_HUD)) {
-            int x = 10, y = screenHeight - 62;
+            int x = hudXFor(Module.KEYSTROKES_HUD, 10, screenWidth, 86);
+            int y = hudYFor(Module.KEYSTROKES_HUD, screenHeight - 62, screenHeight, 42);
             drawKey(graphics, x + 22, y, "W", client.options.keyUp.isDown());
             drawKey(graphics, x, y + 22, "A", client.options.keyLeft.isDown());
             drawKey(graphics, x + 22, y + 22, "S", client.options.keyDown.isDown());
@@ -750,7 +782,8 @@ public final class SkyOPClient implements ClientModInitializer {
         }
 
         if (isEnabled(Module.ARMOR_HUD)) {
-            int x = screenWidth - 150, y = screenHeight - 38;
+            int x = hudXFor(Module.ARMOR_HUD, screenWidth - 150, screenWidth, 142);
+            int y = hudYFor(Module.ARMOR_HUD, screenHeight - 38, screenHeight, 28);
             graphics.fill(x, y, x + 142, y + 28, 0xC5101726);
             graphics.text(client.font, Component.literal(
                             String.format("HP %.0f/%.0f  •  ARMOR %d",
@@ -760,7 +793,8 @@ public final class SkyOPClient implements ClientModInitializer {
         }
 
         if (isEnabled(Module.POTION_HUD)) {
-            int x = screenWidth - 198, y = 76;
+            int x = hudXFor(Module.POTION_HUD, screenWidth - 198, screenWidth, 190);
+            int y = hudYFor(Module.POTION_HUD, 76, screenHeight, 96);
             graphics.fill(x, y, x + 190, y + 8 + client.player.getActiveEffects().size() * 11, 0xC5101726);
             graphics.text(client.font, Component.literal("EFFECTS"), x + 8, y + 4, hudAccentColor, true);
             int row = 0;
@@ -775,7 +809,8 @@ public final class SkyOPClient implements ClientModInitializer {
 
         if (isEnabled(Module.DURABILITY_HUD)) {
             var stack = client.player.getMainHandItem();
-            int x = screenWidth / 2 - 82, y = screenHeight - 94;
+            int x = hudXFor(Module.DURABILITY_HUD, screenWidth / 2 - 82, screenWidth, 164);
+            int y = hudYFor(Module.DURABILITY_HUD, screenHeight - 94, screenHeight, 24);
             if (!stack.isEmpty() && stack.isDamageableItem()) {
                 int remaining = Math.max(0, stack.getMaxDamage() - stack.getDamageValue());
                 int percent = (int) (100.0 * remaining / Math.max(1, stack.getMaxDamage()));
@@ -788,7 +823,8 @@ public final class SkyOPClient implements ClientModInitializer {
         }
 
         if (isEnabled(Module.COMPASS_HUD) || isEnabled(Module.DIRECTION_HUD)) {
-            int x = screenWidth / 2 - 48, y = 8;
+            int x = hudXFor(Module.COMPASS_HUD, screenWidth / 2 - 48, screenWidth, 96);
+            int y = hudYFor(Module.COMPASS_HUD, 8, screenHeight, 23);
             String direction = compassDirection(client.player.getYRot());
             graphics.fill(x, y, x + 96, y + 23, 0xC5101726);
             graphics.text(client.font, Component.literal(direction + "  " + Math.round(client.player.getYRot()) + "°"),
@@ -796,7 +832,8 @@ public final class SkyOPClient implements ClientModInitializer {
         }
 
         if (isEnabled(Module.PING_HUD)) {
-            int x = screenWidth - 100, y = 8;
+            int x = hudXFor(Module.PING_HUD, screenWidth - 100, screenWidth, 92);
+            int y = hudYFor(Module.PING_HUD, 8, screenHeight, 22);
             int ping = getCurrentPing(client);
             graphics.fill(x, y, x + 92, y + 22, 0xC5101726);
             graphics.text(client.font, Component.literal("PING  " + (ping < 0 ? "--" : ping + " ms")),
@@ -804,7 +841,8 @@ public final class SkyOPClient implements ClientModInitializer {
         }
 
         if (isEnabled(Module.FPS_HUD)) {
-            int x = screenWidth - 100, y = 34;
+            int x = hudXFor(Module.FPS_HUD, screenWidth - 100, screenWidth, 92);
+            int y = hudYFor(Module.FPS_HUD, 34, screenHeight, 22);
             graphics.fill(x, y, x + 92, y + 22, 0xC5101726);
             graphics.text(client.font, Component.literal("FPS  " + client.getFps()),
                     x + 8, y + 7, hudAccentColor, true);
@@ -816,7 +854,8 @@ public final class SkyOPClient implements ClientModInitializer {
                     entity -> entity != client.player && entity.isAlive());
             nearby.sort(java.util.Comparator.comparingDouble(client.player::distanceToSqr));
             int count = Math.min(6, nearby.size());
-            int x = screenWidth - 202, y = screenHeight / 2 - 12;
+            int x = hudXFor(Module.RADAR_HUD, screenWidth - 202, screenWidth, 194);
+            int y = hudYFor(Module.RADAR_HUD, screenHeight / 2 - 12, screenHeight, 90);
             graphics.fill(x, y, x + 194, y + 24 + count * 11, 0xC5101726);
             graphics.text(client.font, Component.literal("NEARBY / LOADED ENTITIES"),
                     x + 8, y + 5, hudAccentColor, true);
@@ -830,13 +869,16 @@ public final class SkyOPClient implements ClientModInitializer {
         }
 
         if (isEnabled(Module.TEXT_GUI)) {
-            graphics.fill(8, screenHeight - 27, screenWidth - 8, screenHeight - 8, 0xA0101726);
-            graphics.text(client.font, Component.literal(customHudText), 16, screenHeight - 21,
+            int x = hudXFor(Module.TEXT_GUI, 8, screenWidth, Math.max(120, screenWidth - 16));
+            int y = hudYFor(Module.TEXT_GUI, screenHeight - 27, screenHeight, 19);
+            graphics.fill(x, y, x + Math.max(120, screenWidth - 16), y + 19, 0xA0101726);
+            graphics.text(client.font, Component.literal(customHudText), x + 8, y + 6,
                     hudAccentColor, true);
         }
 
         if (isEnabled(Module.SPEEDOMETER)) {
-            int x = screenWidth / 2 - 58, y = screenHeight - 37;
+            int x = hudXFor(Module.SPEEDOMETER, screenWidth / 2 - 58, screenWidth, 116);
+            int y = hudYFor(Module.SPEEDOMETER, screenHeight - 37, screenHeight, 25);
             graphics.fill(x, y, x + 116, y + 25, 0xC5101726);
             graphics.fill(x, y, x + 116, y + 2, 0xFF61C7F2);
             graphics.text(client.font, Component.literal(String.format("SPEED  %.2f b/s", currentSpeedBps)),
@@ -844,7 +886,8 @@ public final class SkyOPClient implements ClientModInitializer {
         }
 
         if (isEnabled(Module.CPS_HUD)) {
-            int x = screenWidth / 2 - 48, y = screenHeight - 66;
+            int x = hudXFor(Module.CPS_HUD, screenWidth / 2 - 48, screenWidth, 96);
+            int y = hudYFor(Module.CPS_HUD, screenHeight - 66, screenHeight, 24);
             graphics.fill(x, y, x + 96, y + 24, 0xC5101726);
             graphics.fill(x, y, x + 96, y + 2, 0xFF61C7F2);
             graphics.text(client.font, Component.literal("CPS  " + currentCps),
@@ -898,6 +941,11 @@ public final class SkyOPClient implements ClientModInitializer {
         p.setProperty("autoRefillThreshold", Integer.toString(autoRefillThreshold));
         p.setProperty("hudX", Integer.toString(hudX));
         p.setProperty("hudY", Integer.toString(hudY));
+        for (Map.Entry<Module, HudPosition> entry : HUD_POSITIONS.entrySet()) {
+            String prefix = "hud." + entry.getKey().name() + ".";
+            p.setProperty(prefix + "x", Integer.toString(entry.getValue().x()));
+            p.setProperty(prefix + "y", Integer.toString(entry.getValue().y()));
+        }
         p.setProperty("hudAccentColor", Integer.toString(hudAccentColor));
         p.setProperty("customHudText", customHudText);
         for (Module module : FAVORITES) p.setProperty("favorite." + module.name(), "true");
@@ -953,7 +1001,17 @@ public final class SkyOPClient implements ClientModInitializer {
                     integer(p, "autoRefillThreshold", autoRefillThreshold, 1, 16), autoRefillThreshold);
             hudX = integer(p, "hudX", hudX, 0, 10000);
             hudY = integer(p, "hudY", hudY, 0, 10000);
-            hudAccentColor = integer(p, "hudAccentColor", hudAccentColor, Integer.MIN_VALUE, Integer.MAX_VALUE);
+            HUD_POSITIONS.clear();
+            for (Module module : Module.values()) {
+                String prefix = "hud." + module.name() + ".";
+                if (p.getProperty(prefix + "x") != null && p.getProperty(prefix + "y") != null) {
+                    int savedX = integer(p, prefix + "x", 0, 0, 10000);
+                    int savedY = integer(p, prefix + "y", 0, 0, 10000);
+                    HUD_POSITIONS.put(module, new HudPosition(savedX, savedY));
+                }
+            }
+            hudAccentColor = 0xFF000000 | (integer(p, "hudAccentColor", hudAccentColor,
+                    Integer.MIN_VALUE, Integer.MAX_VALUE) & 0x00FFFFFF);
             customHudText = p.getProperty("customHudText", customHudText);
             FAVORITES.clear();
             for (Module module : Module.values()) {
