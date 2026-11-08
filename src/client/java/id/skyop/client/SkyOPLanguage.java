@@ -297,7 +297,7 @@ public final class SkyOPLanguage {
                 e("module.AUTO_FISH.title", "Mancing Otomatis"), e("module.INVENTORY_CLEANER.title", "Rapikan Inventaris"),
                 e("module.HOTBAR_PRESETS.title", "Preset Hotbar"), e("module.PROFILE_MANAGER.title", "Pengelola Profil"),
                 e("setting.hunger_threshold", "Ambang rasa lapar"), e("setting.eat_below", "Mulai makan di bawah nilai ini"),
-                e("setting.refill_threshold", "Ambang isi ulang"), e("setting.refill_low", "Isi ulang saat jumlah stack di bawah nilai ini")
+                e("setting.refill_threshold", "Ambang isi ulang"), e("setting.refill_low", "Isi ulang saat jumlah stack di bawah nilai ini"),
                 e("gui.hud_color", "WARNA HUD"),
                 e("gui.apply", "TERAPKAN"),
                 e("gui.hud_layout", "TATA LETAK HUD"),
@@ -330,7 +330,7 @@ public final class SkyOPLanguage {
                 e("module.AUTO_FISH.title", "Pesca automática"), e("module.INVENTORY_CLEANER.title", "Limpiador de inventario"),
                 e("module.HOTBAR_PRESETS.title", "Perfiles de barra rápida"), e("module.PROFILE_MANAGER.title", "Gestor de perfiles"),
                 e("setting.hunger_threshold", "Umbral de hambre"), e("setting.eat_below", "Comer por debajo de este nivel"),
-                e("setting.refill_threshold", "Umbral de recarga"), e("setting.refill_low", "Recargar cuando la pila sea baja")
+                e("setting.refill_threshold", "Umbral de recarga"), e("setting.refill_low", "Recargar cuando la pila sea baja"),
                 e("gui.hud_color", "COLOR DEL HUD"),
                 e("gui.apply", "APLICAR"),
                 e("gui.hud_layout", "DISEÑO DEL HUD"),
@@ -363,7 +363,7 @@ public final class SkyOPLanguage {
                 e("module.AUTO_FISH.title", "Pesca automática"), e("module.INVENTORY_CLEANER.title", "Organizador de inventário"),
                 e("module.HOTBAR_PRESETS.title", "Perfis da barra rápida"), e("module.PROFILE_MANAGER.title", "Gerenciador de perfis"),
                 e("setting.hunger_threshold", "Limite de fome"), e("setting.eat_below", "Comer abaixo deste nível"),
-                e("setting.refill_threshold", "Limite de reabastecimento"), e("setting.refill_low", "Reabastecer quando a pilha estiver baixa")
+                e("setting.refill_threshold", "Limite de reabastecimento"), e("setting.refill_low", "Reabastecer quando a pilha estiver baixa"),
                 e("gui.hud_color", "COR DO HUD"),
                 e("gui.apply", "APLICAR"),
                 e("gui.hud_layout", "LAYOUT DO HUD"),
@@ -396,7 +396,7 @@ public final class SkyOPLanguage {
                 e("module.AUTO_FISH.title", "Pêche automatique"), e("module.INVENTORY_CLEANER.title", "Nettoyage inventaire"),
                 e("module.HOTBAR_PRESETS.title", "Profils de barre rapide"), e("module.PROFILE_MANAGER.title", "Gestionnaire de profils"),
                 e("setting.hunger_threshold", "Seuil de faim"), e("setting.eat_below", "Manger sous ce niveau"),
-                e("setting.refill_threshold", "Seuil de recharge"), e("setting.refill_low", "Recharger quand la pile est basse")
+                e("setting.refill_threshold", "Seuil de recharge"), e("setting.refill_low", "Recharger quand la pile est basse"),
                 e("gui.hud_color", "COULEUR DU HUD"),
                 e("gui.apply", "APPLIQUER"),
                 e("gui.hud_layout", "DISPOSITION DU HUD"),
@@ -429,7 +429,7 @@ public final class SkyOPLanguage {
                 e("module.AUTO_FISH.title", "自动钓鱼"), e("module.INVENTORY_CLEANER.title", "物品栏整理"),
                 e("module.HOTBAR_PRESETS.title", "快捷栏预设"), e("module.PROFILE_MANAGER.title", "配置管理器"),
                 e("setting.hunger_threshold", "饥饿阈值"), e("setting.eat_below", "低于此数值时进食"),
-                e("setting.refill_threshold", "补充阈值"), e("setting.refill_low", "物品数量较低时补充")
+                e("setting.refill_threshold", "补充阈值"), e("setting.refill_low", "物品数量较低时补充"),
                 e("gui.hud_color", "HUD 颜色"),
                 e("gui.apply", "应用"),
                 e("gui.hud_layout", "HUD 布局"),
@@ -462,7 +462,7 @@ public final class SkyOPLanguage {
                 e("module.AUTO_FISH.title", "自動釣り"), e("module.INVENTORY_CLEANER.title", "インベントリ整理"),
                 e("module.HOTBAR_PRESETS.title", "ホットバープリセット"), e("module.PROFILE_MANAGER.title", "プロファイル管理"),
                 e("setting.hunger_threshold", "空腹しきい値"), e("setting.eat_below", "この値を下回ると食事"),
-                e("setting.refill_threshold", "補充しきい値"), e("setting.refill_low", "スタックが少ないと補充")
+                e("setting.refill_threshold", "補充しきい値"), e("setting.refill_low", "スタックが少ないと補充"),
                 e("gui.hud_color", "HUD の色"),
                 e("gui.apply", "適用"),
                 e("gui.hud_layout", "HUD レイアウト"),
