@@ -71,6 +71,8 @@ public final class SkyOPClient implements ClientModInitializer {
         TARGET_HUD("Target HUD", "Shows health and distance for the crosshair target.", Category.VISUAL),
         KEYSTROKES_HUD("Keystrokes", "Displays movement key states on screen.", Category.VISUAL),
         ARMOR_HUD("Armor HUD", "Displays health and armor status.", Category.VISUAL),
+        SPEEDOMETER("Speedometer", "Displays horizontal movement speed in blocks per second.", Category.VISUAL),
+        CPS_HUD("CPS HUD", "Displays successful attack actions per second.", Category.VISUAL),
 
         NO_FALL("NoFall", "Clears the local fall-distance accumulator.", Category.PLAYER);
 
@@ -111,6 +113,8 @@ public final class SkyOPClient implements ClientModInitializer {
     public static boolean auraRotate = true;
     public static boolean auraRequireLineOfSight = true;
     public static boolean auraTargetLowestHealth = false;
+    public static double auraFov = 110.0;
+    public static double auraRotationSpeed = 0.42;
     public static double auraRange = 4.2;
     public static int auraDelayTicks = 8;
     public static int triggerDelayTicks = 3;
@@ -128,6 +132,11 @@ public final class SkyOPClient implements ClientModInitializer {
     private static int clickerCooldown;
     private static int autoJumpCooldown;
     private static int stepAssistCooldown;
+    private static int cpsWindowTicks;
+    private static int attacksThisWindow;
+    private static int currentCps;
+    private static Vec3 previousPosition;
+    private static double currentSpeedBps;
     private static Double originalGamma;
     private static Boolean originalNoGravity;
     private static Player flightPlayer;
@@ -239,6 +248,7 @@ public final class SkyOPClient implements ClientModInitializer {
             return;
         }
 
+        updateTelemetry(client);
         if (client.gui.screen() != null) return;
 
         if (isEnabled(Module.AUTO_SPRINT)) tickAutoSprint(client);
@@ -435,7 +445,8 @@ public final class SkyOPClient implements ClientModInitializer {
             if (auraRequireLineOfSight && !player.hasLineOfSight(candidate)) continue;
 
             Vec3 direction = candidate.getBoundingBox().getCenter().subtract(eye).normalize();
-            if (look.dot(direction) < 0.35) continue;
+            double halfFovRadians = Math.toRadians(clamp(auraFov, 30.0, 180.0) / 2.0);
+            if (look.dot(direction) < Math.cos(halfFovRadians)) continue;
 
             if (auraTargetLowestHealth) {
                 float health = candidate.getHealth();
@@ -452,8 +463,9 @@ public final class SkyOPClient implements ClientModInitializer {
 
         if (target == null) return;
         if (auraRotate) rotateToward(player, target);
-        attack(client, target);
-        auraCooldown = clamp(auraDelayTicks, 1, 20);
+        if (attack(client, target)) {
+            auraCooldown = clamp(auraDelayTicks, 1, 20);
+        }
     }
 
     private static void tickTriggerBot(Minecraft client) {
@@ -462,8 +474,9 @@ public final class SkyOPClient implements ClientModInitializer {
         Entity entity = entityHit.getEntity();
         if (entity instanceof LivingEntity living && living != client.player
                 && living.isAlive() && isCombatTarget(living)) {
-            attack(client, living);
-            triggerCooldown = clamp(triggerDelayTicks, 1, 12);
+            if (attack(client, living)) {
+                triggerCooldown = clamp(triggerDelayTicks, 1, 12);
+            }
         }
     }
 
@@ -474,8 +487,9 @@ public final class SkyOPClient implements ClientModInitializer {
         if (result instanceof EntityHitResult entityHit
                 && entityHit.getEntity() instanceof LivingEntity living
                 && living != client.player && living.isAlive() && isCombatTarget(living)) {
-            attack(client, living);
-            clickerCooldown = Math.max(1, 20 / clamp(autoClickerCps, 4, 20));
+            if (attack(client, living)) {
+                clickerCooldown = Math.max(1, 20 / clamp(autoClickerCps, 4, 20));
+            }
         }
     }
 
@@ -489,18 +503,46 @@ public final class SkyOPClient implements ClientModInitializer {
         double horizontal = Math.sqrt(delta.x * delta.x + delta.z * delta.z);
         float yawTarget = (float) (Mth.atan2(delta.z, delta.x) * (180.0 / Math.PI)) - 90.0F;
         float pitchTarget = (float) (-(Mth.atan2(delta.y, horizontal) * (180.0 / Math.PI)));
-        float yaw = player.getYRot() + Mth.wrapDegrees(yawTarget - player.getYRot()) * 0.42F;
-        float pitch = player.getXRot() + Mth.wrapDegrees(pitchTarget - player.getXRot()) * 0.42F;
+        float rotationStep = (float) clamp(auraRotationSpeed, 0.10, 1.0);
+        float yaw = player.getYRot() + Mth.wrapDegrees(yawTarget - player.getYRot()) * rotationStep;
+        float pitch = player.getXRot() + Mth.wrapDegrees(pitchTarget - player.getXRot()) * rotationStep;
         player.setYRot(yaw);
         player.setXRot(pitch);
         player.setYHeadRot(yaw);
     }
 
-    private static void attack(Minecraft client, LivingEntity target) {
+    private static boolean attack(Minecraft client, LivingEntity target) {
         if (client.player == null || client.gameMode == null
-                || client.player.getAttackStrengthScale(0.0F) < ATTACK_STRENGTH_THRESHOLD) return;
+                || client.player.getAttackStrengthScale(0.0F) < ATTACK_STRENGTH_THRESHOLD) return false;
         client.gameMode.attack(client.player, target);
         client.player.swing(InteractionHand.MAIN_HAND, SwingAnimation.DEFAULT, true);
+        attacksThisWindow++;
+        return true;
+    }
+
+    private static void updateTelemetry(Minecraft client) {
+        Player player = client.player;
+        if (player == null) {
+            previousPosition = null;
+            currentSpeedBps = 0.0;
+            return;
+        }
+
+        Vec3 position = player.position();
+        if (previousPosition != null) {
+            double dx = position.x - previousPosition.x;
+            double dz = position.z - previousPosition.z;
+            double speed = Math.sqrt(dx * dx + dz * dz) * 20.0;
+            currentSpeedBps = speed <= 100.0 ? speed : 0.0;
+        }
+        previousPosition = position;
+
+        cpsWindowTicks++;
+        if (cpsWindowTicks >= 20) {
+            currentCps = attacksThisWindow;
+            attacksThisWindow = 0;
+            cpsWindowTicks = 0;
+        }
     }
 
     private static void renderHud(Minecraft client, GuiGraphicsExtractor graphics) {
@@ -580,6 +622,22 @@ public final class SkyOPClient implements ClientModInitializer {
                                     client.player.getArmorValue())),
                     x + 8, y + 10, 0xFFF1F6FB, true);
         }
+
+        if (isEnabled(Module.SPEEDOMETER)) {
+            int x = screenWidth / 2 - 58, y = screenHeight - 37;
+            graphics.fill(x, y, x + 116, y + 25, 0xC5101726);
+            graphics.fill(x, y, x + 116, y + 2, 0xFF61C7F2);
+            graphics.text(client.font, Component.literal(String.format("SPEED  %.2f b/s", currentSpeedBps)),
+                    x + 10, y + 10, 0xFFF1F6FB, true);
+        }
+
+        if (isEnabled(Module.CPS_HUD)) {
+            int x = screenWidth / 2 - 48, y = screenHeight - 66;
+            graphics.fill(x, y, x + 96, y + 24, 0xC5101726);
+            graphics.fill(x, y, x + 96, y + 2, 0xFF61C7F2);
+            graphics.text(client.font, Component.literal("CPS  " + currentCps),
+                    x + 10, y + 9, 0xFFF1F6FB, true);
+        }
     }
 
     private static void drawKey(GuiGraphicsExtractor graphics, int x, int y, String label, boolean pressed) {
@@ -610,6 +668,8 @@ public final class SkyOPClient implements ClientModInitializer {
         p.setProperty("auraRotate", Boolean.toString(auraRotate));
         p.setProperty("auraRequireLineOfSight", Boolean.toString(auraRequireLineOfSight));
         p.setProperty("auraTargetLowestHealth", Boolean.toString(auraTargetLowestHealth));
+        p.setProperty("auraFov", Double.toString(auraFov));
+        p.setProperty("auraRotationSpeed", Double.toString(auraRotationSpeed));
         p.setProperty("auraRange", Double.toString(auraRange));
         p.setProperty("auraDelayTicks", Integer.toString(auraDelayTicks));
         p.setProperty("triggerDelayTicks", Integer.toString(triggerDelayTicks));
@@ -649,6 +709,8 @@ public final class SkyOPClient implements ClientModInitializer {
             auraRotate = bool(p, "auraRotate", auraRotate);
             auraRequireLineOfSight = bool(p, "auraRequireLineOfSight", auraRequireLineOfSight);
             auraTargetLowestHealth = bool(p, "auraTargetLowestHealth", auraTargetLowestHealth);
+            auraFov = number(p, "auraFov", auraFov, 30.0, 180.0);
+            auraRotationSpeed = number(p, "auraRotationSpeed", auraRotationSpeed, 0.10, 1.0);
             auraRange = number(p, "auraRange", auraRange, 2.5, 6.0);
             auraDelayTicks = integer(p, "auraDelayTicks", auraDelayTicks, 1, 20);
             triggerDelayTicks = integer(p, "triggerDelayTicks", triggerDelayTicks, 1, 12);

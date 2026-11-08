@@ -1,4 +1,4 @@
-# SkyOP Client 1.2.0 test plan
+# SkyOP Client 1.3.0 test plan
 
 ## Automated CI checks
 
@@ -8,7 +8,7 @@ GitHub Actions builds with Java 25 and Gradle 9.7.1 using Fabric Loom 1.18.4. Th
 
 1. Create a separate Minecraft 26.3 Fabric instance.
 2. Install Fabric Loader 0.20.1 and Fabric API 0.165.2+26.3.
-3. Add skyop-client-1.2.0.jar to that instance's mods folder.
+3. Add skyop-client-1.3.0.jar to that instance's mods folder.
 4. Launch and verify the client reaches the title screen without a crash.
 5. Join a new local test world and check logs/latest.log if anything fails.
 
@@ -39,7 +39,9 @@ GitHub Actions builds with Java 25 and Gradle 9.7.1 using Fabric Loom 1.18.4. Th
 13. Target HUD: aim at a living entity; check name, health bar and distance.
 14. Keystrokes: press W/A/S/D and jump; the corresponding indicators should light up.
 15. Armor HUD: verify health and armor values update while taking damage or changing armor.
-16. F12: verify all modules switch off and temporary state is restored.
+16. Speedometer: move in a straight line, then stop; verify blocks-per-second updates and settles near zero.
+17. CPS HUD: perform successful attacks in a local world and verify the rolling attack count updates.
+18. F12: verify all modules switch off and temporary state is restored.
 
 ## Multiplayer checks
 

@@ -12,7 +12,7 @@
   <img alt="Minecraft" src="https://img.shields.io/badge/Minecraft-Java%2026.3-3C8527?logo=minecraft&logoColor=white">
   <img alt="Fabric" src="https://img.shields.io/badge/Mod%20loader-Fabric-DBD0B4?logo=fabric&logoColor=222222">
   <img alt="Java" src="https://img.shields.io/badge/Java-25-ED8B00?logo=openjdk&logoColor=white">
-  <img alt="Version" src="https://img.shields.io/badge/SkyOP-1.2.0-4BA3D9">
+  <img alt="Version" src="https://img.shields.io/badge/SkyOP-1.3.0-4BA3D9">
   <img alt="License" src="https://img.shields.io/badge/License-MIT-blue.svg">
 </p>
 
@@ -28,7 +28,7 @@
 
 ## About
 
-SkyOP is a client-side Fabric mod for Minecraft Java 26.3. Version 1.2.0 expands the module library, adds quick profiles, improves the ClickGUI layout, adds live player HUDs, and tightens cleanup of temporary client-side state.
+SkyOP is a client-side Fabric mod for Minecraft Java 26.3. Version 1.3.0 adds configurable target FOV and rotation speed, corrects combat cooldown accounting, introduces Speedometer and CPS HUD telemetry, and keeps the expanded module library and quick profiles.
 
 The interface uses a two-column module grid, a live settings inspector, category counts, status indicators, and one-click profiles. Settings are persisted between launches.
 
@@ -40,7 +40,7 @@ The interface uses a two-column module grid, a live settings inspector, category
 2. Select the newest run with a green **Success** status.
 3. Scroll to **Artifacts** and download **SkyOP-Client-Minecraft-26.3**.
 4. Extract the ZIP archive.
-5. Copy skyop-client-1.2.0.jar into the Minecraft instance mods folder.
+5. Copy skyop-client-1.3.0.jar into the Minecraft instance mods folder.
 6. Launch Minecraft Java 26.3 with Fabric Loader and Fabric API installed.
 
 GitHub Actions artifacts are temporary and retained for 30 days. Always use the newest successful build for the latest version.
@@ -98,7 +98,7 @@ Keybinds are also listed under **Options → Controls → Key Binds → SkyOP Cl
 
 | Module | Settings and behaviour |
 |---|---|
-| KillAura | Target players/mobs, smooth rotation, line-of-sight requirement, range, lowest-health target priority |
+| KillAura | Target filters, smooth rotation, line of sight, range, lowest-health priority, aim FOV, rotation speed |
 | TriggerBot | Target filters and trigger delay; attacks a valid entity under the crosshair |
 | AutoClicker | Configurable CPS while the attack key is held; vanilla attack cooldown remains respected |
 
@@ -123,6 +123,8 @@ Keybinds are also listed under **Options → Controls → Key Binds → SkyOP Cl
 | Target HUD | Crosshair target name, health bar and distance |
 | Keystrokes | Live W/A/S/D and jump key indicators |
 | Armor HUD | Current health and armor points |
+| Speedometer | Horizontal movement speed in blocks per second |
+| CPS HUD | Successful attack actions per second |
 
 ### Player
 

@@ -244,7 +244,9 @@ public final class SkyOPClickGui extends Screen {
                     toggle("Smooth rotation", "Rotate toward selected target", SkyOPClient.auraRotate),
                     toggle("Line of sight", "Require a clear view", SkyOPClient.auraRequireLineOfSight),
                     slider("Attack range", "Target distance in blocks", SkyOPClient.auraRange, 2.5, 6.0, "%.1f"),
-                    toggle("Lowest health first", "Prioritise the weakest target", SkyOPClient.auraTargetLowestHealth)
+                    toggle("Lowest health first", "Prioritise the weakest target", SkyOPClient.auraTargetLowestHealth),
+                    slider("Aim field of view", "Target cone width in degrees", SkyOPClient.auraFov, 30, 180, "%.0f°"),
+                    slider("Rotation speed", "Aim interpolation from slow to instant", SkyOPClient.auraRotationSpeed, 0.10, 1.0, "%.2f")
             );
             case TRIGGER_BOT -> List.of(
                     toggle("Target players", "Use the combat target filter", SkyOPClient.targetPlayers),
@@ -275,6 +277,8 @@ public final class SkyOPClickGui extends Screen {
             case TARGET_HUD -> List.of(info("Target card", "Shows the entity under your crosshair"));
             case KEYSTROKES_HUD -> List.of(info("Key display", "Shows W A S D and jump input"));
             case ARMOR_HUD -> List.of(info("Player status", "Shows current health and armor points"));
+            case SPEEDOMETER -> List.of(info("Movement speed", "Horizontal blocks per second"));
+            case CPS_HUD -> List.of(info("Attack rate", "Successful attack actions per second"));
             case AUTO_SPRINT, STEP_ASSIST, NO_FALL, HUD ->
                     List.of(info("Module status", "Toggle this module from the module list"));
         };
@@ -337,6 +341,8 @@ public final class SkyOPClickGui extends Screen {
         switch (module) {
             case KILL_AURA -> {
                 if (index == 4) SkyOPClient.auraRange = round(value, 1);
+                if (index == 6) SkyOPClient.auraFov = Math.round(value);
+                if (index == 7) SkyOPClient.auraRotationSpeed = round(value, 2);
             }
             case TRIGGER_BOT -> {
                 if (index == 2) SkyOPClient.triggerDelayTicks = SkyOPClient.clamp((int) Math.round(value), 1, 12);
