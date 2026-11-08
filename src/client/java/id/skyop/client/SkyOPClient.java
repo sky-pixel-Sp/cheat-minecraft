@@ -189,7 +189,7 @@ public final class SkyOPClient implements ClientModInitializer {
 
     private static InputConstants.Key unboundKey() {
         // SDL_SCANCODE_UNKNOWN is 0 and is a safe keyboard-state index.
-        // Minecraft's InputConstants.UNKNOWN sentinel is -1 and must not be indexed.
+        // Minecraft's -1 unbound sentinel is not a valid SDL keyboard-state index.
         return InputConstants.Type.KEYBOARD.getOrCreate(SkyOPSdlKeyboardIndex.unboundScancode());
     }
 
