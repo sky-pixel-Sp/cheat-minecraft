@@ -48,15 +48,15 @@ jobs:
             exit 1
           fi
 
-          # SDL keyboard-state buffers use SDL scancodes; UNKNOWN is index 0.
-          # Guard any negative or out-of-range index before Minecraft reads its ByteBuffer.
-          grep -Fq 'SDL_SCANCODE_UNKNOWN' src/main/java/id/skyop/client/SkyOPSdlKeyboardIndex.java
-          grep -Fq 'SDL_SCANCODE_COUNT' src/main/java/id/skyop/client/SkyOPSdlKeyboardIndex.java
-          grep -Fq 'SkyOPSdlKeyboardIndex.unboundScancode()' src/client/java/id/skyop/client/SkyOPClient.java
+          # SDL keyboard-state buffers are indexed by 0..SDL_SCANCODE_COUNT-1.
+          # Keep vanilla UNKNOWN semantics, but guard every lookup before ByteBuffer access.
+          grep -Fq 'SDL_SCANCODE_COUNT = 512' src/main/java/id/skyop/client/SkyOPSdlKeyboardIndex.java
           grep -Fq 'SkyOPSdlKeyboardIndex.isValidStateIndex(key)' src/client/java/id/skyop/mixin/InputConstantsMixin.java
           grep -Fq '"InputConstantsMixin"' src/main/resources/skyop.mixins.json
-          if grep -Fq 'InputConstants.UNKNOWN' src/client/java/id/skyop/client/SkyOPClient.java; then
-            echo 'SkyOP module key mappings must not pass the -1 InputConstants.UNKNOWN sentinel to SDL.' >&2
+          grep -Fq 'InputConstants.UNKNOWN.getValue()' src/client/java/id/skyop/client/SkyOPClient.java
+          grep -Fq 'InputConstants.UNKNOWN' src/client/java/id/skyop/client/SkyOPClient.java
+          if grep -Fq 'InputConstants.Type.KEYBOARD, -1' src/client/java/id/skyop/client/SkyOPClient.java; then
+            echo 'Do not hardcode an invalid SDL key index; use the vanilla UNKNOWN key and the bounds guard.' >&2
             exit 1
           fi
           # Prevent regression: gameplay must re-acquire SDL relative mouse mode
