@@ -48,6 +48,14 @@ jobs:
             exit 1
           fi
 
+          # Prevent regression: unbound module keys must use SDL-safe UNKNOWN (0),
+          # not the invalid legacy -1 value in Minecraft 26.3.
+          grep -Fq 'InputConstants.UNKNOWN.getValue()' src/client/java/id/skyop/client/SkyOPClient.java
+          if grep -Fq 'InputConstants.Type.KEYBOARD, -1' src/client/java/id/skyop/client/SkyOPClient.java; then
+            echo 'Unbound key mappings must not pass raw -1 to the SDL keyboard backend.' >&2
+            exit 1
+          fi
+
           JAR_ENTRIES="$(jar tf "$JAR_PATH")"
           printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPClient.class$'
           printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/mixin/SkyOPFishingHookAccessor.class$'
