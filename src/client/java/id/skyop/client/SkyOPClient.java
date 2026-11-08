@@ -96,7 +96,8 @@ public final class SkyOPClient implements ClientModInitializer {
         AUTO_REFILL("Auto Refill", "Refills low hotbar stacks from matching inventory items.", Category.INVENTORY),
         AUTO_FISH("Auto Fish", "Automatically reels on bite and recasts your fishing rod.", Category.INVENTORY),
         INVENTORY_CLEANER("Inventory Cleaner", "Consolidates matching stacks without dropping items.", Category.INVENTORY),
-        HOTBAR_PRESETS("Hotbar Presets", "Saves and restores three hotbar layouts.", Category.INVENTORY);
+        HOTBAR_PRESETS("Hotbar Presets", "Saves and restores three hotbar layouts.", Category.INVENTORY),
+        PROFILE_MANAGER("Profile Manager", "Manages JSON profiles, imports, exports and backups.", Category.INVENTORY);
 
         private final String title;
         private final String description;
@@ -222,6 +223,23 @@ public final class SkyOPClient implements ClientModInitializer {
             if (HUD_PALETTE[i] == hudAccentColor) index = i;
         }
         hudAccentColor = HUD_PALETTE[(index + 1) % HUD_PALETTE.length];
+        saveConfig();
+    }
+
+    public static void setHudAccentColor(int color) {
+        boolean valid = false;
+        for (int allowed : HUD_PALETTE) if (allowed == color) valid = true;
+        if (valid) {
+            hudAccentColor = color;
+            saveConfig();
+        }
+    }
+
+    public static void setCustomHudText(String text) {
+        if (text == null) return;
+        String safe = text.strip();
+        if (safe.length() > 80) safe = safe.substring(0, 80);
+        customHudText = safe;
         saveConfig();
     }
 

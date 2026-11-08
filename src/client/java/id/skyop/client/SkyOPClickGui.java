@@ -148,16 +148,31 @@ public final class SkyOPClickGui extends Screen {
         int x = panelX + 151, y = panelY + 63, w = panelWidth - 430;
         g.text(font, Component.literal(selectedCategory.title().toUpperCase() + " " + SkyOPLanguage.text("gui.modules")),
                 x, y + 8, TEXT, true);
+        int searchY = y + 27;
+        g.fill(x, searchY, x + w, searchY + 22, searchFocused ? 0xFF263D53 : PANEL_LIGHT);
+        g.text(font, Component.literal(searchQuery.isEmpty()
+                        ? SkyOPLanguage.text("gui.search") + "  (type to filter)"
+                        : "SEARCH: " + searchQuery + (searchFocused ? "|" : "")),
+                x + 8, searchY + 7, searchFocused ? TEXT : MUTED, true);
         g.text(font, Component.literal(SkyOPLanguage.text("gui.left_toggle_right_inspect")),
-                x, y + 24, MUTED, true);
+                x, y + 54, MUTED, true);
 
+        List<SkyOPClient.Module> modules = modulesForCategory();
         int cardWidth = (w - 8) / 2;
+        int listTop = y + 76;
+        int listBottom = panelY + panelHeight - 58;
+        int visibleHeight = Math.max(80, listBottom - listTop);
+        int rowCount = (modules.size() + 1) / 2;
+        int maxScroll = Math.max(0, rowCount * 60 - visibleHeight + 10);
+        moduleScroll = Math.min(moduleScroll, maxScroll);
+        g.enableScissor(x, listTop, x + w, listBottom);
         int index = 0;
-        for (SkyOPClient.Module module : modulesForCategory()) {
+        SkyOPClient.Module hoveredModule = null;
+        for (SkyOPClient.Module module : modules) {
             int col = index % 2;
             int row = index / 2;
             int cardX = x + col * (cardWidth + 8);
-            int cardY = y + 46 + row * 60;
+            int cardY = listTop + row * 60 - moduleScroll;
             boolean enabled = SkyOPClient.isEnabled(module);
             boolean selected = module == selectedModule;
             boolean hovered = inside(mouseX, mouseY, cardX, cardY, cardWidth, 52);
@@ -169,12 +184,26 @@ public final class SkyOPClickGui extends Screen {
             g.text(font, Component.literal(trim(module.description(), 24)),
                     cardX + 10, cardY + 25, MUTED, true);
 
+            int favoriteX = cardX + cardWidth - 74;
+            g.text(font, Component.literal(SkyOPClient.isFavorite(module) ? "★" : "☆"),
+                    favoriteX, cardY + 8, SkyOPClient.isFavorite(module) ? 0xFFFFC85A : MUTED, true);
             int pillX = cardX + cardWidth - 48;
             g.fill(pillX, cardY + 15, pillX + 40, cardY + 36,
                     enabled ? 0xFF174633 : 0xFF3B2631);
             g.text(font, Component.literal(enabled ? "ON" : "OFF"),
                     pillX + 10, cardY + 22, enabled ? GREEN : RED, true);
+            if (hovered) hoveredModule = module;
             index++;
+        }
+        g.disableScissor();
+        if (modules.isEmpty()) {
+            g.text(font, Component.literal("No matching modules"), x + 8, listTop + 12, MUTED, true);
+        }
+        if (hoveredModule != null) {
+            int alpha = 190 + (int) (40 * Math.sin(animationTicks * 0.18));
+            int tooltipColor = (Math.min(255, alpha) << 24) | 0x00101726;
+            g.fill(x, listBottom + 2, x + w, listBottom + 28, tooltipColor);
+            g.text(font, Component.literal(hoveredModule.description()), x + 7, listBottom + 10, TEXT, true);
         }
     }
 

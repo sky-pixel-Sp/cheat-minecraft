@@ -135,7 +135,7 @@ public final class SkyOPInventoryManager {
         int weakestSlot = -1;
         int weakestNutrition = Integer.MAX_VALUE;
 
-        for (int slot = 0; slot < net.minecraft.world.entity.player.Inventory.getSelectionSize(); slot++) {
+        for (int slot = 0; slot < net.minecraft.world.entity.player.Inventory.SELECTION_SIZE; slot++) {
             ItemStack stack = inventory.getItem(slot);
             if (!isSafeFood(stack)) continue;
             int nutrition = stack.get(DataComponents.FOOD).nutrition();
@@ -221,7 +221,7 @@ public final class SkyOPInventoryManager {
         float bestSpeed = inventory.getItem(selected).getDestroySpeed(state);
         int bestSlot = selected;
 
-        for (int slot = 0; slot < net.minecraft.world.entity.player.Inventory.getSelectionSize(); slot++) {
+        for (int slot = 0; slot < net.minecraft.world.entity.player.Inventory.SELECTION_SIZE; slot++) {
             ItemStack stack = inventory.getItem(slot);
             if (stack.isEmpty()) continue;
             float speed = stack.getDestroySpeed(state);
@@ -279,7 +279,7 @@ public final class SkyOPInventoryManager {
             if (source.isEmpty() || source.getCount() >= source.getMaxStackSize()) continue;
 
             boolean hasRoom = false;
-            for (int hotbar = 0; hotbar < net.minecraft.world.entity.player.Inventory.getSelectionSize(); hotbar++) {
+            for (int hotbar = 0; hotbar < net.minecraft.world.entity.player.Inventory.SELECTION_SIZE; hotbar++) {
                 ItemStack target = inventory.getItem(hotbar);
                 if (!target.isEmpty() && ItemStack.isSameItemSameComponents(source, target)
                         && target.getCount() < target.getMaxStackSize()) {
