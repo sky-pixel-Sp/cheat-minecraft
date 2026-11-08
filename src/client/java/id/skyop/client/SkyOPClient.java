@@ -14,6 +14,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.item.component.SwingAnimation;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -209,7 +210,7 @@ public final class SkyOPClient implements ClientModInitializer {
 
         if (bestTarget != null && player.getAttackStrengthScale(0.0F) >= 0.90F) {
             client.gameMode.attack(player, bestTarget);
-            player.swing(InteractionHand.MAIN_HAND);
+            player.swing(InteractionHand.MAIN_HAND, SwingAnimation.DEFAULT, true);
             auraDelay = 8;
         }
     }
