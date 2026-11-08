@@ -716,15 +716,15 @@ public final class SkyOPClient implements ClientModInitializer {
         int screenHeight = client.getWindow().getGuiScaledHeight();
 
         if (isEnabled(Module.HUD)) {
-            int x = hudXFor(Module.HUD, hudX, screenWidth, 190);
-            int y = hudYFor(Module.HUD, hudY, screenHeight, 180);
             int width = 184, lineHeight = 12;
             int activeCount = 0;
             for (Module module : Module.values()) {
                 if (module != Module.HUD && isEnabled(module)) activeCount++;
             }
-
             int height = 44 + activeCount * lineHeight;
+            int fullHeight = height + 26;
+            int x = hudXFor(Module.HUD, hudX, screenWidth, 190);
+            int y = hudYFor(Module.HUD, hudY, screenHeight, fullHeight);
             graphics.fill(x, y, x + width, y + height, 0xC5101726);
             graphics.fill(x, y, x + width, y + 2, hudAccentColor);
             graphics.text(client.font, Component.literal("SKYOP  /  CLIENT"), x + 10, y + 8, hudAccentColor, true);
@@ -869,9 +869,11 @@ public final class SkyOPClient implements ClientModInitializer {
         }
 
         if (isEnabled(Module.TEXT_GUI)) {
-            int x = hudXFor(Module.TEXT_GUI, 8, screenWidth, Math.max(120, screenWidth - 16));
+            int textWidth = Math.min(screenWidth,
+                    Math.max(120, Math.min(480, client.font.width(customHudText) + 16)));
+            int x = hudXFor(Module.TEXT_GUI, 8, screenWidth, textWidth);
             int y = hudYFor(Module.TEXT_GUI, screenHeight - 27, screenHeight, 19);
-            graphics.fill(x, y, x + Math.max(120, screenWidth - 16), y + 19, 0xA0101726);
+            graphics.fill(x, y, x + textWidth, y + 19, 0xA0101726);
             graphics.text(client.font, Component.literal(customHudText), x + 8, y + 6,
                     hudAccentColor, true);
         }
