@@ -31,7 +31,11 @@ public final class SkyOPClickGui extends Screen {
     private int panelX, panelY, panelWidth, panelHeight;
     private String searchQuery = "";
     private boolean searchFocused, waitingForKeybind, hudEditMode, draggingHud, colorPickerOpen, editingHudText;
+    private boolean editingHudColor;
+    private String hexColorInput = "";
+    private SkyOPClient.Module draggingHudModule;
     private int moduleScroll, settingsScroll, hudDragOffsetX, hudDragOffsetY;
+    private record HudPreview(SkyOPClient.Module module, int x, int y, int width, int height, String label) { }
     private long animationTicks;
     private String profileStatus = "";
     private int profileStatusTicks;
@@ -82,7 +86,7 @@ public final class SkyOPClickGui extends Screen {
         drawInspector(graphics, mouseX, mouseY);
         drawFooter(graphics, mouseX, mouseY);
         drawColorPicker(graphics, mouseX, mouseY);
-        drawHudEditorPreview(graphics);
+        drawHudEditorPreview(graphics, mouseX, mouseY);
     }
 
     @Override
@@ -544,20 +548,27 @@ public final class SkyOPClickGui extends Screen {
                 int editX = panelX + panelWidth - 320;
                 if (inside(mx, my, colorX, panelY + 12, 48, 24)) {
                     colorPickerOpen = !colorPickerOpen;
+                    editingHudColor = false;
+                    hexColorInput = SkyOPColorCodec.formatRgb(SkyOPClient.hudAccentColor());
                     return true;
                 }
                 if (inside(mx, my, editX, panelY + 12, 72, 24)) {
                     hudEditMode = !hudEditMode;
                     draggingHud = false;
+                    draggingHudModule = null;
                     return true;
                 }
             }
             if (colorPickerOpen && handleColorPickerClick(mx, my)) return true;
-            if (hudEditMode && inside(mx, my, SkyOPClient.hudX, SkyOPClient.hudY, 190, 90)) {
-                draggingHud = true;
-                hudDragOffsetX = mx - SkyOPClient.hudX;
-                hudDragOffsetY = my - SkyOPClient.hudY;
-                return true;
+            if (hudEditMode) {
+                HudPreview preview = hudPreviewAt(mx, my);
+                if (preview != null) {
+                    draggingHud = true;
+                    draggingHudModule = preview.module();
+                    hudDragOffsetX = mx - preview.x();
+                    hudDragOffsetY = my - preview.y();
+                    return true;
+                }
             }
             int languageX = panelX + 320;
             if (inside(mx, my, languageX, footerY + 7, 150, 24)) {
@@ -714,14 +725,38 @@ public final class SkyOPClickGui extends Screen {
         int[][] colors = {{0xFF61C7F2, 0xFF8B7CFF, 0xFFFFB45B},
                 {0xFF57D69A, 0xFFFF7885, 0xFFF1F6FB}};
         for (int row = 0; row < 2; row++) for (int col = 0; col < 3; col++) {
-            int px = x + col * 30, py = y + row * 30;
-            if (inside(mx, my, px, py, 24, 24)) {
+            int px = x + 8 + col * 28, py = y + 20 + row * 27;
+            if (inside(mx, my, px, py, 22, 22)) {
                 SkyOPClient.setHudAccentColor(colors[row][col]);
+                hexColorInput = SkyOPColorCodec.formatRgb(colors[row][col]);
+                editingHudColor = false;
                 colorPickerOpen = false;
                 return true;
             }
         }
-        return false;
+        if (inside(mx, my, x + 8, y + 76, 96, 22)) {
+            editingHudColor = true;
+            hexColorInput = "";
+            return true;
+        }
+        if (inside(mx, my, x + 110, y + 76, 48, 22)) {
+            applyHexColor();
+            return true;
+        }
+        return inside(mx, my, x, y, 166, 104);
+    }
+
+    private void applyHexColor() {
+        try {
+            SkyOPClient.setHudAccentColor(SkyOPColorCodec.parseRgb(hexColorInput));
+            hexColorInput = SkyOPColorCodec.formatRgb(SkyOPClient.hudAccentColor());
+            editingHudColor = false;
+            colorPickerOpen = false;
+            setProfileStatus("HUD color updated");
+        } catch (IllegalArgumentException exception) {
+            setProfileStatus("Enter 6 hex digits");
+            editingHudColor = true;
+        }
     }
 
     private void drawColorPicker(GuiGraphicsExtractor g, int mouseX, int mouseY) {
@@ -729,28 +764,112 @@ public final class SkyOPClickGui extends Screen {
         int x = panelX + panelWidth - 230, y = panelY + 42;
         int[][] colors = {{0xFF61C7F2, 0xFF8B7CFF, 0xFFFFB45B},
                 {0xFF57D69A, 0xFFFF7885, 0xFFF1F6FB}};
-        g.fill(x - 6, y - 6, x + 88, y + 66, 0xF0101726);
+        g.fill(x, y, x + 166, y + 104, 0xF0101726);
+        g.outline(x, y, 166, 104, 0xFF40546B);
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.hud_color")), x + 8, y + 6, TEXT, true);
         for (int row = 0; row < 2; row++) for (int col = 0; col < 3; col++) {
-            int px = x + col * 30, py = y + row * 30;
-            g.fill(px, py, px + 24, py + 24, colors[row][col]);
-            if (colors[row][col] == SkyOPClient.hudAccentColor()) g.outline(px - 2, py - 2, 28, 28, TEXT);
+            int px = x + 8 + col * 28, py = y + 20 + row * 27;
+            g.fill(px, py, px + 22, py + 22, colors[row][col]);
+            if (colors[row][col] == SkyOPClient.hudAccentColor()) g.outline(px - 2, py - 2, 26, 26, TEXT);
         }
+        int fieldX = x + 8, fieldY = y + 76;
+        g.fill(fieldX, fieldY, fieldX + 96, fieldY + 22, editingHudColor ? 0xFF263D53 : PANEL_LIGHT);
+        String typed = hexColorInput.isEmpty() ? "RRGGBB" : hexColorInput;
+        g.text(font, Component.literal("#" + typed + (editingHudColor ? "|" : "")),
+                fieldX + 6, fieldY + 7, editingHudColor ? TEXT : MUTED, true);
+        int applyX = x + 110;
+        boolean hovered = inside(mouseX, mouseY, applyX, fieldY, 48, 22);
+        g.fill(applyX, fieldY, applyX + 48, fieldY + 22, hovered ? 0xFF314C65 : PANEL_LIGHT);
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.apply")),
+                applyX + 6, fieldY + 7, ACCENT, true);
     }
 
-    private void drawHudEditorPreview(GuiGraphicsExtractor g) {
+    private List<HudPreview> buildHudPreviews() {
+        List<HudPreview> previews = new ArrayList<>();
+        int sw = width, sh = height;
+        if (SkyOPClient.isEnabled(SkyOPClient.Module.HUD))
+            previews.add(hudPreview(SkyOPClient.Module.HUD, 8, 8, 190, 88, "Main HUD", sw, sh));
+        if (SkyOPClient.isEnabled(SkyOPClient.Module.TARGET_HUD))
+            previews.add(hudPreview(SkyOPClient.Module.TARGET_HUD, sw - 194, 8, 186, 58, null, sw, sh));
+        if (SkyOPClient.isEnabled(SkyOPClient.Module.KEYSTROKES_HUD))
+            previews.add(hudPreview(SkyOPClient.Module.KEYSTROKES_HUD, 10, sh - 62, 86, 42, null, sw, sh));
+        if (SkyOPClient.isEnabled(SkyOPClient.Module.ARMOR_HUD))
+            previews.add(hudPreview(SkyOPClient.Module.ARMOR_HUD, sw - 150, sh - 38, 142, 28, null, sw, sh));
+        if (SkyOPClient.isEnabled(SkyOPClient.Module.POTION_HUD))
+            previews.add(hudPreview(SkyOPClient.Module.POTION_HUD, sw - 198, 76, 190, 96, null, sw, sh));
+        if (SkyOPClient.isEnabled(SkyOPClient.Module.DURABILITY_HUD))
+            previews.add(hudPreview(SkyOPClient.Module.DURABILITY_HUD, sw / 2 - 82, sh - 94, 164, 24, null, sw, sh));
+        if (SkyOPClient.isEnabled(SkyOPClient.Module.COMPASS_HUD)
+                || SkyOPClient.isEnabled(SkyOPClient.Module.DIRECTION_HUD)) {
+            String label = SkyOPClient.isEnabled(SkyOPClient.Module.COMPASS_HUD)
+                    ? "Compass / Direction" : SkyOPClient.Module.DIRECTION_HUD.title();
+            previews.add(hudPreview(SkyOPClient.Module.COMPASS_HUD, sw / 2 - 48, 8, 96, 23, label, sw, sh));
+        }
+        if (SkyOPClient.isEnabled(SkyOPClient.Module.PING_HUD))
+            previews.add(hudPreview(SkyOPClient.Module.PING_HUD, sw - 100, 8, 92, 22, null, sw, sh));
+        if (SkyOPClient.isEnabled(SkyOPClient.Module.FPS_HUD))
+            previews.add(hudPreview(SkyOPClient.Module.FPS_HUD, sw - 100, 34, 92, 22, null, sw, sh));
+        if (SkyOPClient.isEnabled(SkyOPClient.Module.RADAR_HUD))
+            previews.add(hudPreview(SkyOPClient.Module.RADAR_HUD, sw - 202, sh / 2 - 12, 194, 90, null, sw, sh));
+        if (SkyOPClient.isEnabled(SkyOPClient.Module.TEXT_GUI))
+            previews.add(hudPreview(SkyOPClient.Module.TEXT_GUI, 8, sh - 27, Math.max(120, sw - 16), 19, null, sw, sh));
+        if (SkyOPClient.isEnabled(SkyOPClient.Module.SPEEDOMETER))
+            previews.add(hudPreview(SkyOPClient.Module.SPEEDOMETER, sw / 2 - 58, sh - 37, 116, 25, null, sw, sh));
+        if (SkyOPClient.isEnabled(SkyOPClient.Module.CPS_HUD))
+            previews.add(hudPreview(SkyOPClient.Module.CPS_HUD, sw / 2 - 48, sh - 66, 96, 24, null, sw, sh));
+        return previews;
+    }
+
+    private HudPreview hudPreview(SkyOPClient.Module module, int defaultX, int defaultY,
+                                  int previewWidth, int previewHeight, String label,
+                                  int screenWidth, int screenHeight) {
+        int x = SkyOPClient.hudXFor(module, defaultX, screenWidth, previewWidth);
+        int y = SkyOPClient.hudYFor(module, defaultY, screenHeight, previewHeight);
+        return new HudPreview(module, x, y, previewWidth, previewHeight,
+                label == null ? module.title() : label);
+    }
+
+    private HudPreview hudPreviewAt(int mouseX, int mouseY) {
+        for (HudPreview preview : buildHudPreviews()) {
+            if (inside(mouseX, mouseY, preview.x(), preview.y(), preview.width(), preview.height())) return preview;
+        }
+        return null;
+    }
+
+    private void drawHudEditorPreview(GuiGraphicsExtractor g, int mouseX, int mouseY) {
         if (!hudEditMode) return;
-        int x = SkyOPClient.hudX, y = SkyOPClient.hudY, w = 190, h = 88;
-        g.fill(x, y, x + w, y + h, 0xD5101726);
-        g.outline(x, y, w, h, SkyOPClient.hudAccentColor());
-        g.fill(x, y, x + w, y + 2, SkyOPClient.hudAccentColor());
-        g.text(font, Component.literal("DRAG HUD • " + x + ", " + y), x + 8, y + 9, TEXT, true);
-        g.text(font, Component.literal("SKYOP / 26.3 / FPS"), x + 8, y + 26, MUTED, true);
-        g.text(font, Component.literal("Coordinates and modules"), x + 8, y + 43, MUTED, true);
-        g.text(font, Component.literal("Release mouse to save"), x + 8, y + 63, SkyOPClient.hudAccentColor(), true);
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.hud_layout") + " • "
+                + SkyOPLanguage.text("gui.drag_hud")), 12, 12, SkyOPClient.hudAccentColor(), true);
+        for (HudPreview preview : buildHudPreviews()) {
+            boolean hovered = inside(mouseX, mouseY, preview.x(), preview.y(), preview.width(), preview.height());
+            int border = hovered ? TEXT : SkyOPClient.hudAccentColor();
+            g.fill(preview.x(), preview.y(), preview.x() + preview.width(), preview.y() + preview.height(),
+                    hovered ? 0xE51C2A3B : 0xD5101726);
+            g.outline(preview.x(), preview.y(), preview.width(), preview.height(), border);
+            g.fill(preview.x(), preview.y(), preview.x() + preview.width(), preview.y() + 2,
+                    SkyOPClient.hudAccentColor());
+            g.text(font, Component.literal(trim(preview.label(), 22)),
+                    preview.x() + 6, preview.y() + 7, TEXT, true);
+            if (preview.height() > 34) {
+                g.text(font, Component.literal(preview.x() + ", " + preview.y()),
+                        preview.x() + 6, preview.y() + 21, MUTED, true);
+                g.text(font, Component.literal("DRAG TO MOVE"),
+                        preview.x() + 6, preview.y() + preview.height() - 12,
+                        SkyOPClient.hudAccentColor(), true);
+            }
+        }
     }
 
     @Override
     public boolean charTyped(CharacterEvent event) {
+        if (editingHudColor) {
+            String typed = event.codepointAsString().toUpperCase(java.util.Locale.ROOT);
+            if (typed.length() == 1 && "0123456789ABCDEF".indexOf(typed.charAt(0)) >= 0
+                    && hexColorInput.length() < 6) {
+                hexColorInput += typed;
+            }
+            return true;
+        }
         if (editingHudText && selectedModule == SkyOPClient.Module.TEXT_GUI) {
             if (event.isAllowedChatCharacter() && SkyOPClient.customHudText.length() < 80) {
                 SkyOPClient.setCustomHudText(SkyOPClient.customHudText + event.codepointAsString());
@@ -767,6 +886,21 @@ public final class SkyOPClickGui extends Screen {
 
     @Override
     public boolean keyPressed(KeyEvent event) {
+        if (editingHudColor) {
+            if (event.key() == InputConstants.KEY_ESCAPE) {
+                editingHudColor = false;
+                return true;
+            }
+            if (event.key() == InputConstants.KEY_RETURN) {
+                applyHexColor();
+                return true;
+            }
+            if (event.key() == InputConstants.KEY_BACKSPACE && !hexColorInput.isEmpty()) {
+                hexColorInput = hexColorInput.substring(0, hexColorInput.length() - 1);
+                return true;
+            }
+            return true;
+        }
         if (waitingForKeybind && selectedModule != null) {
             if (event.key() == InputConstants.KEY_ESCAPE) {
                 waitingForKeybind = false;
@@ -804,9 +938,15 @@ public final class SkyOPClickGui extends Screen {
 
     @Override
     public boolean mouseDragged(MouseButtonEvent event, double deltaX, double deltaY) {
-        if (draggingHud && hudEditMode) {
-            SkyOPClient.hudX = SkyOPClient.clamp((int) event.x() - hudDragOffsetX, 0, Math.max(0, width - 190));
-            SkyOPClient.hudY = SkyOPClient.clamp((int) event.y() - hudDragOffsetY, 0, Math.max(0, height - 88));
+        if (draggingHud && hudEditMode && draggingHudModule != null) {
+            HudPreview preview = buildHudPreviews().stream()
+                    .filter(value -> value.module() == draggingHudModule)
+                    .findFirst().orElse(null);
+            if (preview != null) {
+                SkyOPClient.setHudPosition(draggingHudModule,
+                        (int) event.x() - hudDragOffsetX, (int) event.y() - hudDragOffsetY,
+                        width, height, preview.width(), preview.height());
+            }
             return true;
         }
         return super.mouseDragged(event, deltaX, deltaY);
@@ -816,6 +956,7 @@ public final class SkyOPClickGui extends Screen {
     public boolean mouseReleased(MouseButtonEvent event) {
         if (draggingHud) {
             draggingHud = false;
+            draggingHudModule = null;
             SkyOPClient.saveConfig();
             return true;
         }
