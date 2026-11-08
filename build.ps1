@@ -10,7 +10,7 @@ if (-not $javaCommand) {
     throw 'Java was not found in PATH. Install a JDK 25 (64-bit), then reopen this window.'
 }
 $versionLine = (& java -version 2>&1 | Select-Object -First 1).ToString()
-if ($versionLine -notmatch '"?(d+)') {
+if ($versionLine -notmatch '"?([0-9]+)') {
     throw "Could not read Java version: $versionLine"
 }
 $javaMajor = [int]$Matches[1]
