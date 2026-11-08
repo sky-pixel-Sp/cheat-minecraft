@@ -11,19 +11,15 @@ import java.util.Map;
 public final class SkyOPLanguage {
     public record Language(String code, String displayName) { }
 
+    // Keep only languages with a complete ClickGUI translation.
     private static final List<Language> LANGUAGES = List.of(
-            new Language("en", "English"),
             new Language("id", "Bahasa Indonesia"),
-            new Language("es", "Español"),
-            new Language("pt", "Português"),
-            new Language("fr", "Français"),
-            new Language("zh", "简体中文"),
-            new Language("ja", "日本語")
+            new Language("en", "English")
     );
 
     private static final Map<String, String> EN = new LinkedHashMap<>();
     private static final Map<String, Map<String, String>> DICTIONARIES = new LinkedHashMap<>();
-    private static String languageCode = "en";
+    private static String languageCode = "id";
 
     static {
         put("gui.brand", "SKYOP");
@@ -54,6 +50,64 @@ public final class SkyOPLanguage {
         put("gui.apply", "APPLY");
         put("gui.hud_layout", "HUD LAYOUT");
         put("gui.drag_hud", "Drag each panel to reposition");
+
+        put("gui.hud_edit", "HUD EDIT");
+        put("gui.hud_edit_on", "HUD EDIT ON");
+        put("gui.type_to_filter", "type to filter");
+        put("gui.search_prefix", "SEARCH");
+        put("gui.no_matching_modules", "No matching modules");
+        put("gui.on", "ON");
+        put("gui.off", "OFF");
+        put("gui.press_a_key", "PRESS A KEY...");
+        put("gui.unbound", "UNBOUND");
+        put("gui.keybind", "KEYBIND");
+        put("gui.edit_text", "EDIT TEXT");
+        put("gui.custom_hud_text", "CUSTOM HUD TEXT");
+        put("gui.edit_text_help", "Click this line, then type. Enter to finish.");
+        put("gui.configuration_profiles", "CONFIGURATION PROFILES");
+        put("gui.export_json", "EXPORT JSON");
+        put("gui.import_json", "IMPORT JSON");
+        put("gui.backup_now", "BACKUP NOW");
+        put("gui.hotbar_layout_slots", "HOTBAR LAYOUT SLOTS");
+        put("gui.save_hotbar", "SAVE HOTBAR");
+        put("gui.load_hotbar", "LOAD HOTBAR");
+        put("gui.requires", "REQUIRES");
+        put("gui.potion_effects", "Potion effects");
+        put("gui.active_effects_duration", "Active effects and their remaining duration");
+        put("gui.main_hand_item", "Main-hand item");
+        put("gui.remaining_durability", "Remaining durability percentage");
+        put("gui.direction", "Direction");
+        put("gui.cardinal_heading", "Cardinal heading based on player yaw");
+        put("gui.latency", "Latency");
+        put("gui.current_multiplayer_ping", "Current multiplayer ping; local worlds show unavailable");
+        put("gui.frame_rate", "Frame rate");
+        put("gui.current_fps", "Current client frames per second");
+        put("gui.loaded_entities", "Loaded entities");
+        put("gui.nearby_loaded_entities", "Nearby entities already tracked by your client");
+        put("gui.armor_policy", "Armor policy");
+        put("gui.only_empty_armor_slots", "Only fills empty armor slots; never replaces worn armor");
+        put("gui.tool_selection", "Tool selection");
+        put("gui.fastest_tool", "Selects the fastest hotbar tool for the targeted block");
+        put("gui.fishing_automation", "Fishing automation");
+        put("gui.reel_and_recast", "Reels on bite and recasts; server rules still apply");
+        put("gui.safe_cleanup", "Safe cleanup");
+        put("gui.stack_consolidation", "Consolidates matching stacks; never drops or destroys items");
+        put("gui.three_layouts", "Three layouts");
+        put("gui.save_restore_hotbar", "Save and restore hotbar item layouts");
+        put("gui.json_profiles", "JSON profiles");
+        put("gui.profile_slots_backup_restore", "Three slots, JSON import/export, backups and restore");
+        put("gui.profile_action_completed", "Profile action completed");
+        put("gui.profile_error", "Profile error");
+        put("gui.hotbar_error", "Hotbar error");
+        put("gui.saved_hotbar", "Saved hotbar");
+        put("gui.loaded_hotbar", "Loaded hotbar");
+        put("gui.hud_color_updated", "HUD color updated");
+        put("gui.enter_hex_digits", "Enter 6 hex digits");
+        put("gui.keybind_updated", "Keybind updated");
+        put("gui.hud_text_edit_hint", "Click this line, then type. Enter to finish.");
+        put("gui.profile_saved", "Profile saved");
+        put("gui.profile_loaded", "Profile loaded");
+
 
         put("category.combat", "Combat");
         put("category.movement", "Movement");
@@ -484,6 +538,129 @@ public final class SkyOPLanguage {
                 e("module.HOTBAR_PRESETS.description", "アイテム ID を使って3つのホットバー配置を保存します。"),
                 e("module.PROFILE_MANAGER.description", "設定プロファイルをインポート、エクスポート、バックアップします。")
         ));
+
+        // Complete Indonesian coverage for every ClickGUI label and module.
+        translate("id", Map.ofEntries(
+                e("gui.client", "KLIEN / 26.3"),
+                e("gui.hud_edit", "EDIT HUD"),
+                e("gui.hud_edit_on", "EDIT HUD AKTIF"),
+                e("gui.type_to_filter", "ketik untuk menyaring"),
+                e("gui.search_prefix", "CARI"),
+                e("gui.no_matching_modules", "Tidak ada modul yang cocok"),
+                e("gui.on", "AKTIF"),
+                e("gui.off", "MATI"),
+                e("gui.press_a_key", "TEKAN SEBUAH TOMBOL..."),
+                e("gui.unbound", "BELUM DIATUR"),
+                e("gui.keybind", "TOMBOL"),
+                e("gui.edit_text", "UBAH TEKS"),
+                e("gui.custom_hud_text", "TEKS HUD KUSTOM"),
+                e("gui.edit_text_help", "Klik baris ini, lalu ketik. Tekan Enter untuk selesai."),
+                e("gui.configuration_profiles", "PROFIL KONFIGURASI"),
+                e("gui.export_json", "EKSPOR JSON"),
+                e("gui.import_json", "IMPOR JSON"),
+                e("gui.backup_now", "CADANGKAN SEKARANG"),
+                e("gui.hotbar_layout_slots", "SLOT SUSUNAN HOTBAR"),
+                e("gui.save_hotbar", "SIMPAN HOTBAR"),
+                e("gui.load_hotbar", "MUAT HOTBAR"),
+                e("gui.requires", "MEMBUTUHKAN"),
+                e("gui.potion_effects", "Efek ramuan"),
+                e("gui.active_effects_duration", "Efek aktif dan sisa durasinya"),
+                e("gui.main_hand_item", "Item di tangan utama"),
+                e("gui.remaining_durability", "Persentase daya tahan tersisa"),
+                e("gui.direction", "Arah"),
+                e("gui.cardinal_heading", "Arah mata angin berdasarkan yaw pemain"),
+                e("gui.latency", "Latensi"),
+                e("gui.current_multiplayer_ping", "Ping multiplayer saat ini; tidak tersedia di dunia lokal"),
+                e("gui.frame_rate", "Frame rate"),
+                e("gui.current_fps", "Jumlah frame per detik klien saat ini"),
+                e("gui.loaded_entities", "Entitas yang dimuat"),
+                e("gui.nearby_loaded_entities", "Entitas terdekat yang sudah dilacak oleh klien"),
+                e("gui.armor_policy", "Aturan armor"),
+                e("gui.only_empty_armor_slots", "Hanya mengisi slot armor kosong; tidak mengganti armor yang dipakai"),
+                e("gui.tool_selection", "Pemilihan alat"),
+                e("gui.fastest_tool", "Memilih alat hotbar tercepat untuk blok yang ditargetkan"),
+                e("gui.fishing_automation", "Otomatisasi memancing"),
+                e("gui.reel_and_recast", "Menggulung saat umpan dimakan lalu melempar kembali; aturan server tetap berlaku"),
+                e("gui.safe_cleanup", "Pembersihan aman"),
+                e("gui.stack_consolidation", "Menggabungkan stack sejenis; tidak menjatuhkan atau menghapus item"),
+                e("gui.three_layouts", "Tiga susunan"),
+                e("gui.save_restore_hotbar", "Menyimpan dan memulihkan susunan item hotbar"),
+                e("gui.json_profiles", "Profil JSON"),
+                e("gui.profile_slots_backup_restore", "Tiga slot, impor/ekspor JSON, pencadangan, dan pemulihan"),
+                e("gui.profile_action_completed", "Aksi profil selesai"),
+                e("gui.profile_error", "Kesalahan profil"),
+                e("gui.hotbar_error", "Kesalahan hotbar"),
+                e("gui.saved_hotbar", "Hotbar disimpan"),
+                e("gui.loaded_hotbar", "Hotbar dimuat"),
+                e("gui.hud_color_updated", "Warna HUD diperbarui"),
+                e("gui.enter_hex_digits", "Masukkan 6 digit heksadesimal"),
+                e("gui.keybind_updated", "Tombol pintasan diperbarui"),
+                e("gui.hud_text_edit_hint", "Klik baris ini, lalu ketik. Tekan Enter untuk selesai."),
+                e("gui.profile_saved", "Profil disimpan"),
+                e("gui.profile_loaded", "Profil dimuat"),
+                e("category.combat", "Pertarungan"),
+                e("category.movement", "Pergerakan"),
+                e("category.visual", "Visual"),
+                e("category.player", "Pemain"),
+                e("category.inventory", "Inventaris"),
+                e("category.favorites", "Favorit"),
+                e("module.KILL_AURA.title", "Aura Serang"),
+                e("module.KILL_AURA.description", "Menyerang target terdekat yang memenuhi pengaturan."),
+                e("module.TRIGGER_BOT.title", "Serang Otomatis"),
+                e("module.TRIGGER_BOT.description", "Menyerang target valid yang berada tepat di crosshair."),
+                e("module.AUTO_CLICKER.title", "Klik Otomatis"),
+                e("module.AUTO_CLICKER.description", "Mengulangi serangan selama tombol serang ditekan."),
+                e("module.AUTO_SPRINT.title", "Sprint Otomatis"),
+                e("module.AUTO_SPRINT.description", "Melakukan sprint saat pemain bergerak maju."),
+                e("module.SPEED.title", "Kecepatan"),
+                e("module.SPEED.description", "Memberikan peningkatan kecepatan gerak horizontal yang dapat diatur."),
+                e("module.FLIGHT.title", "Terbang"),
+                e("module.FLIGHT.description", "Kontrol terbang lokal menggunakan tombol lompat dan jongkok."),
+                e("module.AUTO_JUMP.title", "Lompat Otomatis"),
+                e("module.AUTO_JUMP.description", "Melompat secara otomatis saat bergerak maju."),
+                e("module.STEP_ASSIST.title", "Bantuan Langkah"),
+                e("module.STEP_ASSIST.description", "Melompat saat gerakan maju terhalang dinding."),
+                e("module.SPIDER.title", "Memanjat Dinding"),
+                e("module.SPIDER.description", "Memanjat dinding saat bergerak ke arahnya."),
+                e("module.ENTITY_ESP.title", "ESP Entitas"),
+                e("module.ENTITY_ESP.description", "Menyorot entitas hidup di sekitar yang sudah dimuat."),
+                e("module.GAMMA_BOOST.title", "Gamma Maksimal"),
+                e("module.GAMMA_BOOST.description", "Mengatur gamma vanilla ke nilai normal maksimum."),
+                e("module.HUD.title", "HUD"),
+                e("module.HUD.description", "Menampilkan modul aktif, koordinat, dan FPS."),
+                e("module.TARGET_HUD.title", "HUD Target"),
+                e("module.TARGET_HUD.description", "Menampilkan health dan jarak target di crosshair."),
+                e("module.KEYSTROKES_HUD.title", "HUD Tombol"),
+                e("module.KEYSTROKES_HUD.description", "Menampilkan status tombol gerakan di layar."),
+                e("module.ARMOR_HUD.title", "HUD Armor"),
+                e("module.ARMOR_HUD.description", "Menampilkan status health dan armor."),
+                e("module.SPEEDOMETER.title", "Pengukur Kecepatan"),
+                e("module.SPEEDOMETER.description", "Menampilkan kecepatan gerak horizontal dalam blok per detik."),
+                e("module.CPS_HUD.title", "HUD CPS"),
+                e("module.CPS_HUD.description", "Menampilkan jumlah aksi serangan berhasil per detik."),
+                e("module.NO_FALL.title", "Anti Jatuh"),
+                e("module.NO_FALL.description", "Mengosongkan penghitung jarak jatuh lokal."),
+                e("module.POTION_HUD.title", "HUD Ramuan"),
+                e("module.DURABILITY_HUD.title", "HUD Daya Tahan"),
+                e("module.COMPASS_HUD.title", "HUD Kompas"),
+                e("module.DIRECTION_HUD.title", "HUD Arah"),
+                e("module.PING_HUD.title", "HUD Ping"),
+                e("module.FPS_HUD.title", "HUD FPS"),
+                e("module.RADAR_HUD.title", "Radar Entitas Terdekat"),
+                e("module.TEXT_GUI.title", "Teks Kustom"),
+                e("module.AUTO_EAT.title", "Makan Otomatis"),
+                e("module.AUTO_ARMOR.title", "Armor Otomatis"),
+                e("module.AUTO_TOOL.title", "Alat Otomatis"),
+                e("module.AUTO_REFILL.title", "Isi Ulang Otomatis"),
+                e("module.AUTO_FISH.title", "Pancing Otomatis"),
+                e("module.INVENTORY_CLEANER.title", "Pembersih Inventaris"),
+                e("module.HOTBAR_PRESETS.title", "Preset Hotbar"),
+                e("module.PROFILE_MANAGER.title", "Pengelola Profil"),
+                e("setting.hunger_threshold", "Ambang lapar"),
+                e("setting.eat_below", "Mulai makan di bawah nilai ini"),
+                e("setting.refill_threshold", "Ambang isi ulang"),
+                e("setting.refill_low", "Isi ulang saat jumlah stack rendah")
+        ));
     }
 
     private SkyOPLanguage() { }
@@ -508,7 +685,7 @@ public final class SkyOPLanguage {
     }
 
     public static void set(String code) {
-        languageCode = LANGUAGES.stream().anyMatch(language -> language.code().equals(code)) ? code : "en";
+        languageCode = LANGUAGES.stream().anyMatch(language -> language.code().equals(code)) ? code : "id";
     }
 
     public static void next() {
