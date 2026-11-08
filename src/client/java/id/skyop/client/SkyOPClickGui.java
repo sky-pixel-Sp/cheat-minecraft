@@ -75,15 +75,15 @@ public final class SkyOPClickGui extends Screen {
     }
 
     private void drawHeader(GuiGraphicsExtractor g) {
-        g.text(font, Component.literal("S K Y O P"), panelX + 20, panelY + 14, ACCENT, true);
-        g.text(font, Component.literal("CLIENT  /  26.3"), panelX + 112, panelY + 14, MUTED, true);
-        g.text(font, Component.literal("MODULE CONTROL CENTER"), panelX + 20, panelY + 34, TEXT, true);
-        g.text(font, Component.literal("Profiles • Modules • Live settings"), panelX + 210, panelY + 34, MUTED, true);
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.brand")), panelX + 20, panelY + 14, ACCENT, true);
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.client")), panelX + 112, panelY + 14, MUTED, true);
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.control_center")), panelX + 20, panelY + 34, TEXT, true);
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.subtitle")), panelX + 210, panelY + 34, MUTED, true);
 
         int statusX = panelX + panelWidth - 172;
         g.fill(statusX, panelY + 13, statusX + 104, panelY + 35, PANEL_LIGHT);
         g.fill(statusX + 9, panelY + 21, statusX + 15, panelY + 27, GREEN);
-        g.text(font, Component.literal("CLIENT READY"), statusX + 21, panelY + 20, TEXT, true);
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.ready")), statusX + 21, panelY + 20, TEXT, true);
         int closeX = panelX + panelWidth - 48;
         g.fill(closeX, panelY + 12, closeX + 30, panelY + 35, PANEL_LIGHT);
         g.text(font, Component.literal("×"), closeX + 11, panelY + 16, TEXT, true);
@@ -92,7 +92,7 @@ public final class SkyOPClickGui extends Screen {
     private void drawSidebar(GuiGraphicsExtractor g, int mouseX, int mouseY) {
         int x = panelX + 12, y = panelY + 62, w = 126;
         g.fill(x, y, x + w, panelY + panelHeight - 48, 0xFF111A27);
-        g.text(font, Component.literal("CATEGORIES"), x + 10, y + 10, MUTED, true);
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.categories")), x + 10, y + 10, MUTED, true);
         int index = 0;
         for (SkyOPClient.Category category : SkyOPClient.Category.values()) {
             int rowY = y + 31 + index * 36;
@@ -110,16 +110,16 @@ public final class SkyOPClickGui extends Screen {
 
         int activeY = panelY + panelHeight - 98;
         g.fill(x + 5, activeY, x + w - 5, activeY + 1, 0xFF2B394A);
-        g.text(font, Component.literal("ACTIVE MODULES"), x + 10, activeY + 12, MUTED, true);
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.active_modules")), x + 10, activeY + 12, MUTED, true);
         g.text(font, Component.literal(Integer.toString(SkyOPClient.enabledModuleCount())),
                 x + 10, activeY + 30, ACCENT, true);
     }
 
     private void drawModuleList(GuiGraphicsExtractor g, int mouseX, int mouseY) {
         int x = panelX + 151, y = panelY + 63, w = panelWidth - 430;
-        g.text(font, Component.literal(selectedCategory.title().toUpperCase() + " MODULES"),
+        g.text(font, Component.literal(selectedCategory.title().toUpperCase() + " " + SkyOPLanguage.text("gui.modules")),
                 x, y + 8, TEXT, true);
-        g.text(font, Component.literal("Left click: toggle  •  Right click: inspect"),
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.left_toggle_right_inspect")),
                 x, y + 24, MUTED, true);
 
         int cardWidth = (w - 8) / 2;
@@ -152,15 +152,15 @@ public final class SkyOPClickGui extends Screen {
     private void drawInspector(GuiGraphicsExtractor g, int mouseX, int mouseY) {
         int x = panelX + panelWidth - 263, y = panelY + 63, w = 248, h = panelHeight - 121;
         g.fill(x, y, x + w, y + h, 0xFF111A27);
-        g.text(font, Component.literal("MODULE INSPECTOR"), x + 12, y + 10, MUTED, true);
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.inspector")), x + 12, y + 10, MUTED, true);
         if (selectedModule == null) {
-            g.text(font, Component.literal("Select a module"), x + 12, y + 42, TEXT, true);
+            g.text(font, Component.literal(SkyOPLanguage.text("gui.select_module")), x + 12, y + 42, TEXT, true);
             return;
         }
 
         boolean enabled = SkyOPClient.isEnabled(selectedModule);
         g.text(font, Component.literal(selectedModule.title()), x + 12, y + 31, TEXT, true);
-        g.text(font, Component.literal(enabled ? "● ENABLED" : "○ DISABLED"),
+        g.text(font, Component.literal(enabled ? "● " + SkyOPLanguage.text("gui.enabled") : "○ " + SkyOPLanguage.text("gui.disabled")),
                 x + 12, y + 47, enabled ? GREEN : MUTED, true);
         g.fill(x + 12, y + 66, x + w - 12, y + 67, 0xFF2B394A);
 
@@ -192,7 +192,7 @@ public final class SkyOPClickGui extends Screen {
         }
 
         if (settings.isEmpty()) {
-            g.text(font, Component.literal("No extra settings"), x + 12, y + 91, MUTED, true);
+            g.text(font, Component.literal(SkyOPLanguage.text("gui.no_extra_settings")), x + 12, y + 91, MUTED, true);
             g.text(font, Component.literal(selectedModule.description()), x + 12, y + 110, TEXT, true);
         }
     }
@@ -200,16 +200,22 @@ public final class SkyOPClickGui extends Screen {
     private void drawFooter(GuiGraphicsExtractor g, int mouseX, int mouseY) {
         int y = panelY + panelHeight - 38;
         g.fill(panelX + 12, y, panelX + panelWidth - 12, y + 1, 0xFF2B394A);
-        g.text(font, Component.literal("QUICK PROFILES"), panelX + 20, y + 15, MUTED, true);
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.quick_profiles")), panelX + 20, y + 15, MUTED, true);
 
         drawProfileButton(g, mouseX, mouseY, panelX + 130, y + 7, 48, "PVE");
         drawProfileButton(g, mouseX, mouseY, panelX + 184, y + 7, 48, "OP");
         drawProfileButton(g, mouseX, mouseY, panelX + 238, y + 7, 66, "VISUAL");
 
+        int languageX = panelX + 320;
+        boolean languageHovered = inside(mouseX, mouseY, languageX, y + 7, 150, 24);
+        g.fill(languageX, y + 7, languageX + 150, y + 31, languageHovered ? 0xFF314C65 : PANEL_LIGHT);
+        String languageLabel = SkyOPLanguage.text("gui.language") + ": " + SkyOPLanguage.current().displayName();
+        g.text(font, Component.literal(trim(languageLabel, 24)), languageX + 9, y + 15, languageHovered ? TEXT : ACCENT, true);
+
         int bx = panelX + panelWidth - 144;
         boolean hovered = inside(mouseX, mouseY, bx, y + 7, 124, 24);
         g.fill(bx, y + 7, bx + 124, y + 31, hovered ? 0xFF693542 : 0xFF482B35);
-        g.text(font, Component.literal("DISABLE ALL"), bx + 31, y + 15, 0xFFFFB8C0, true);
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.disable_all")), bx + 18, y + 15, 0xFFFFB8C0, true);
     }
 
     private void drawProfileButton(GuiGraphicsExtractor g, int mouseX, int mouseY,
@@ -239,48 +245,48 @@ public final class SkyOPClickGui extends Screen {
     private List<Setting> settingsFor(SkyOPClient.Module module) {
         return switch (module) {
             case KILL_AURA -> List.of(
-                    toggle("Target players", "Include other players", SkyOPClient.targetPlayers),
-                    toggle("Target hostile mobs", "Include hostile mobs", SkyOPClient.targetMobs),
-                    toggle("Smooth rotation", "Rotate toward selected target", SkyOPClient.auraRotate),
-                    toggle("Line of sight", "Require a clear view", SkyOPClient.auraRequireLineOfSight),
-                    slider("Attack range", "Target distance in blocks", SkyOPClient.auraRange, 2.5, 6.0, "%.1f"),
-                    toggle("Lowest health first", "Prioritise the weakest target", SkyOPClient.auraTargetLowestHealth),
-                    slider("Aim field of view", "Target cone width in degrees", SkyOPClient.auraFov, 30, 180, "%.0f°"),
-                    slider("Rotation speed", "Aim interpolation from slow to instant", SkyOPClient.auraRotationSpeed, 0.10, 1.0, "%.2f")
+                    toggle(SkyOPLanguage.text("setting.target_players"), SkyOPLanguage.text("setting.include_other_players"), SkyOPClient.targetPlayers),
+                    toggle(SkyOPLanguage.text("setting.target_mobs"), SkyOPLanguage.text("setting.include_hostile_mobs"), SkyOPClient.targetMobs),
+                    toggle(SkyOPLanguage.text("setting.smooth_rotation"), SkyOPLanguage.text("setting.rotate_target"), SkyOPClient.auraRotate),
+                    toggle(SkyOPLanguage.text("setting.line_of_sight"), SkyOPLanguage.text("setting.clear_view"), SkyOPClient.auraRequireLineOfSight),
+                    slider(SkyOPLanguage.text("setting.attack_range"), SkyOPLanguage.text("setting.distance_blocks"), SkyOPClient.auraRange, 2.5, 6.0, "%.1f"),
+                    toggle(SkyOPLanguage.text("setting.lowest_health"), SkyOPLanguage.text("setting.weakest_target"), SkyOPClient.auraTargetLowestHealth),
+                    slider(SkyOPLanguage.text("setting.aim_fov"), SkyOPLanguage.text("setting.target_cone"), SkyOPClient.auraFov, 30, 180, "%.0f°"),
+                    slider(SkyOPLanguage.text("setting.rotation_speed"), SkyOPLanguage.text("setting.rotation_interpolation"), SkyOPClient.auraRotationSpeed, 0.10, 1.0, "%.2f")
             );
             case TRIGGER_BOT -> List.of(
-                    toggle("Target players", "Use the combat target filter", SkyOPClient.targetPlayers),
-                    toggle("Target hostile mobs", "Use the combat target filter", SkyOPClient.targetMobs),
-                    slider("Trigger delay", "Ticks between attack attempts", SkyOPClient.triggerDelayTicks, 1, 12, "%.0f")
+                    toggle(SkyOPLanguage.text("setting.target_players"), SkyOPLanguage.text("setting.include_other_players"), SkyOPClient.targetPlayers),
+                    toggle(SkyOPLanguage.text("setting.target_mobs"), SkyOPLanguage.text("setting.include_hostile_mobs"), SkyOPClient.targetMobs),
+                    slider(SkyOPLanguage.text("setting.trigger_delay"), SkyOPLanguage.text("setting.delay_between"), SkyOPClient.triggerDelayTicks, 1, 12, "%.0f")
             );
             case AUTO_CLICKER -> List.of(
-                    slider("Clicks per second", "Respects vanilla attack cooldown", SkyOPClient.autoClickerCps, 4, 20, "%.0f CPS")
+                    slider(SkyOPLanguage.text("setting.clicks_per_second"), SkyOPLanguage.text("setting.vanilla_cooldown"), SkyOPClient.autoClickerCps, 4, 20, "%.0f CPS")
             );
             case SPEED -> List.of(
-                    slider("Movement multiplier", "Horizontal movement multiplier", SkyOPClient.speedMultiplier, 1.0, 2.8, "%.2fx")
+                    slider(SkyOPLanguage.text("setting.movement_multiplier"), SkyOPLanguage.text("setting.horizontal_multiplier"), SkyOPClient.speedMultiplier, 1.0, 2.8, "%.2fx")
             );
             case FLIGHT -> List.of(
-                    slider("Flight speed", "Vertical speed per tick", SkyOPClient.flightSpeed, 0.12, 0.9, "%.2f")
+                    slider(SkyOPLanguage.text("setting.flight_speed"), SkyOPLanguage.text("setting.vertical_speed"), SkyOPClient.flightSpeed, 0.12, 0.9, "%.2f")
             );
             case AUTO_JUMP -> List.of(
-                    slider("Jump interval", "Ticks between automatic jumps", SkyOPClient.autoJumpDelayTicks, 2, 12, "%.0f ticks")
+                    slider(SkyOPLanguage.text("setting.jump_interval"), SkyOPLanguage.text("setting.ticks_between_jumps"), SkyOPClient.autoJumpDelayTicks, 2, 12, "%.0f ticks")
             );
             case SPIDER -> List.of(
-                    slider("Climb speed", "Vertical motion while touching a wall", SkyOPClient.spiderClimbSpeed, 0.08, 0.38, "%.2f")
+                    slider(SkyOPLanguage.text("setting.climb_speed"), SkyOPLanguage.text("setting.wall_vertical_speed"), SkyOPClient.spiderClimbSpeed, 0.08, 0.38, "%.2f")
             );
             case ENTITY_ESP -> List.of(
-                    toggle("Show players", "Highlight loaded player entities", SkyOPClient.espPlayers),
-                    toggle("Show mobs", "Highlight loaded mob entities", SkyOPClient.espMobs),
-                    slider("ESP range", "Entity scan radius in blocks", SkyOPClient.espRange, 8, 96, "%.0f blocks")
+                    toggle(SkyOPLanguage.text("setting.show_players"), SkyOPLanguage.text("setting.highlight_players"), SkyOPClient.espPlayers),
+                    toggle(SkyOPLanguage.text("setting.show_mobs"), SkyOPLanguage.text("setting.highlight_mobs"), SkyOPClient.espMobs),
+                    slider(SkyOPLanguage.text("setting.esp_range"), SkyOPLanguage.text("setting.scan_radius"), SkyOPClient.espRange, 8, 96, "%.0f blocks")
             );
-            case GAMMA_BOOST -> List.of(info("Vanilla gamma", "Uses the maximum normal gamma value"));
-            case TARGET_HUD -> List.of(info("Target card", "Shows the entity under your crosshair"));
-            case KEYSTROKES_HUD -> List.of(info("Key display", "Shows W A S D and jump input"));
-            case ARMOR_HUD -> List.of(info("Player status", "Shows current health and armor points"));
-            case SPEEDOMETER -> List.of(info("Movement speed", "Horizontal blocks per second"));
-            case CPS_HUD -> List.of(info("Attack rate", "Successful attack actions per second"));
+            case GAMMA_BOOST -> List.of(info(SkyOPLanguage.text("setting.vanilla_gamma"), SkyOPLanguage.text("setting.max_gamma")));
+            case TARGET_HUD -> List.of(info(SkyOPLanguage.text("setting.target_card"), SkyOPLanguage.text("setting.crosshair_target")));
+            case KEYSTROKES_HUD -> List.of(info(SkyOPLanguage.text("setting.key_display"), SkyOPLanguage.text("setting.wasd_jump")));
+            case ARMOR_HUD -> List.of(info(SkyOPLanguage.text("setting.player_status"), SkyOPLanguage.text("setting.health_armor")));
+            case SPEEDOMETER -> List.of(info(SkyOPLanguage.text("setting.movement_speed"), SkyOPLanguage.text("setting.blocks_second")));
+            case CPS_HUD -> List.of(info(SkyOPLanguage.text("setting.attack_rate"), SkyOPLanguage.text("setting.successful_attacks")));
             case AUTO_SPRINT, STEP_ASSIST, NO_FALL, HUD ->
-                    List.of(info("Module status", "Toggle this module from the module list"));
+                    List.of(info(SkyOPLanguage.text("setting.module_status"), SkyOPLanguage.text("setting.toggle_module_list")));
         };
     }
 
@@ -380,6 +386,11 @@ public final class SkyOPClickGui extends Screen {
 
         int footerY = panelY + panelHeight - 38;
         if (button == InputConstants.MOUSE_BUTTON_LEFT) {
+            int languageX = panelX + 320;
+            if (inside(mx, my, languageX, footerY + 7, 150, 24)) {
+                SkyOPClient.cycleLanguage();
+                return true;
+            }
             int presetY = footerY + 7;
             if (inside(mx, my, panelX + 130, presetY, 48, 24)) {
                 SkyOPClient.applyPreset(Minecraft.getInstance(), SkyOPClient.Preset.PVE);

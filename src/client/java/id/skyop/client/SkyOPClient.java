@@ -46,9 +46,9 @@ public final class SkyOPClient implements ClientModInitializer {
     public enum Category {
         COMBAT("Combat"), MOVEMENT("Movement"), VISUAL("Visual"), PLAYER("Player");
 
-        private final String title;
-        Category(String title) { this.title = title; }
-        public String title() { return title; }
+        private final String fallbackTitle;
+        Category(String title) { this.fallbackTitle = title; }
+        public String title() { return SkyOPLanguage.text("category." + name().toLowerCase()); }
     }
 
     public enum Preset { PVE, OP, VISUAL }
@@ -86,8 +86,8 @@ public final class SkyOPClient implements ClientModInitializer {
             this.category = category;
         }
 
-        public String title() { return title; }
-        public String description() { return description; }
+        public String title() { return SkyOPLanguage.moduleTitle(name(), title); }
+        public String description() { return SkyOPLanguage.moduleDescription(name(), description); }
         public Category category() { return category; }
     }
 
@@ -176,6 +176,11 @@ public final class SkyOPClient implements ClientModInitializer {
 
     public static void toggle(Minecraft client, Module module) {
         setEnabled(client, module, !isEnabled(module));
+    }
+
+    public static void cycleLanguage() {
+        SkyOPLanguage.next();
+        saveConfig();
     }
 
     public static void applyPreset(Minecraft client, Preset preset) {
@@ -562,7 +567,7 @@ public final class SkyOPClient implements ClientModInitializer {
             graphics.fill(x, y, x + width, y + height, 0xC5101726);
             graphics.fill(x, y, x + width, y + 2, 0xFF61C7F2);
             graphics.text(client.font, Component.literal("SKYOP  /  CLIENT"), x + 10, y + 8, 0xFF76D5FF, true);
-            graphics.text(client.font, Component.literal("26.3  •  " + activeCount + " active"),
+            graphics.text(client.font, Component.literal("26.3  •  " + activeCount + " " + SkyOPLanguage.text("gui.active")),
                     x + 10, y + 22, 0xFFB9C8D8, true);
 
             int row = 0;
@@ -600,7 +605,7 @@ public final class SkyOPClient implements ClientModInitializer {
                         : Mth.clamp(target.getHealth() / target.getMaxHealth(), 0.0F, 1.0F);
                 graphics.fill(x + 10, y + 43, x + 10 + (int) (barWidth * ratio), y + 49, 0xFF57D69A);
             } else {
-                graphics.text(client.font, Component.literal("NO TARGET"), x + 10, y + 25, 0xFF9AAABD, true);
+                graphics.text(client.font, Component.literal(SkyOPLanguage.text("gui.no_target")), x + 10, y + 25, 0xFF9AAABD, true);
             }
         }
 
@@ -663,6 +668,7 @@ public final class SkyOPClient implements ClientModInitializer {
         for (Module module : Module.values()) {
             p.setProperty("module." + module.name(), Boolean.toString(isEnabled(module)));
         }
+        p.setProperty("language", SkyOPLanguage.code());
         p.setProperty("targetPlayers", Boolean.toString(targetPlayers));
         p.setProperty("targetMobs", Boolean.toString(targetMobs));
         p.setProperty("auraRotate", Boolean.toString(auraRotate));
@@ -697,6 +703,7 @@ public final class SkyOPClient implements ClientModInitializer {
         Properties p = new Properties();
         try (Reader reader = Files.newBufferedReader(CONFIG_FILE)) {
             p.load(reader);
+            SkyOPLanguage.set(p.getProperty("language", "en"));
             for (Module module : Module.values()) {
                 String value = p.getProperty("module." + module.name());
                 if (value != null) {
