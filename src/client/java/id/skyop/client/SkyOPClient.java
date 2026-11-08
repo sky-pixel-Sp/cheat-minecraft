@@ -751,7 +751,7 @@ public final class SkyOPClient implements ClientModInitializer {
             int x = hudXFor(Module.TARGET_HUD, screenWidth - 194, screenWidth, 186);
             int y = hudYFor(Module.TARGET_HUD, 8, screenHeight, 58);
             graphics.fill(x, y, x + 186, y + 58, 0xC5101726);
-            graphics.fill(x, y, x + 186, y + 2, 0xFF61C7F2);
+            graphics.fill(x, y, x + 186, y + 2, hudAccentColor);
             if (client.hitResult instanceof EntityHitResult hit
                     && hit.getEntity() instanceof LivingEntity target && target.isAlive()) {
                 String targetName = target.getName().getString();
@@ -882,7 +882,7 @@ public final class SkyOPClient implements ClientModInitializer {
             int x = hudXFor(Module.SPEEDOMETER, screenWidth / 2 - 58, screenWidth, 116);
             int y = hudYFor(Module.SPEEDOMETER, screenHeight - 37, screenHeight, 25);
             graphics.fill(x, y, x + 116, y + 25, 0xC5101726);
-            graphics.fill(x, y, x + 116, y + 2, 0xFF61C7F2);
+            graphics.fill(x, y, x + 116, y + 2, hudAccentColor);
             graphics.text(client.font, Component.literal(String.format("SPEED  %.2f b/s", currentSpeedBps)),
                     x + 10, y + 10, 0xFFF1F6FB, true);
         }
@@ -891,7 +891,7 @@ public final class SkyOPClient implements ClientModInitializer {
             int x = hudXFor(Module.CPS_HUD, screenWidth / 2 - 48, screenWidth, 96);
             int y = hudYFor(Module.CPS_HUD, screenHeight - 66, screenHeight, 24);
             graphics.fill(x, y, x + 96, y + 24, 0xC5101726);
-            graphics.fill(x, y, x + 96, y + 2, 0xFF61C7F2);
+            graphics.fill(x, y, x + 96, y + 2, hudAccentColor);
             graphics.text(client.font, Component.literal("CPS  " + currentCps),
                     x + 10, y + 9, 0xFFF1F6FB, true);
         }
