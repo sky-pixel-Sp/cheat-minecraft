@@ -1,8 +1,8 @@
-# SkyOP Client 2.0.0 test plan
+# SkyOP Client 2.1.0 test plan
 
 ## Automated CI checks
 
-GitHub Actions builds with Java 25 and Gradle 9.7.1 using Fabric Loom 1.18.4. It runs clean build, verifies the remapped JAR contains the client entrypoint and Fabric metadata, and uploads the installable JAR.
+GitHub Actions builds with Java 25 and Gradle 9.7.1 using Fabric Loom 1.18.4. It runs clean build (including JUnit tests for RGB hex parsing and formatting), verifies the remapped JAR contains the client entrypoint and Fabric metadata, and uploads the installable JAR.
 
 A green CI result proves compilation and packaging. It does not prove an in-game launch or multiplayer acceptance.
 
@@ -10,7 +10,7 @@ A green CI result proves compilation and packaging. It does not prove an in-game
 
 1. Create a separate Minecraft Java 26.3 Fabric instance.
 2. Install Fabric Loader 0.20.1 and Fabric API 0.165.2+26.3.
-3. Add skyop-client-2.0.0.jar to that instance's mods folder.
+3. Add skyop-client-2.1.0.jar to that instance's mods folder.
 4. Launch to the title screen and confirm no mixin or resource errors appear.
 5. Join a local single-player world; capture logs/latest.log if a failure occurs.
 6. Confirm another mod using mixins does not conflict with skyop.mixins.json.
@@ -32,9 +32,10 @@ A green CI result proves compilation and packaging. It does not prove an in-game
 6. Hover module cards and check the animated description tooltip.
 7. Click a module's Keybind row; press a different key; verify that it toggles the selected module. Press Escape to cancel capture.
 8. Use keybinds from Options → Controls and verify there are no duplicate assignments.
-9. Click the color swatch and choose every palette color; verify HUD accent changes and persists.
-10. Toggle HUD Edit; drag the preview; release; verify the HUD position is saved.
-11. Edit the Text GUI label by clicking its text row, typing, and pressing Enter.
+9. Click the color swatch and choose each quick-palette color; verify HUD accent changes and persists.
+10. Enter a custom #RRGGBB value, apply it, and verify the HUD accent changes. Also check #RGB shorthand and invalid input.
+11. Enable several HUD panels, toggle HUD Edit, and drag each visible preview independently; release and reopen the GUI to verify positions persist.
+12. Edit the Text GUI label by clicking its text row, typing, and pressing Enter.
 12. Use Disable All; verify temporary ESP glow, gamma and flight state are restored.
 
 ## Inventory and survival
