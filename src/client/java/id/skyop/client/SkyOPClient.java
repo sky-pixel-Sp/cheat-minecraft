@@ -445,7 +445,7 @@ public final class SkyOPClient implements ClientModInitializer {
      */
     private static void ensureMouseCaptured(Minecraft client) {
         if (client.player == null || client.level == null || !client.isWindowActive()) return;
-        if (client.gui.screen() != null || client.gui.overlay() != null) return;
+        if (client.gui.screen() != null) return;
         if (!client.mouseHandler.isMouseGrabbed()) {
             client.mouseHandler.grabMouse();
         }
