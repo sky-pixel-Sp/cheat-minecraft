@@ -30,43 +30,60 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
 
 /**
  * SkyOP Client modules for Minecraft Java 26.3.
- * Client-side movement/combat changes remain subject to server authority.
+ * Movement and combat requests are still validated by the connected server.
  */
 public final class SkyOPClient implements ClientModInitializer {
     public enum Category {
         COMBAT("Combat"), MOVEMENT("Movement"), VISUAL("Visual"), PLAYER("Player");
+
         private final String title;
         Category(String title) { this.title = title; }
         public String title() { return title; }
     }
 
+    public enum Preset { PVE, OP, VISUAL }
+
     public enum Module {
-        KILL_AURA("KillAura", "Rotates toward and attacks selected nearby targets.", Category.COMBAT),
+        KILL_AURA("KillAura", "Prioritises a nearby configured target.", Category.COMBAT),
         TRIGGER_BOT("TriggerBot", "Attacks a valid target under the crosshair.", Category.COMBAT),
         AUTO_CLICKER("AutoClicker", "Repeats attacks while the attack key is held.", Category.COMBAT),
-        AUTO_SPRINT("Auto Sprint", "Automatically sprints while moving forward.", Category.MOVEMENT),
+
+        AUTO_SPRINT("Auto Sprint", "Sprints while moving forward.", Category.MOVEMENT),
         SPEED("Speed", "Applies a configurable horizontal movement boost.", Category.MOVEMENT),
-        FLIGHT("Flight", "Client-side flight controls using jump and sneak.", Category.MOVEMENT),
+        FLIGHT("Flight", "Local flight controls using jump and sneak.", Category.MOVEMENT),
+        AUTO_JUMP("Auto Jump", "Automatically jumps while moving forward.", Category.MOVEMENT),
+        STEP_ASSIST("Step Assist", "Jumps when forward movement meets a wall.", Category.MOVEMENT),
+        SPIDER("Spider", "Climbs a wall while moving into it.", Category.MOVEMENT),
+
         ENTITY_ESP("Entity ESP", "Highlights nearby loaded living entities.", Category.VISUAL),
-        GAMMA_BOOST("Gamma Boost", "Sets Minecraft's vanilla gamma option to maximum.", Category.VISUAL),
-        HUD("HUD", "Displays module status, FPS and coordinates.", Category.VISUAL),
+        GAMMA_BOOST("Gamma Boost", "Sets vanilla gamma to its maximum normal value.", Category.VISUAL),
+        HUD("HUD", "Displays enabled modules, coordinates and FPS.", Category.VISUAL),
+        TARGET_HUD("Target HUD", "Shows health and distance for the crosshair target.", Category.VISUAL),
+        KEYSTROKES_HUD("Keystrokes", "Displays movement key states on screen.", Category.VISUAL),
+        ARMOR_HUD("Armor HUD", "Displays health and armor status.", Category.VISUAL),
+
         NO_FALL("NoFall", "Clears the local fall-distance accumulator.", Category.PLAYER);
 
         private final String title;
         private final String description;
         private final Category category;
+
         Module(String title, String description, Category category) {
             this.title = title;
             this.description = description;
             this.category = category;
         }
+
         public String title() { return title; }
         public String description() { return description; }
         public Category category() { return category; }
@@ -93,12 +110,15 @@ public final class SkyOPClient implements ClientModInitializer {
     public static boolean targetMobs = true;
     public static boolean auraRotate = true;
     public static boolean auraRequireLineOfSight = true;
+    public static boolean auraTargetLowestHealth = false;
     public static double auraRange = 4.2;
     public static int auraDelayTicks = 8;
     public static int triggerDelayTicks = 3;
     public static int autoClickerCps = 12;
     public static double speedMultiplier = 1.7;
     public static double flightSpeed = 0.38;
+    public static int autoJumpDelayTicks = 4;
+    public static double spiderClimbSpeed = 0.22;
     public static double espRange = 48.0;
     public static boolean espPlayers = true;
     public static boolean espMobs = true;
@@ -106,8 +126,11 @@ public final class SkyOPClient implements ClientModInitializer {
     private static int auraCooldown;
     private static int triggerCooldown;
     private static int clickerCooldown;
+    private static int autoJumpCooldown;
+    private static int stepAssistCooldown;
     private static Double originalGamma;
     private static Boolean originalNoGravity;
+    private static Player flightPlayer;
     private static final float ATTACK_STRENGTH_THRESHOLD = 0.90F;
 
     private record GlowState(Entity entity, boolean wasGlowing) { }
@@ -146,11 +169,58 @@ public final class SkyOPClient implements ClientModInitializer {
         setEnabled(client, module, !isEnabled(module));
     }
 
+    public static void applyPreset(Minecraft client, Preset preset) {
+        ENABLED.clear();
+        targetPlayers = false;
+        targetMobs = true;
+        auraTargetLowestHealth = false;
+
+        switch (preset) {
+            case PVE -> {
+                ENABLED.addAll(EnumSet.of(Module.HUD, Module.KILL_AURA, Module.AUTO_SPRINT, Module.STEP_ASSIST));
+                auraRange = 5.0;
+                auraDelayTicks = 4;
+                speedMultiplier = 1.4;
+            }
+            case OP -> {
+                ENABLED.addAll(EnumSet.of(
+                        Module.HUD, Module.KILL_AURA, Module.AUTO_CLICKER,
+                        Module.AUTO_SPRINT, Module.SPEED, Module.FLIGHT,
+                        Module.AUTO_JUMP, Module.STEP_ASSIST, Module.SPIDER,
+                        Module.ENTITY_ESP, Module.TARGET_HUD, Module.ARMOR_HUD, Module.NO_FALL
+                ));
+                auraRange = 6.0;
+                auraDelayTicks = 1;
+                auraTargetLowestHealth = true;
+                speedMultiplier = 2.8;
+                flightSpeed = 0.72;
+                spiderClimbSpeed = 0.32;
+                espRange = 96.0;
+            }
+            case VISUAL -> {
+                ENABLED.addAll(EnumSet.of(
+                        Module.HUD, Module.ENTITY_ESP, Module.GAMMA_BOOST,
+                        Module.TARGET_HUD, Module.KEYSTROKES_HUD, Module.ARMOR_HUD
+                ));
+            }
+        }
+
+        if (!isEnabled(Module.ENTITY_ESP)) restoreGlow();
+        if (!isEnabled(Module.FLIGHT)) restoreFlight(client);
+        if (!isEnabled(Module.GAMMA_BOOST)) restoreGamma(client);
+        saveConfig();
+        if (client.player != null) {
+            client.player.sendSystemMessage(Component.literal("[SkyOP] " + preset.name() + " profile loaded."));
+        }
+    }
+
     public static void disableAll(Minecraft client) {
         ENABLED.clear();
         auraCooldown = 0;
         triggerCooldown = 0;
         clickerCooldown = 0;
+        autoJumpCooldown = 0;
+        stepAssistCooldown = 0;
         restoreGlow();
         restoreGamma(client);
         restoreFlight(client);
@@ -165,13 +235,19 @@ public final class SkyOPClient implements ClientModInitializer {
         if (client.player == null || client.level == null) {
             restoreGlow();
             restoreGamma(client);
-            originalNoGravity = null;
+            restoreFlight(client);
             return;
         }
+
+        if (client.screen != null) return;
 
         if (isEnabled(Module.AUTO_SPRINT)) tickAutoSprint(client);
         if (isEnabled(Module.SPEED)) tickSpeed(client);
         if (isEnabled(Module.FLIGHT)) tickFlight(client);
+        if (isEnabled(Module.AUTO_JUMP)) tickAutoJump(client); else autoJumpCooldown = 0;
+        if (isEnabled(Module.STEP_ASSIST)) tickStepAssist(client); else stepAssistCooldown = 0;
+        if (isEnabled(Module.SPIDER)) tickSpider(client);
+
         if (isEnabled(Module.NO_FALL) && client.player.fallDistance > 1.0F) {
             client.player.fallDistance = 0.0F;
         }
@@ -229,7 +305,10 @@ public final class SkyOPClient implements ClientModInitializer {
 
     private static void tickFlight(Minecraft client) {
         var player = client.player;
-        if (originalNoGravity == null) originalNoGravity = player.isNoGravity();
+        if (originalNoGravity == null) {
+            originalNoGravity = player.isNoGravity();
+            flightPlayer = player;
+        }
         player.setNoGravity(true);
 
         double vertical = 0.0;
@@ -240,11 +319,47 @@ public final class SkyOPClient implements ClientModInitializer {
         player.fallDistance = 0.0F;
     }
 
+    private static void tickAutoJump(Minecraft client) {
+        if (autoJumpCooldown > 0) { autoJumpCooldown--; return; }
+        var player = client.player;
+        if (!client.options.keyUp.isDown() || client.options.keyShift.isDown()
+                || !player.isAlive() || player.isPassenger() || !player.onGround()
+                || player.isInWater() || player.isInLava()) return;
+        player.jumpFromGround();
+        autoJumpCooldown = clamp(autoJumpDelayTicks, 2, 12);
+    }
+
+    private static void tickStepAssist(Minecraft client) {
+        if (stepAssistCooldown > 0) { stepAssistCooldown--; return; }
+        var player = client.player;
+        if (player.horizontalCollision && player.onGround()
+                && client.options.keyUp.isDown() && !client.options.keyShift.isDown()
+                && player.isAlive() && !player.isPassenger()) {
+            player.jumpFromGround();
+            stepAssistCooldown = 5;
+        }
+    }
+
+    private static void tickSpider(Minecraft client) {
+        var player = client.player;
+        if (!player.horizontalCollision || !client.options.keyUp.isDown()
+                || client.options.keyShift.isDown() || !player.isAlive() || player.isPassenger()) return;
+
+        Vec3 motion = player.getDeltaMovement();
+        double climb = clamp(spiderClimbSpeed, 0.08, 0.38);
+        if (motion.y < climb) {
+            player.setDeltaMovement(motion.x, climb, motion.z);
+            player.fallDistance = 0.0F;
+        }
+    }
+
     private static void restoreFlight(Minecraft client) {
-        if (client.player != null && originalNoGravity != null) {
-            client.player.setNoGravity(originalNoGravity);
+        Player target = flightPlayer != null ? flightPlayer : client.player;
+        if (target != null && originalNoGravity != null) {
+            target.setNoGravity(originalNoGravity);
         }
         originalNoGravity = null;
+        flightPlayer = null;
     }
 
     private static void tickGamma(Minecraft client) {
@@ -266,10 +381,23 @@ public final class SkyOPClient implements ClientModInitializer {
                 LivingEntity.class, area,
                 entity -> entity != player && entity.isAlive() && shouldEsp(entity)
         );
+
+        Set<UUID> seen = new HashSet<>();
         for (LivingEntity entity : entities) {
-            ORIGINAL_GLOW.putIfAbsent(entity.getUUID(),
-                    new GlowState(entity, entity.isCurrentlyGlowing()));
+            UUID id = entity.getUUID();
+            seen.add(id);
+            ORIGINAL_GLOW.putIfAbsent(id, new GlowState(entity, entity.isCurrentlyGlowing()));
             entity.setGlowingTag(true);
+        }
+
+        Iterator<Map.Entry<UUID, GlowState>> iterator = ORIGINAL_GLOW.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<UUID, GlowState> entry = iterator.next();
+            if (!seen.contains(entry.getKey())) {
+                GlowState state = entry.getValue();
+                state.entity().setGlowingTag(state.wasGlowing());
+                iterator.remove();
+            }
         }
     }
 
@@ -296,20 +424,30 @@ public final class SkyOPClient implements ClientModInitializer {
 
         LivingEntity target = null;
         double bestDistance = range * range;
+        float bestHealth = Float.MAX_VALUE;
         Vec3 look = player.getLookAngle();
         Vec3 eye = player.getEyePosition();
 
         for (LivingEntity candidate : candidates) {
             if (candidate.isInvisible()) continue;
-            if (auraRequireLineOfSight && !player.hasLineOfSight(candidate)) continue;
-
             double distance = player.distanceToSqr(candidate);
-            if (distance > bestDistance) continue;
+            if (distance > range * range) continue;
+            if (auraRequireLineOfSight && !player.hasLineOfSight(candidate)) continue;
 
             Vec3 direction = candidate.getBoundingBox().getCenter().subtract(eye).normalize();
             if (look.dot(direction) < 0.35) continue;
-            bestDistance = distance;
-            target = candidate;
+
+            if (auraTargetLowestHealth) {
+                float health = candidate.getHealth();
+                if (health < bestHealth || (health == bestHealth && distance < bestDistance)) {
+                    bestHealth = health;
+                    bestDistance = distance;
+                    target = candidate;
+                }
+            } else if (distance < bestDistance) {
+                bestDistance = distance;
+                target = candidate;
+            }
         }
 
         if (target == null) return;
@@ -366,35 +504,93 @@ public final class SkyOPClient implements ClientModInitializer {
     }
 
     private static void renderHud(Minecraft client, GuiGraphicsExtractor graphics) {
-        if (!isEnabled(Module.HUD) || client.player == null || client.gui.hud.isHidden()) return;
+        if (client.player == null || client.gui.hud.isHidden()) return;
 
-        int x = 8, y = 8, width = 164, lineHeight = 12;
-        int activeCount = 0;
-        for (Module module : Module.values()) {
-            if (module != Module.HUD && isEnabled(module)) activeCount++;
+        int screenWidth = client.getWindow().getGuiScaledWidth();
+        int screenHeight = client.getWindow().getGuiScaledHeight();
+
+        if (isEnabled(Module.HUD)) {
+            int x = 8, y = 8, width = 184, lineHeight = 12;
+            int activeCount = 0;
+            for (Module module : Module.values()) {
+                if (module != Module.HUD && isEnabled(module)) activeCount++;
+            }
+
+            int height = 44 + activeCount * lineHeight;
+            graphics.fill(x, y, x + width, y + height, 0xC5101726);
+            graphics.fill(x, y, x + width, y + 2, 0xFF61C7F2);
+            graphics.text(client.font, Component.literal("SKYOP  /  CLIENT"), x + 10, y + 8, 0xFF76D5FF, true);
+            graphics.text(client.font, Component.literal("26.3  •  " + activeCount + " active"),
+                    x + 10, y + 22, 0xFFB9C8D8, true);
+
+            int row = 0;
+            for (Module module : Module.values()) {
+                if (module != Module.HUD && isEnabled(module)) {
+                    graphics.text(client.font, Component.literal("• " + module.title()),
+                            x + 10, y + 40 + row * lineHeight, 0xFFE7F0F8, true);
+                    row++;
+                }
+            }
+
+            String coords = String.format("XYZ %.1f / %.1f / %.1f",
+                    client.player.getX(), client.player.getY(), client.player.getZ());
+            graphics.text(client.font, Component.literal(coords), x + 10, y + height + 7, 0xFFFFFFFF, true);
+            graphics.text(client.font, Component.literal(client.getFps() + " FPS"),
+                    x + 10, y + height + 19, 0xFF76D5FF, true);
         }
 
-        int height = 44 + activeCount * lineHeight;
-        graphics.fill(x, y, x + width, y + height, 0xB5101726);
-        graphics.fill(x, y, x + width, y + 2, 0xFF65C8FF);
-        graphics.text(client.font, Component.literal("SKYOP  /  CLIENT"), x + 9, y + 8, 0xFF76D5FF, true);
-        graphics.text(client.font, Component.literal("26.3  •  " + activeCount + " active"),
-                x + 9, y + 22, 0xFFB9C8D8, true);
-
-        int row = 0;
-        for (Module module : Module.values()) {
-            if (module != Module.HUD && isEnabled(module)) {
-                graphics.text(client.font, Component.literal("• " + module.title()),
-                        x + 10, y + 40 + row * lineHeight, 0xFFE7F0F8, true);
-                row++;
+        if (isEnabled(Module.TARGET_HUD)) {
+            int x = screenWidth - 194, y = 8;
+            graphics.fill(x, y, x + 186, y + 58, 0xC5101726);
+            graphics.fill(x, y, x + 186, y + 2, 0xFF61C7F2);
+            if (client.hitResult instanceof EntityHitResult hit
+                    && hit.getEntity() instanceof LivingEntity target && target.isAlive()) {
+                String targetName = target.getName().getString();
+                graphics.text(client.font, Component.literal(trimText(targetName, 22)),
+                        x + 10, y + 9, 0xFFF1F6FB, true);
+                graphics.text(client.font, Component.literal(
+                                String.format("HP %.1f / %.1f  •  %.1fm",
+                                        target.getHealth(), target.getMaxHealth(), client.player.distanceTo(target))),
+                        x + 10, y + 25, 0xFFB9C8D8, true);
+                int barWidth = 164;
+                graphics.fill(x + 10, y + 43, x + 10 + barWidth, y + 49, 0xFF36465A);
+                float ratio = target.getMaxHealth() <= 0 ? 0
+                        : Mth.clamp(target.getHealth() / target.getMaxHealth(), 0.0F, 1.0F);
+                graphics.fill(x + 10, y + 43, x + 10 + (int) (barWidth * ratio), y + 49, 0xFF57D69A);
+            } else {
+                graphics.text(client.font, Component.literal("NO TARGET"), x + 10, y + 25, 0xFF9AAABD, true);
             }
         }
 
-        String coords = String.format("XYZ %.1f / %.1f / %.1f",
-                client.player.getX(), client.player.getY(), client.player.getZ());
-        graphics.text(client.font, Component.literal(coords), x + 9, y + height + 7, 0xFFFFFFFF, true);
-        graphics.text(client.font, Component.literal(client.getFps() + " FPS"),
-                x + 9, y + height + 19, 0xFF76D5FF, true);
+        if (isEnabled(Module.KEYSTROKES_HUD)) {
+            int x = 10, y = screenHeight - 62;
+            drawKey(graphics, x + 22, y, "W", client.options.keyUp.isDown());
+            drawKey(graphics, x, y + 22, "A", client.options.keyLeft.isDown());
+            drawKey(graphics, x + 22, y + 22, "S", client.options.keyDown.isDown());
+            drawKey(graphics, x + 44, y + 22, "D", client.options.keyRight.isDown());
+            drawKey(graphics, x + 66, y + 22, "J", client.options.keyJump.isDown());
+        }
+
+        if (isEnabled(Module.ARMOR_HUD)) {
+            int x = screenWidth - 150, y = screenHeight - 38;
+            graphics.fill(x, y, x + 142, y + 28, 0xC5101726);
+            graphics.text(client.font, Component.literal(
+                            String.format("HP %.0f/%.0f  •  ARMOR %d",
+                                    client.player.getHealth(), client.player.getMaxHealth(),
+                                    client.player.getArmorValue())),
+                    x + 8, y + 10, 0xFFF1F6FB, true);
+        }
+    }
+
+    private static void drawKey(GuiGraphicsExtractor graphics, int x, int y, String label, boolean pressed) {
+        int background = pressed ? 0xFF24516A : 0xC5202B3D;
+        int foreground = pressed ? 0xFFFFFFFF : 0xFFB9C8D8;
+        graphics.fill(x, y, x + 20, y + 19, background);
+        graphics.text(Minecraft.getInstance().font, Component.literal(label), x + 7, y + 5, foreground, true);
+    }
+
+    private static String trimText(String value, int maxLength) {
+        return value.length() <= maxLength ? value : value.substring(0, maxLength - 3) + "...";
     }
 
     private static void notify(Minecraft client, String module, boolean enabled) {
@@ -413,12 +609,15 @@ public final class SkyOPClient implements ClientModInitializer {
         p.setProperty("targetMobs", Boolean.toString(targetMobs));
         p.setProperty("auraRotate", Boolean.toString(auraRotate));
         p.setProperty("auraRequireLineOfSight", Boolean.toString(auraRequireLineOfSight));
+        p.setProperty("auraTargetLowestHealth", Boolean.toString(auraTargetLowestHealth));
         p.setProperty("auraRange", Double.toString(auraRange));
         p.setProperty("auraDelayTicks", Integer.toString(auraDelayTicks));
         p.setProperty("triggerDelayTicks", Integer.toString(triggerDelayTicks));
         p.setProperty("autoClickerCps", Integer.toString(autoClickerCps));
         p.setProperty("speedMultiplier", Double.toString(speedMultiplier));
         p.setProperty("flightSpeed", Double.toString(flightSpeed));
+        p.setProperty("autoJumpDelayTicks", Integer.toString(autoJumpDelayTicks));
+        p.setProperty("spiderClimbSpeed", Double.toString(spiderClimbSpeed));
         p.setProperty("espRange", Double.toString(espRange));
         p.setProperty("espPlayers", Boolean.toString(espPlayers));
         p.setProperty("espMobs", Boolean.toString(espMobs));
@@ -449,12 +648,15 @@ public final class SkyOPClient implements ClientModInitializer {
             targetMobs = bool(p, "targetMobs", targetMobs);
             auraRotate = bool(p, "auraRotate", auraRotate);
             auraRequireLineOfSight = bool(p, "auraRequireLineOfSight", auraRequireLineOfSight);
+            auraTargetLowestHealth = bool(p, "auraTargetLowestHealth", auraTargetLowestHealth);
             auraRange = number(p, "auraRange", auraRange, 2.5, 6.0);
             auraDelayTicks = integer(p, "auraDelayTicks", auraDelayTicks, 1, 20);
             triggerDelayTicks = integer(p, "triggerDelayTicks", triggerDelayTicks, 1, 12);
             autoClickerCps = integer(p, "autoClickerCps", autoClickerCps, 4, 20);
             speedMultiplier = number(p, "speedMultiplier", speedMultiplier, 1.0, 2.8);
             flightSpeed = number(p, "flightSpeed", flightSpeed, 0.12, 0.9);
+            autoJumpDelayTicks = integer(p, "autoJumpDelayTicks", autoJumpDelayTicks, 2, 12);
+            spiderClimbSpeed = number(p, "spiderClimbSpeed", spiderClimbSpeed, 0.08, 0.38);
             espRange = number(p, "espRange", espRange, 8.0, 96.0);
             espPlayers = bool(p, "espPlayers", espPlayers);
             espMobs = bool(p, "espMobs", espMobs);

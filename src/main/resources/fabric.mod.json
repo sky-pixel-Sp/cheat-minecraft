@@ -3,7 +3,7 @@
   "id": "skyop",
   "version": "${version}",
   "name": "SkyOP Client",
-  "description": "A configurable client-side utility and combat module pack for Minecraft Java 26.3.",
+  "description": "Expanded client-side combat, movement, visual and HUD modules for Minecraft Java 26.3.",
   "authors": ["SkyOP"],
   "license": "MIT",
   "environment": "client",
