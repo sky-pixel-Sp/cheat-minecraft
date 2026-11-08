@@ -1,4 +1,4 @@
-# SkyOP Client 2.1.1 test plan
+# SkyOP Client 2.1.2 test plan
 
 ## Automated CI checks
 
@@ -10,9 +10,9 @@ A green CI result proves compilation and packaging. It does not prove an in-game
 
 1. Create a separate Minecraft Java 26.3 Fabric instance.
 2. Install Fabric Loader 0.20.1 and Fabric API 0.165.2+26.3.
-3. Add skyop-client-2.1.1.jar to that instance's mods folder.
+3. Add skyop-client-2.1.2.jar to that instance's mods folder.
 4. Launch to the title screen and confirm no mixin or resource errors appear.
-5. Join a local single-player world; capture logs/latest.log if a failure occurs.
+5. Join a local single-player world and wait for the loading screen to close; verify keyboard/mouse input is captured without an IndexOutOfBoundsException. Capture logs/latest.log if a failure occurs.
 6. Confirm another mod using mixins does not conflict with skyop.mixins.json.
 
 ## Language
