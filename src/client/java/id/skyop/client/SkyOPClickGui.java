@@ -457,7 +457,7 @@ public final class SkyOPClickGui extends Screen {
     }
 
     private static Setting info(String label, String detail) {
-        return new Setting(label, detail, SettingKind.INFO, 0, 0, 1, false, "INFO");
+        return new Setting(label, detail, SettingKind.INFO, 0, 0, 1, false, SkyOPLanguage.text("gui.info"));
     }
 
     private void applySettingClick(int index, double mouseX) {
@@ -790,7 +790,7 @@ public final class SkyOPClickGui extends Screen {
         if (SkyOPClient.isEnabled(SkyOPClient.Module.HUD)) {
             int mainHudHeight = Math.min(sh, 70 + Math.max(0, SkyOPClient.enabledModuleCount() - 1) * 12);
             previews.add(hudPreview(SkyOPClient.Module.HUD, 8, 8, 190,
-                    mainHudHeight, "Main HUD", sw, sh));
+                    mainHudHeight, SkyOPLanguage.text("gui.main_hud"), sw, sh));
         }
         if (SkyOPClient.isEnabled(SkyOPClient.Module.TARGET_HUD))
             previews.add(hudPreview(SkyOPClient.Module.TARGET_HUD, sw - 194, 8, 186, 58, null, sw, sh));
@@ -805,7 +805,7 @@ public final class SkyOPClickGui extends Screen {
         if (SkyOPClient.isEnabled(SkyOPClient.Module.COMPASS_HUD)
                 || SkyOPClient.isEnabled(SkyOPClient.Module.DIRECTION_HUD)) {
             String label = SkyOPClient.isEnabled(SkyOPClient.Module.COMPASS_HUD)
-                    ? "Compass / Direction" : SkyOPClient.Module.DIRECTION_HUD.title();
+                    ? SkyOPLanguage.text("gui.compass_direction") : SkyOPClient.Module.DIRECTION_HUD.title();
             previews.add(hudPreview(SkyOPClient.Module.COMPASS_HUD, sw / 2 - 48, 8, 96, 23, label, sw, sh));
         }
         if (SkyOPClient.isEnabled(SkyOPClient.Module.PING_HUD))
@@ -861,7 +861,7 @@ public final class SkyOPClickGui extends Screen {
             if (preview.height() > 34) {
                 g.text(font, Component.literal(preview.x() + ", " + preview.y()),
                         preview.x() + 6, preview.y() + 21, MUTED, true);
-                g.text(font, Component.literal("DRAG TO MOVE"),
+                g.text(font, Component.literal(SkyOPLanguage.text("gui.drag_to_move")),
                         preview.x() + 6, preview.y() + preview.height() - 12,
                         SkyOPClient.hudAccentColor(), true);
             }
