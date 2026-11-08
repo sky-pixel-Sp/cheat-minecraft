@@ -28,7 +28,7 @@
 
 ## What is new in 2.2.0
 
-SkyOP 2.2.0 improves the ClickGUI language coverage and restores gameplay mouse capture after screens close. Bahasa Indonesia is now the default and has complete translations for module names, descriptions, settings and editor controls. Minecraft's relative mouse mode is re-captured only when the player is in-world, the game window is active, and no screen or overlay is open. The release also resets transient HUD-drag and text/keybind editing states when the ClickGUI closes.
+SkyOP 2.2.0 improves the ClickGUI language coverage and restores gameplay mouse capture after screens close. Bahasa Indonesia is now the default and has complete translations for module names, descriptions, settings and editor controls. Minecraft's relative mouse mode is re-captured only when the player is in-world, the game window is active, and no GUI screen is open. The release also resets transient HUD-drag and text/keybind editing states when the ClickGUI closes.
 
 - **Language:** Bahasa Indonesia is the default, with English available from the in-client selector. The selected language is saved independently from Minecraft's global language.
 - **Module browser:** search, category filtering, Favorites, two-column module cards and per-panel scrolling.
@@ -159,7 +159,7 @@ The central settings schema declares numeric defaults and valid ranges. Settings
 
 ## Language selection
 
-English is the default on a clean installation. Use the language control in the ClickGUI footer to cycle through:
+Bahasa Indonesia is the default on a clean installation. Use the language control in the ClickGUI footer to switch between:
 - Bahasa Indonesia (default)
 - English
 
