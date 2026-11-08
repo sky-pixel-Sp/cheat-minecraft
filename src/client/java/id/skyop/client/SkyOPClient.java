@@ -201,6 +201,9 @@ public final class SkyOPClient implements ClientModInitializer {
     public static boolean isEnabled(Module module) { return ENABLED.contains(module); }
     public static int enabledModuleCount() { return ENABLED.size(); }
     public static boolean isFavorite(Module module) { return FAVORITES.contains(module); }
+    public static boolean isModuleKeybindUnbound(Module module) {
+        return module == null || MODULE_KEY_CODES.getOrDefault(module, -1) < 0;
+    }
     public static int favoriteCount() { return FAVORITES.size(); }
     public static int hudAccentColor() { return hudAccentColor; }
     public static KeyMapping keybindFor(Module module) { return MODULE_KEYBINDS.get(module); }
@@ -245,7 +248,7 @@ public final class SkyOPClient implements ClientModInitializer {
     public static void setModuleKeybind(Module module, int scancode) {
         KeyMapping mapping = MODULE_KEYBINDS.get(module);
         if (mapping == null) return;
-        int safeCode = Math.max(-1, scancode);
+        int safeCode = scancode > 0 && SkyOPSdlKeyboardIndex.isValidStateIndex(scancode) ? scancode : -1;
         MODULE_KEY_CODES.put(module, safeCode);
         mapping.setKey(safeCode < 0
                 ? InputConstants.UNKNOWN
@@ -1038,7 +1041,8 @@ public final class SkyOPClient implements ClientModInitializer {
                 KeyMapping mapping = MODULE_KEYBINDS.get(module);
                 if (keybind != null && mapping != null) {
                     try {
-                        int code = Math.max(-1, Integer.parseInt(keybind));
+                        int parsedCode = Integer.parseInt(keybind);
+                        int code = parsedCode > 0 && SkyOPSdlKeyboardIndex.isValidStateIndex(parsedCode) ? parsedCode : -1;
                         MODULE_KEY_CODES.put(module, code);
                         mapping.setKey(code < 0 ? InputConstants.UNKNOWN : InputConstants.Type.KEYBOARD.getOrCreate(code));
                     } catch (NumberFormatException ignored) { }

@@ -3,7 +3,8 @@
   "package": "id.skyop.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "SkyOPFishingHookAccessor"
+    "SkyOPFishingHookAccessor",
+    "InputConstantsMixin"
   ],
   "injectors": {
     "defaultRequire": 1
