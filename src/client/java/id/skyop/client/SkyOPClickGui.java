@@ -787,8 +787,11 @@ public final class SkyOPClickGui extends Screen {
     private List<HudPreview> buildHudPreviews() {
         List<HudPreview> previews = new ArrayList<>();
         int sw = width, sh = height;
-        if (SkyOPClient.isEnabled(SkyOPClient.Module.HUD))
-            previews.add(hudPreview(SkyOPClient.Module.HUD, 8, 8, 190, 88, "Main HUD", sw, sh));
+        if (SkyOPClient.isEnabled(SkyOPClient.Module.HUD)) {
+            int mainHudHeight = Math.min(sh, 70 + Math.max(0, SkyOPClient.enabledModuleCount() - 1) * 12);
+            previews.add(hudPreview(SkyOPClient.Module.HUD, 8, 8, 190,
+                    mainHudHeight, "Main HUD", sw, sh));
+        }
         if (SkyOPClient.isEnabled(SkyOPClient.Module.TARGET_HUD))
             previews.add(hudPreview(SkyOPClient.Module.TARGET_HUD, sw - 194, 8, 186, 58, null, sw, sh));
         if (SkyOPClient.isEnabled(SkyOPClient.Module.KEYSTROKES_HUD))
@@ -811,8 +814,10 @@ public final class SkyOPClickGui extends Screen {
             previews.add(hudPreview(SkyOPClient.Module.FPS_HUD, sw - 100, 34, 92, 22, null, sw, sh));
         if (SkyOPClient.isEnabled(SkyOPClient.Module.RADAR_HUD))
             previews.add(hudPreview(SkyOPClient.Module.RADAR_HUD, sw - 202, sh / 2 - 12, 194, 90, null, sw, sh));
-        if (SkyOPClient.isEnabled(SkyOPClient.Module.TEXT_GUI))
-            previews.add(hudPreview(SkyOPClient.Module.TEXT_GUI, 8, sh - 27, Math.max(120, sw - 16), 19, null, sw, sh));
+        if (SkyOPClient.isEnabled(SkyOPClient.Module.TEXT_GUI)) {
+            int textWidth = Math.min(sw, Math.max(120, Math.min(480, font.width(SkyOPClient.customHudText) + 16)));
+            previews.add(hudPreview(SkyOPClient.Module.TEXT_GUI, 8, sh - 27, textWidth, 19, null, sw, sh));
+        }
         if (SkyOPClient.isEnabled(SkyOPClient.Module.SPEEDOMETER))
             previews.add(hudPreview(SkyOPClient.Module.SPEEDOMETER, sw / 2 - 58, sh - 37, 116, 25, null, sw, sh));
         if (SkyOPClient.isEnabled(SkyOPClient.Module.CPS_HUD))
@@ -830,7 +835,10 @@ public final class SkyOPClickGui extends Screen {
     }
 
     private HudPreview hudPreviewAt(int mouseX, int mouseY) {
-        for (HudPreview preview : buildHudPreviews()) {
+        List<HudPreview> previews = buildHudPreviews();
+        // Hit-test in reverse drawing order so the visually topmost overlapping panel is draggable.
+        for (int index = previews.size() - 1; index >= 0; index--) {
+            HudPreview preview = previews.get(index);
             if (inside(mouseX, mouseY, preview.x(), preview.y(), preview.width(), preview.height())) return preview;
         }
         return null;
