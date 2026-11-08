@@ -48,9 +48,17 @@ jobs:
             exit 1
           fi
 
-          # Prevent regression: unbound module keys must use SDL-safe UNKNOWN (0),
-          # not the invalid legacy -1 value in Minecraft 26.3.
-          grep -Fq 'InputConstants.UNKNOWN.getValue()' src/client/java/id/skyop/client/SkyOPClient.java
+          # SDL keyboard-state buffers use SDL scancodes; UNKNOWN is index 0.
+          # Guard any negative or out-of-range index before Minecraft reads its ByteBuffer.
+          grep -Fq 'SDL_SCANCODE_UNKNOWN' src/main/java/id/skyop/client/SkyOPSdlKeyboardIndex.java
+          grep -Fq 'SDL_SCANCODE_COUNT' src/main/java/id/skyop/client/SkyOPSdlKeyboardIndex.java
+          grep -Fq 'SkyOPSdlKeyboardIndex.unboundScancode()' src/client/java/id/skyop/client/SkyOPClient.java
+          grep -Fq 'SkyOPSdlKeyboardIndex.isValidStateIndex(key)' src/client/java/id/skyop/mixin/InputConstantsMixin.java
+          grep -Fq '"InputConstantsMixin"' src/main/resources/skyop.mixins.json
+          if grep -Fq 'InputConstants.UNKNOWN' src/client/java/id/skyop/client/SkyOPClient.java; then
+            echo 'SkyOP module key mappings must not pass the -1 InputConstants.UNKNOWN sentinel to SDL.' >&2
+            exit 1
+          fi
           # Prevent regression: gameplay must re-acquire SDL relative mouse mode
           # after a UI closes, but only when the game is focused and no UI is open.
           grep -Fq 'ensureMouseCaptured(client);' src/client/java/id/skyop/client/SkyOPClient.java
@@ -69,6 +77,8 @@ jobs:
           JAR_ENTRIES="$(jar tf "$JAR_PATH")"
           printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPClient.class$'
           printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/mixin/SkyOPFishingHookAccessor.class$'
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/mixin/InputConstantsMixin.class$'
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPSdlKeyboardIndex.class$'
           if printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPFishingHookAccessor.class$'; then
             echo 'Mixin accessor must not remain in the client entrypoint package.' >&2
             exit 1
