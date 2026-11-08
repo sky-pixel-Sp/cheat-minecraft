@@ -1,4 +1,4 @@
-# SkyOP Client 2.0.0
+# SkyOP Client 2.1.0
 
 <p align="center">
   <strong>Premium-style Minecraft Java 26.3 Fabric client</strong><br>
@@ -12,7 +12,7 @@
   <img alt="Minecraft" src="https://img.shields.io/badge/Minecraft-Java%2026.3-3C8527?logo=minecraft&logoColor=white">
   <img alt="Fabric" src="https://img.shields.io/badge/Mod%20loader-Fabric-DBD0B4?logo=fabric&logoColor=222222">
   <img alt="Java" src="https://img.shields.io/badge/Java-25-ED8B00?logo=openjdk&logoColor=white">
-  <img alt="Version" src="https://img.shields.io/badge/SkyOP-2.0.0-4BA3D9">
+  <img alt="Version" src="https://img.shields.io/badge/SkyOP-2.1.0-4BA3D9">
   <img alt="License" src="https://img.shields.io/badge/License-MIT-blue.svg">
 </p>
 
@@ -26,18 +26,18 @@
 
 ---
 
-## What is new in 2.0.0
+## What is new in 2.1.0
 
-SkyOP 2.0 expands the 1.3 client with a premium-style configuration layer, inventory/survival utilities, extra HUD panels, a language selector, profile storage, keybind editing, and HUD positioning/color controls.
+SkyOP 2.1 polishes the client configuration workflow with custom RGB colors, independent positioning for active HUD panels, expanded localized module descriptions, and automated unit tests for color input.
 
 - **Language:** English is the default. The in-client selector also includes Bahasa Indonesia, Español, Português, Français, 简体中文 and 日本語. Your choice is saved independently from Minecraft's global language.
 - **Module browser:** search, category filtering, Favorites, two-column module cards and per-panel scrolling.
-- **Input and HUD editor:** per-module keybind capture, drag-to-position HUD preview, and a six-color palette.
+- **Input and HUD editor:** per-module keybind capture, independently draggable HUD panels, six quick color swatches, and a custom RGB hex field (#RRGGBB).
 - **Inventory utilities:** Auto Eat, Auto Armor, Auto Tool, Auto Refill, Auto Fish and safe stack consolidation.
 - **Profiles:** three JSON profile slots, JSON export/import through files in the config directory, timestamped backups and three hotbar layouts.
 - **Extra HUDs:** potion effects, durability, compass/direction, ping, FPS, nearby client-loaded entities and custom text.
 
-A successful automated build checks compilation, remapping, metadata and artifact packaging. It does not replace a real Minecraft launch and in-world test.
+A successful automated build checks compilation, remapping, metadata, RGB codec unit tests and artifact packaging. It does not replace a real Minecraft launch and in-world test.
 
 ## Download and install
 
@@ -45,7 +45,7 @@ A successful automated build checks compilation, remapping, metadata and artifac
 2. Choose the newest run with a green **Success** status.
 3. Scroll to **Artifacts** and download **SkyOP-Client-Minecraft-26.3**.
 4. Extract the downloaded ZIP archive.
-5. Copy skyop-client-2.0.0.jar into the mods folder of your Minecraft 26.3 Fabric instance.
+5. Copy skyop-client-2.1.0.jar into the mods folder of your Minecraft 26.3 Fabric instance.
 6. Keep Fabric API installed in the same instance, then launch Minecraft.
 
 GitHub Actions artifacts expire after 30 days. Use the latest successful run for the most recent build.
@@ -78,8 +78,8 @@ Press **Right Shift** in-game.
 | Click a setting row | Toggle an option or set a slider |
 | Click a module's Keybind row, then press a key | Change its keybind |
 | Press Escape while capturing a key | Cancel key capture |
-| Click the color swatch in the header | Open the HUD color palette |
-| Click HUD Edit, then drag the preview | Move the main HUD; release to save |
+| Click the color swatch in the header | Open the six quick colors or enter a custom #RRGGBB value |
+| Click HUD Edit, then drag any visible HUD panel | Move that HUD panel independently; release to save |
 | Click a language button in the footer | Cycle the in-client language |
 | PVE / OP / VISUAL | Load the built-in quick preset |
 | Disable All | Disable modules and restore temporary client state |
@@ -127,7 +127,7 @@ The keybinds also appear in **Options → Controls → Key Binds → SkyOP Clien
 | Nearby Entity Radar | Nearby entities already tracked by the client |
 | Text GUI | Custom on-screen message |
 
-HUD coordinates and accent color are stored in the SkyOP configuration.
+Each active HUD panel has its own saved screen position. The editor keeps panels within the screen area. Accent color accepts any six-digit RGB hex value and is stored in the SkyOP configuration.
 
 ### Inventory and survival
 
