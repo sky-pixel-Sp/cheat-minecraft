@@ -50,6 +50,10 @@ public final class SkyOPLanguage {
         put("gui.load", "LOAD");
         put("gui.favorites", "FAVORITES");
         put("gui.search", "SEARCH MODULES");
+        put("gui.hud_color", "HUD COLOR");
+        put("gui.apply", "APPLY");
+        put("gui.hud_layout", "HUD LAYOUT");
+        put("gui.drag_hud", "Drag each panel to reposition");
 
         put("category.combat", "Combat");
         put("category.movement", "Movement");
@@ -294,6 +298,26 @@ public final class SkyOPLanguage {
                 e("module.HOTBAR_PRESETS.title", "Preset Hotbar"), e("module.PROFILE_MANAGER.title", "Pengelola Profil"),
                 e("setting.hunger_threshold", "Ambang rasa lapar"), e("setting.eat_below", "Mulai makan di bawah nilai ini"),
                 e("setting.refill_threshold", "Ambang isi ulang"), e("setting.refill_low", "Isi ulang saat jumlah stack di bawah nilai ini")
+                e("gui.hud_color", "WARNA HUD"),
+                e("gui.apply", "TERAPKAN"),
+                e("gui.hud_layout", "TATA LETAK HUD"),
+                e("gui.drag_hud", "Seret setiap panel untuk memindahkannya"),
+                e("module.POTION_HUD.description", "Menampilkan efek ramuan aktif dan sisa durasinya."),
+                e("module.DURABILITY_HUD.description", "Menampilkan persentase daya tahan item di tangan utama."),
+                e("module.COMPASS_HUD.description", "Menampilkan arah mata angin dan sudut yaw pemain."),
+                e("module.DIRECTION_HUD.description", "Menampilkan arah mata angin saat ini."),
+                e("module.PING_HUD.description", "Menampilkan latensi saat data daftar pemain tersedia."),
+                e("module.FPS_HUD.description", "Menampilkan jumlah frame per detik klien."),
+                e("module.RADAR_HUD.description", "Menampilkan entitas terdekat yang sudah dimuat klien."),
+                e("module.TEXT_GUI.description", "Menampilkan pesan kustom di layar."),
+                e("module.AUTO_EAT.description", "Memakan makanan aman dari hotbar saat rasa lapar melewati ambang."),
+                e("module.AUTO_ARMOR.description", "Mengisi slot armor kosong tanpa mengganti armor yang sedang dipakai."),
+                e("module.AUTO_TOOL.description", "Memilih alat tercepat di hotbar untuk blok yang ditargetkan."),
+                e("module.AUTO_REFILL.description", "Mengisi ulang stack hotbar yang hampir habis dari inventaris."),
+                e("module.AUTO_FISH.description", "Menggulung pancing saat gigitan terdeteksi lalu melemparnya kembali."),
+                e("module.INVENTORY_CLEANER.description", "Menggabungkan stack sejenis tanpa menjatuhkan item."),
+                e("module.HOTBAR_PRESETS.description", "Menyimpan tiga susunan hotbar menggunakan ID item."),
+                e("module.PROFILE_MANAGER.description", "Mengimpor, mengekspor, dan mencadangkan profil konfigurasi."),
         ));
         translate("es", Map.ofEntries(
                 e("category.inventory", "Inventario"), e("category.favorites", "Favoritos"),
@@ -307,6 +331,26 @@ public final class SkyOPLanguage {
                 e("module.HOTBAR_PRESETS.title", "Perfiles de barra rápida"), e("module.PROFILE_MANAGER.title", "Gestor de perfiles"),
                 e("setting.hunger_threshold", "Umbral de hambre"), e("setting.eat_below", "Comer por debajo de este nivel"),
                 e("setting.refill_threshold", "Umbral de recarga"), e("setting.refill_low", "Recargar cuando la pila sea baja")
+                e("gui.hud_color", "COLOR DEL HUD"),
+                e("gui.apply", "APLICAR"),
+                e("gui.hud_layout", "DISEÑO DEL HUD"),
+                e("gui.drag_hud", "Arrastra cada panel para moverlo"),
+                e("module.POTION_HUD.description", "Muestra los efectos activos y su duración restante."),
+                e("module.DURABILITY_HUD.description", "Muestra la durabilidad del objeto en la mano principal."),
+                e("module.COMPASS_HUD.description", "Muestra el punto cardinal y el ángulo del jugador."),
+                e("module.DIRECTION_HUD.description", "Muestra la dirección cardinal actual."),
+                e("module.PING_HUD.description", "Muestra la latencia cuando hay datos de la lista de jugadores."),
+                e("module.FPS_HUD.description", "Muestra los fotogramas por segundo del cliente."),
+                e("module.RADAR_HUD.description", "Muestra entidades cercanas ya cargadas por el cliente."),
+                e("module.TEXT_GUI.description", "Muestra un mensaje personalizado en pantalla."),
+                e("module.AUTO_EAT.description", "Usa comida segura de la barra rápida cuando baja el hambre."),
+                e("module.AUTO_ARMOR.description", "Completa ranuras de armadura vacías sin reemplazar equipo."),
+                e("module.AUTO_TOOL.description", "Selecciona la herramienta más rápida de la barra para el bloque objetivo."),
+                e("module.AUTO_REFILL.description", "Repone pilas pequeñas de la barra desde el inventario."),
+                e("module.AUTO_FISH.description", "Recoge el anzuelo al detectar una picada y vuelve a lanzarlo."),
+                e("module.INVENTORY_CLEANER.description", "Consolida pilas iguales sin tirar objetos."),
+                e("module.HOTBAR_PRESETS.description", "Guarda tres diseños de barra rápida mediante identificadores."),
+                e("module.PROFILE_MANAGER.description", "Importa, exporta y crea copias de perfiles."),
         ));
         translate("pt", Map.ofEntries(
                 e("category.inventory", "Inventário"), e("category.favorites", "Favoritos"),
@@ -320,6 +364,26 @@ public final class SkyOPLanguage {
                 e("module.HOTBAR_PRESETS.title", "Perfis da barra rápida"), e("module.PROFILE_MANAGER.title", "Gerenciador de perfis"),
                 e("setting.hunger_threshold", "Limite de fome"), e("setting.eat_below", "Comer abaixo deste nível"),
                 e("setting.refill_threshold", "Limite de reabastecimento"), e("setting.refill_low", "Reabastecer quando a pilha estiver baixa")
+                e("gui.hud_color", "COR DO HUD"),
+                e("gui.apply", "APLICAR"),
+                e("gui.hud_layout", "LAYOUT DO HUD"),
+                e("gui.drag_hud", "Arraste cada painel para movê-lo"),
+                e("module.POTION_HUD.description", "Mostra efeitos ativos e o tempo restante."),
+                e("module.DURABILITY_HUD.description", "Mostra a durabilidade do item na mão principal."),
+                e("module.COMPASS_HUD.description", "Mostra o ponto cardeal e o ângulo do jogador."),
+                e("module.DIRECTION_HUD.description", "Mostra a direção cardeal atual."),
+                e("module.PING_HUD.description", "Mostra a latência quando os dados da lista de jogadores estão disponíveis."),
+                e("module.FPS_HUD.description", "Mostra os quadros por segundo do cliente."),
+                e("module.RADAR_HUD.description", "Mostra entidades próximas já carregadas pelo cliente."),
+                e("module.TEXT_GUI.description", "Mostra uma mensagem personalizada na tela."),
+                e("module.AUTO_EAT.description", "Usa comida segura da barra rápida quando a fome está baixa."),
+                e("module.AUTO_ARMOR.description", "Preenche espaços vazios de armadura sem substituir peças usadas."),
+                e("module.AUTO_TOOL.description", "Seleciona a ferramenta mais rápida da barra para o bloco visado."),
+                e("module.AUTO_REFILL.description", "Reabastece pilhas baixas da barra usando itens do inventário."),
+                e("module.AUTO_FISH.description", "Recolhe a linha ao detectar uma mordida e lança novamente."),
+                e("module.INVENTORY_CLEANER.description", "Consolida pilhas iguais sem descartar itens."),
+                e("module.HOTBAR_PRESETS.description", "Salva três layouts da barra rápida usando IDs de itens."),
+                e("module.PROFILE_MANAGER.description", "Importa, exporta e cria backups de perfis."),
         ));
         translate("fr", Map.ofEntries(
                 e("category.inventory", "Inventaire"), e("category.favorites", "Favoris"),
@@ -333,6 +397,26 @@ public final class SkyOPLanguage {
                 e("module.HOTBAR_PRESETS.title", "Profils de barre rapide"), e("module.PROFILE_MANAGER.title", "Gestionnaire de profils"),
                 e("setting.hunger_threshold", "Seuil de faim"), e("setting.eat_below", "Manger sous ce niveau"),
                 e("setting.refill_threshold", "Seuil de recharge"), e("setting.refill_low", "Recharger quand la pile est basse")
+                e("gui.hud_color", "COULEUR DU HUD"),
+                e("gui.apply", "APPLIQUER"),
+                e("gui.hud_layout", "DISPOSITION DU HUD"),
+                e("gui.drag_hud", "Faites glisser chaque panneau pour le déplacer"),
+                e("module.POTION_HUD.description", "Affiche les effets actifs et leur durée restante."),
+                e("module.DURABILITY_HUD.description", "Affiche la durabilité de l'objet en main principale."),
+                e("module.COMPASS_HUD.description", "Affiche le point cardinal et l'angle du joueur."),
+                e("module.DIRECTION_HUD.description", "Affiche la direction cardinale actuelle."),
+                e("module.PING_HUD.description", "Affiche la latence lorsque la liste des joueurs est disponible."),
+                e("module.FPS_HUD.description", "Affiche les images par seconde du client."),
+                e("module.RADAR_HUD.description", "Affiche les entités proches déjà chargées par le client."),
+                e("module.TEXT_GUI.description", "Affiche un message personnalisé à l'écran."),
+                e("module.AUTO_EAT.description", "Utilise de la nourriture sûre de la barre rapide lorsque la faim baisse."),
+                e("module.AUTO_ARMOR.description", "Remplit les emplacements d'armure vides sans remplacer l'équipement porté."),
+                e("module.AUTO_TOOL.description", "Choisit l'outil le plus rapide de la barre pour le bloc visé."),
+                e("module.AUTO_REFILL.description", "Recharge les piles faibles de la barre depuis l'inventaire."),
+                e("module.AUTO_FISH.description", "Rembobine lors d'une touche visible puis relance la canne."),
+                e("module.INVENTORY_CLEANER.description", "Regroupe les piles identiques sans jeter d'objets."),
+                e("module.HOTBAR_PRESETS.description", "Enregistre trois dispositions de barre via les identifiants d'objets."),
+                e("module.PROFILE_MANAGER.description", "Importe, exporte et sauvegarde les profils."),
         ));
         translate("zh", Map.ofEntries(
                 e("category.inventory", "物品栏"), e("category.favorites", "收藏"),
@@ -346,6 +430,26 @@ public final class SkyOPLanguage {
                 e("module.HOTBAR_PRESETS.title", "快捷栏预设"), e("module.PROFILE_MANAGER.title", "配置管理器"),
                 e("setting.hunger_threshold", "饥饿阈值"), e("setting.eat_below", "低于此数值时进食"),
                 e("setting.refill_threshold", "补充阈值"), e("setting.refill_low", "物品数量较低时补充")
+                e("gui.hud_color", "HUD 颜色"),
+                e("gui.apply", "应用"),
+                e("gui.hud_layout", "HUD 布局"),
+                e("gui.drag_hud", "拖动每个面板以调整位置"),
+                e("module.POTION_HUD.description", "显示有效药水效果及剩余时间。"),
+                e("module.DURABILITY_HUD.description", "显示主手物品的剩余耐久百分比。"),
+                e("module.COMPASS_HUD.description", "显示玩家的罗盘方向和偏航角。"),
+                e("module.DIRECTION_HUD.description", "显示当前的方位方向。"),
+                e("module.PING_HUD.description", "有玩家列表数据时显示网络延迟。"),
+                e("module.FPS_HUD.description", "显示客户端每秒帧数。"),
+                e("module.RADAR_HUD.description", "显示客户端已加载的附近实体。"),
+                e("module.TEXT_GUI.description", "在屏幕上显示自定义消息。"),
+                e("module.AUTO_EAT.description", "饥饿值较低时使用快捷栏中的安全食物。"),
+                e("module.AUTO_ARMOR.description", "填充空盔甲槽，不替换已穿戴装备。"),
+                e("module.AUTO_TOOL.description", "为目标方块选择快捷栏中效率最高的工具。"),
+                e("module.AUTO_REFILL.description", "从物品栏补充数量较少的快捷栏堆叠。"),
+                e("module.AUTO_FISH.description", "检测到咬钩后收线并重新抛竿。"),
+                e("module.INVENTORY_CLEANER.description", "合并相同物品堆叠，不会丢弃物品。"),
+                e("module.HOTBAR_PRESETS.description", "使用物品 ID 保存三套快捷栏布局。"),
+                e("module.PROFILE_MANAGER.description", "导入、导出并备份配置文件。"),
         ));
         translate("ja", Map.ofEntries(
                 e("category.inventory", "インベントリ"), e("category.favorites", "お気に入り"),
@@ -359,6 +463,26 @@ public final class SkyOPLanguage {
                 e("module.HOTBAR_PRESETS.title", "ホットバープリセット"), e("module.PROFILE_MANAGER.title", "プロファイル管理"),
                 e("setting.hunger_threshold", "空腹しきい値"), e("setting.eat_below", "この値を下回ると食事"),
                 e("setting.refill_threshold", "補充しきい値"), e("setting.refill_low", "スタックが少ないと補充")
+                e("gui.hud_color", "HUD の色"),
+                e("gui.apply", "適用"),
+                e("gui.hud_layout", "HUD レイアウト"),
+                e("gui.drag_hud", "各パネルをドラッグして移動"),
+                e("module.POTION_HUD.description", "有効なポーション効果と残り時間を表示します。"),
+                e("module.DURABILITY_HUD.description", "メインハンドの耐久度を表示します。"),
+                e("module.COMPASS_HUD.description", "方角とプレイヤーのヨー角を表示します。"),
+                e("module.DIRECTION_HUD.description", "現在の方角を表示します。"),
+                e("module.PING_HUD.description", "プレイヤーリスト情報がある場合に遅延を表示します。"),
+                e("module.FPS_HUD.description", "クライアントのフレームレートを表示します。"),
+                e("module.RADAR_HUD.description", "クライアントが読み込み済みの近くのエンティティを表示します。"),
+                e("module.TEXT_GUI.description", "画面にカスタムメッセージを表示します。"),
+                e("module.AUTO_EAT.description", "空腹時にホットバーの安全な食料を使用します。"),
+                e("module.AUTO_ARMOR.description", "装備中の防具を交換せず空きスロットを補います。"),
+                e("module.AUTO_TOOL.description", "対象ブロックに最適なホットバーの道具を選択します。"),
+                e("module.AUTO_REFILL.description", "インベントリから少ないホットバースタックを補充します。"),
+                e("module.AUTO_FISH.description", "当たりを検知すると巻き上げて再び投げます。"),
+                e("module.INVENTORY_CLEANER.description", "アイテムを捨てずに同種スタックをまとめます。"),
+                e("module.HOTBAR_PRESETS.description", "アイテム ID を使って3つのホットバー配置を保存します。"),
+                e("module.PROFILE_MANAGER.description", "設定プロファイルをインポート、エクスポート、バックアップします。"),
         ));
     }
 
