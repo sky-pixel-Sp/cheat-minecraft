@@ -187,12 +187,6 @@ public final class SkyOPClient implements ClientModInitializer {
         ));
     }
 
-    private static InputConstants.Key unboundKey() {
-        // SDL_SCANCODE_UNKNOWN is 0 and is a safe keyboard-state index.
-        // Minecraft's -1 unbound sentinel is not a valid SDL keyboard-state index.
-        return InputConstants.Type.KEYBOARD.getOrCreate(SkyOPSdlKeyboardIndex.unboundScancode());
-    }
-
     @Override
     public void onInitializeClient() {
         registerModuleKeybinds();
@@ -254,10 +248,10 @@ public final class SkyOPClient implements ClientModInitializer {
     public static void setModuleKeybind(Module module, int scancode) {
         KeyMapping mapping = MODULE_KEYBINDS.get(module);
         if (mapping == null) return;
-        int safeCode = SkyOPSdlKeyboardIndex.isValidStateIndex(scancode) ? scancode : -1;
+        int safeCode = scancode > 0 && SkyOPSdlKeyboardIndex.isValidStateIndex(scancode) ? scancode : -1;
         MODULE_KEY_CODES.put(module, safeCode);
         mapping.setKey(safeCode < 0
-                ? unboundKey()
+                ? InputConstants.UNKNOWN
                 : InputConstants.Type.KEYBOARD.getOrCreate(safeCode));
         KeyMapping.resetMapping();
         saveConfig();
@@ -313,7 +307,7 @@ public final class SkyOPClient implements ClientModInitializer {
             // Minecraft 26.3 uses SDL scancodes. Never pass raw -1 to the
             // native keyboard-state buffer for an unbound key mapping.
             KeyMapping mapping = KeyMappingHelper.registerKeyMapping(new KeyMapping(
-                    keyName, InputConstants.Type.KEYBOARD, SkyOPSdlKeyboardIndex.unboundScancode(), KEY_CATEGORY
+                    keyName, InputConstants.Type.KEYBOARD, InputConstants.UNKNOWN.getValue(), KEY_CATEGORY
             ));
             MODULE_KEYBINDS.put(module, mapping);
             MODULE_KEY_CODES.put(module, -1);
@@ -1048,9 +1042,9 @@ public final class SkyOPClient implements ClientModInitializer {
                 if (keybind != null && mapping != null) {
                     try {
                         int parsedCode = Integer.parseInt(keybind);
-                        int code = SkyOPSdlKeyboardIndex.isValidStateIndex(parsedCode) ? parsedCode : -1;
+                        int code = parsedCode > 0 && SkyOPSdlKeyboardIndex.isValidStateIndex(parsedCode) ? parsedCode : -1;
                         MODULE_KEY_CODES.put(module, code);
-                        mapping.setKey(code < 0 ? unboundKey() : InputConstants.Type.KEYBOARD.getOrCreate(code));
+                        mapping.setKey(code < 0 ? InputConstants.UNKNOWN : InputConstants.Type.KEYBOARD.getOrCreate(code));
                     } catch (NumberFormatException ignored) { }
                 }
             }
