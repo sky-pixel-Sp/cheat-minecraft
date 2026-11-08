@@ -1,0 +1,10 @@
+{
+  "key.category.skyop.main": "SkyOP Client",
+  "key.skyop.toggle_sprint": "Toggle Auto Sprint",
+  "key.skyop.toggle_speed": "Toggle Speed Boost",
+  "key.skyop.toggle_aura": "Toggle KillAura (Hostile Mobs)",
+  "key.skyop.toggle_esp": "Toggle Entity ESP",
+  "key.skyop.toggle_nofall": "Toggle NoFall",
+  "key.skyop.toggle_hud": "Toggle SkyOP HUD",
+  "key.skyop.disable_all": "Disable All Modules"
+}

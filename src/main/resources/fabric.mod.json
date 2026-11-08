@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "skyop",
+  "version": "${version}",
+  "name": "SkyOP Client",
+  "description": "A configurable client-side utility and combat module pack for Minecraft Java 26.3.",
+  "authors": ["SkyOP"],
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "id.skyop.client.SkyOPClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.20.1",
+    "minecraft": "~26.3",
+    "java": ">=25",
+    "fabric-api": "*"
+  }
+}
