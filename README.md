@@ -28,7 +28,7 @@
 
 ## What is new in 2.2.1
 
-SkyOP 2.2.1 fixes a Minecraft 26.3 SDL keyboard-state crash that could interrupt world loading and mouse capture. Unbound module keys now use SDL's valid UNKNOWN scancode (0), while a small Mixin bounds-checks keyboard-state lookups so negative or out-of-range indexes are treated as not pressed. Existing config entries with invalid keybind indexes are safely reset to unbound. The release retains the 2.2.0 Indonesian/English language work and mouse-capture recovery.
+SkyOP 2.2.1 fixes a Minecraft 26.3 SDL keyboard-state crash that could interrupt world loading and mouse capture. A small Mixin bounds-checks keyboard-state lookups so negative or out-of-range indexes are treated as not pressed, while unbound module keys retain Minecraft's normal Unbound semantics. Newly captured and saved keybinds are validated; invalid config values are safely reset to Unbound. The release retains the Indonesian/English language work and mouse-capture recovery.
 
 - **Language:** Bahasa Indonesia is the default, with English available from the in-client selector. The selected language is saved independently from Minecraft's global language.
 - **Module browser:** search, category filtering, Favorites, two-column module cards and per-panel scrolling.
