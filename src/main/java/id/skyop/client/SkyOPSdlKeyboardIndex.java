@@ -1,22 +1,19 @@
 package id.skyop.client;
 
-import org.lwjgl.sdl.SDLScancode;
-
 /**
- * Validates indexes used by Minecraft 26.3's SDL keyboard-state buffer.
+ * Bounds checks for Minecraft 26.3's SDL keyboard-state array.
  *
- * SDL's unassigned scancode is 0; Minecraft's InputConstants.UNKNOWN is -1
- * and must never be used as an index into SDL_GetKeyboardState().
+ * SDL 3 exposes the keyboard state as SDL_SCANCODE_COUNT (512) entries.
+ * The valid indexes are therefore 0 through 511; Minecraft's unbound key
+ * sentinel (-1) must be intercepted before it reaches the DirectByteBuffer.
  */
 public final class SkyOPSdlKeyboardIndex {
+    public static final int SDL_SCANCODE_COUNT = 512;
+
     private SkyOPSdlKeyboardIndex() {
     }
 
     public static boolean isValidStateIndex(int key) {
-        return key >= 0 && key < SDLScancode.SDL_SCANCODE_COUNT;
-    }
-
-    public static int unboundScancode() {
-        return SDLScancode.SDL_SCANCODE_UNKNOWN;
+        return key >= 0 && key < SDL_SCANCODE_COUNT;
     }
 }
