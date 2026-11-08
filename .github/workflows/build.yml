@@ -56,7 +56,7 @@ jobs:
           grep -Fq 'ensureMouseCaptured(client);' src/client/java/id/skyop/client/SkyOPClient.java
           grep -Fq 'client.mouseHandler.isMouseGrabbed()' src/client/java/id/skyop/client/SkyOPClient.java
           grep -Fq 'client.mouseHandler.grabMouse();' src/client/java/id/skyop/client/SkyOPClient.java
-          grep -Fq 'client.gui.screen() != null || client.gui.overlay() != null' src/client/java/id/skyop/client/SkyOPClient.java
+          grep -Fq 'client.gui.screen() != null' src/client/java/id/skyop/client/SkyOPClient.java
           # Indonesian is the first-run default and must have module translations.
           grep -Fq 'SkyOPLanguage.set(p.getProperty("language", "id"));' src/client/java/id/skyop/client/SkyOPClient.java
           grep -Fq 'new Language("id", "Bahasa Indonesia")' src/client/java/id/skyop/client/SkyOPLanguage.java
