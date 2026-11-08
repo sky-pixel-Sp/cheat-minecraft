@@ -1,4 +1,4 @@
-# SkyOP Client 2.1.2 test plan
+# SkyOP Client 2.2.0 test plan
 
 ## Automated CI checks
 
@@ -10,16 +10,19 @@ A green CI result proves compilation and packaging. It does not prove an in-game
 
 1. Create a separate Minecraft Java 26.3 Fabric instance.
 2. Install Fabric Loader 0.20.1 and Fabric API 0.165.2+26.3.
-3. Add skyop-client-2.1.2.jar to that instance's mods folder.
+3. Add skyop-client-2.2.0.jar to that instance's mods folder.
 4. Launch to the title screen and confirm no mixin or resource errors appear.
 5. Join a local single-player world and wait for the loading screen to close; verify keyboard/mouse input is captured without an IndexOutOfBoundsException. Capture logs/latest.log if a failure occurs.
+6. Open ClickGUI with Right Shift, close it with Escape and verify the mouse is re-captured for camera movement without requiring another click.
+7. Close ClickGUI while HUD editor drag mode is active; verify no stale drag state remains and mouse camera control resumes.
+8. While chat or another screen is open, verify the mod does not force mouse capture.
 6. Confirm another mod using mixins does not conflict with skyop.mixins.json.
 
 ## Language
 
-1. Start with no SkyOP config file; verify English is selected.
-2. Cycle through English, Bahasa Indonesia, Español, Português, Français, Chinese and Japanese.
-3. Verify category names, all new module titles and descriptions, common setting names and the language label update.
+1. Start with no SkyOP config file; verify Bahasa Indonesia is selected by default.
+2. Click the language control and verify the interface changes completely to English; click again and verify Bahasa Indonesia returns.
+3. Verify all six categories, all module titles and descriptions, setting labels, keybind controls, profile/hotbar controls and HUD editor hints are translated.
 4. Close/reopen Minecraft and verify the selected language is persisted.
 
 ## ClickGUI and core

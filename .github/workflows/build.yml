@@ -51,6 +51,16 @@ jobs:
           # Prevent regression: unbound module keys must use SDL-safe UNKNOWN (0),
           # not the invalid legacy -1 value in Minecraft 26.3.
           grep -Fq 'InputConstants.UNKNOWN.getValue()' src/client/java/id/skyop/client/SkyOPClient.java
+          # Prevent regression: gameplay must re-acquire SDL relative mouse mode
+          # after a UI closes, but only when the game is focused and no UI is open.
+          grep -Fq 'ensureMouseCaptured(client);' src/client/java/id/skyop/client/SkyOPClient.java
+          grep -Fq 'client.mouseHandler.isMouseGrabbed()' src/client/java/id/skyop/client/SkyOPClient.java
+          grep -Fq 'client.mouseHandler.grabMouse();' src/client/java/id/skyop/client/SkyOPClient.java
+          grep -Fq 'client.gui.screen() != null' src/client/java/id/skyop/client/SkyOPClient.java
+          # Indonesian is the first-run default and must have module translations.
+          grep -Fq 'SkyOPLanguage.set(p.getProperty("language", "id"));' src/client/java/id/skyop/client/SkyOPClient.java
+          grep -Fq 'new Language("id", "Bahasa Indonesia")' src/client/java/id/skyop/client/SkyOPLanguage.java
+          grep -Fq 'e("module.KILL_AURA.title", "Aura Serang")' src/client/java/id/skyop/client/SkyOPLanguage.java
           if grep -Fq 'InputConstants.Type.KEYBOARD, -1' src/client/java/id/skyop/client/SkyOPClient.java; then
             echo 'Unbound key mappings must not pass raw -1 to the SDL keyboard backend.' >&2
             exit 1

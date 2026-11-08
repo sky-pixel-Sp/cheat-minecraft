@@ -110,7 +110,7 @@ public final class SkyOPClickGui extends Screen {
             g.fill(colorX + 16, panelY + 20, colorX + 32, panelY + 28, SkyOPClient.hudAccentColor());
             boolean editHovered = inside(mouseX, mouseY, hudEditX, panelY + 12, 72, 24);
             g.fill(hudEditX, panelY + 12, hudEditX + 72, panelY + 36, editHovered || hudEditMode ? 0xFF263D53 : PANEL_LIGHT);
-            g.text(font, Component.literal(hudEditMode ? "HUD EDIT ON" : "HUD EDIT"),
+            g.text(font, Component.literal(SkyOPLanguage.text(hudEditMode ? "gui.hud_edit_on" : "gui.hud_edit")),
                     hudEditX + 7, panelY + 20, hudEditMode ? GREEN : ACCENT, true);
         }
 
@@ -156,8 +156,8 @@ public final class SkyOPClickGui extends Screen {
         int searchY = y + 27;
         g.fill(x, searchY, x + w, searchY + 22, searchFocused ? 0xFF263D53 : PANEL_LIGHT);
         g.text(font, Component.literal(searchQuery.isEmpty()
-                        ? SkyOPLanguage.text("gui.search") + "  (type to filter)"
-                        : "SEARCH: " + searchQuery + (searchFocused ? "|" : "")),
+                        ? SkyOPLanguage.text("gui.search") + "  (" + SkyOPLanguage.text("gui.type_to_filter") + ")"
+                        : SkyOPLanguage.text("gui.search_prefix") + ": " + searchQuery + (searchFocused ? "|" : "")),
                 x + 8, searchY + 7, searchFocused ? TEXT : MUTED, true);
         g.text(font, Component.literal(SkyOPLanguage.text("gui.left_toggle_right_inspect")),
                 x, y + 54, MUTED, true);
@@ -195,14 +195,14 @@ public final class SkyOPClickGui extends Screen {
             int pillX = cardX + cardWidth - 48;
             g.fill(pillX, cardY + 15, pillX + 40, cardY + 36,
                     enabled ? 0xFF174633 : 0xFF3B2631);
-            g.text(font, Component.literal(enabled ? "ON" : "OFF"),
+            g.text(font, Component.literal(enabled ? SkyOPLanguage.text("gui.on") : SkyOPLanguage.text("gui.off")),
                     pillX + 10, cardY + 22, enabled ? GREEN : RED, true);
             if (hovered) hoveredModule = module;
             index++;
         }
         g.disableScissor();
         if (modules.isEmpty()) {
-            g.text(font, Component.literal("No matching modules"), x + 8, listTop + 12, MUTED, true);
+            g.text(font, Component.literal(SkyOPLanguage.text("gui.no_matching_modules")), x + 8, listTop + 12, MUTED, true);
         }
         if (hoveredModule != null) {
             int alpha = 190 + (int) (40 * Math.sin(animationTicks * 0.18));
@@ -228,13 +228,13 @@ public final class SkyOPClickGui extends Screen {
         g.fill(x + 12, y + 66, x + w - 12, y + 67, 0xFF2B394A);
 
         KeyMapping mapping = SkyOPClient.keybindFor(selectedModule);
-        String keyName = waitingForKeybind ? "PRESS A KEY..." :
-                (mapping == null ? "UNBOUND" : mapping.getTranslatedKeyMessage().getString());
+        String keyName = waitingForKeybind ? SkyOPLanguage.text("gui.press_a_key") :
+                (mapping == null ? SkyOPLanguage.text("gui.unbound") : mapping.getTranslatedKeyMessage().getString());
         int keyY = y + 72;
         boolean keyHovered = inside(mouseX, mouseY, x + 8, keyY, w - 16, 24);
         g.fill(x + 8, keyY, x + w - 8, keyY + 23,
                 keyHovered || waitingForKeybind ? 0xFF263D53 : PANEL_LIGHT);
-        g.text(font, Component.literal("KEYBIND  " + trim(keyName, 20)),
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.keybind") + "  " + trim(keyName, 20)),
                 x + 15, keyY + 8, waitingForKeybind ? 0xFFFFC85A : ACCENT, true);
 
         if (selectedModule == SkyOPClient.Module.PROFILE_MANAGER) {
@@ -246,9 +246,9 @@ public final class SkyOPClickGui extends Screen {
             return;
         }
         if (selectedModule == SkyOPClient.Module.TEXT_GUI) {
-            g.text(font, Component.literal(editingHudText ? "EDIT TEXT: " + SkyOPClient.customHudText + "|" : "CUSTOM HUD TEXT"),
+            g.text(font, Component.literal(editingHudText ? SkyOPLanguage.text("gui.edit_text") + ": " + SkyOPClient.customHudText + "|" : SkyOPLanguage.text("gui.custom_hud_text")),
                     x + 12, y + 125, editingHudText ? 0xFFFFC85A : TEXT, true);
-            g.text(font, Component.literal("Click this line, then type. Enter to finish."),
+            g.text(font, Component.literal(SkyOPLanguage.text("gui.edit_text_help")),
                     x + 12, y + 145, MUTED, true);
             return;
         }
@@ -289,30 +289,30 @@ public final class SkyOPClickGui extends Screen {
         }
         String missing = SkyOPModuleDependencies.missingRequirement(Minecraft.getInstance(), selectedModule);
         if (!missing.isEmpty()) {
-            g.text(font, Component.literal(trim("REQUIRES: " + missing, 32)),
+            g.text(font, Component.literal(trim(SkyOPLanguage.text("gui.requires") + ": " + missing, 32)),
                     x + 12, y + h - 18, 0xFFFFC85A, true);
         }
     }
 
     private void drawProfileControls(GuiGraphicsExtractor g, int mouseX, int mouseY, int x, int y) {
-        g.text(font, Component.literal("CONFIGURATION PROFILES"), x + 12, y + 112, TEXT, true);
-        drawControl(g, mouseX, mouseY, x + 12, y + 138, 66, "SAVE 1");
-        drawControl(g, mouseX, mouseY, x + 84, y + 138, 66, "LOAD 1");
-        drawControl(g, mouseX, mouseY, x + 12, y + 168, 66, "SAVE 2");
-        drawControl(g, mouseX, mouseY, x + 84, y + 168, 66, "LOAD 2");
-        drawControl(g, mouseX, mouseY, x + 12, y + 198, 66, "SAVE 3");
-        drawControl(g, mouseX, mouseY, x + 84, y + 198, 66, "LOAD 3");
-        drawControl(g, mouseX, mouseY, x + 12, y + 234, 100, "EXPORT JSON");
-        drawControl(g, mouseX, mouseY, x + 118, y + 234, 100, "IMPORT JSON");
-        drawControl(g, mouseX, mouseY, x + 12, y + 264, 100, "BACKUP NOW");
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.configuration_profiles")), x + 12, y + 112, TEXT, true);
+        drawControl(g, mouseX, mouseY, x + 12, y + 138, 66, SkyOPLanguage.text("gui.save") + " 1");
+        drawControl(g, mouseX, mouseY, x + 84, y + 138, 66, SkyOPLanguage.text("gui.load") + " 1");
+        drawControl(g, mouseX, mouseY, x + 12, y + 168, 66, SkyOPLanguage.text("gui.save") + " 2");
+        drawControl(g, mouseX, mouseY, x + 84, y + 168, 66, SkyOPLanguage.text("gui.load") + " 2");
+        drawControl(g, mouseX, mouseY, x + 12, y + 198, 66, SkyOPLanguage.text("gui.save") + " 3");
+        drawControl(g, mouseX, mouseY, x + 84, y + 198, 66, SkyOPLanguage.text("gui.load") + " 3");
+        drawControl(g, mouseX, mouseY, x + 12, y + 234, 100, SkyOPLanguage.text("gui.export_json"));
+        drawControl(g, mouseX, mouseY, x + 118, y + 234, 100, SkyOPLanguage.text("gui.import_json"));
+        drawControl(g, mouseX, mouseY, x + 12, y + 264, 100, SkyOPLanguage.text("gui.backup_now"));
     }
 
     private void drawHotbarControls(GuiGraphicsExtractor g, int mouseX, int mouseY, int x, int y) {
-        g.text(font, Component.literal("HOTBAR LAYOUT SLOTS"), x + 12, y + 112, TEXT, true);
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.hotbar_layout_slots")), x + 12, y + 112, TEXT, true);
         for (int slot = 1; slot <= 3; slot++) {
             int rowY = y + 140 + (slot - 1) * 34;
-            drawControl(g, mouseX, mouseY, x + 12, rowY, 100, "SAVE HOTBAR " + slot);
-            drawControl(g, mouseX, mouseY, x + 118, rowY, 100, "LOAD HOTBAR " + slot);
+            drawControl(g, mouseX, mouseY, x + 12, rowY, 100, SkyOPLanguage.text("gui.save_hotbar") + " " + slot);
+            drawControl(g, mouseX, mouseY, x + 118, rowY, 100, SkyOPLanguage.text("gui.load_hotbar") + " " + slot);
         }
     }
 
@@ -423,23 +423,23 @@ public final class SkyOPClickGui extends Screen {
             case ARMOR_HUD -> List.of(info(SkyOPLanguage.text("setting.player_status"), SkyOPLanguage.text("setting.health_armor")));
             case SPEEDOMETER -> List.of(info(SkyOPLanguage.text("setting.movement_speed"), SkyOPLanguage.text("setting.blocks_second")));
             case CPS_HUD -> List.of(info(SkyOPLanguage.text("setting.attack_rate"), SkyOPLanguage.text("setting.successful_attacks")));
-            case POTION_HUD -> List.of(info("Potion effects", "Active effects and their remaining duration"));
-            case DURABILITY_HUD -> List.of(info("Main-hand item", "Remaining durability percentage"));
-            case COMPASS_HUD, DIRECTION_HUD -> List.of(info("Direction", "Cardinal heading based on player yaw"));
-            case PING_HUD -> List.of(info("Latency", "Current multiplayer ping; local worlds show unavailable"));
-            case FPS_HUD -> List.of(info("Frame rate", "Current client frames per second"));
-            case RADAR_HUD -> List.of(info("Loaded entities", "Nearby entities already tracked by your client"));
-            case TEXT_GUI -> List.of(info("Custom HUD text", "Click the text line above and type to edit"));
+            case POTION_HUD -> List.of(info(SkyOPLanguage.text("gui.potion_effects"), SkyOPLanguage.text("gui.active_effects_duration")));
+            case DURABILITY_HUD -> List.of(info(SkyOPLanguage.text("gui.main_hand_item"), SkyOPLanguage.text("gui.remaining_durability")));
+            case COMPASS_HUD, DIRECTION_HUD -> List.of(info(SkyOPLanguage.text("gui.direction"), SkyOPLanguage.text("gui.cardinal_heading")));
+            case PING_HUD -> List.of(info(SkyOPLanguage.text("gui.latency"), SkyOPLanguage.text("gui.current_multiplayer_ping")));
+            case FPS_HUD -> List.of(info(SkyOPLanguage.text("gui.frame_rate"), SkyOPLanguage.text("gui.current_fps")));
+            case RADAR_HUD -> List.of(info(SkyOPLanguage.text("gui.loaded_entities"), SkyOPLanguage.text("gui.nearby_loaded_entities")));
+            case TEXT_GUI -> List.of(info(SkyOPLanguage.text("gui.custom_hud_text"), SkyOPLanguage.text("gui.edit_text_help")));
             case AUTO_EAT -> List.of(slider(SkyOPLanguage.text("setting.hunger_threshold"),
                     SkyOPLanguage.text("setting.eat_below"), SkyOPClient.autoEatThreshold, 2, 18, "%.0f"));
             case AUTO_REFILL -> List.of(slider(SkyOPLanguage.text("setting.refill_threshold"),
                     SkyOPLanguage.text("setting.refill_low"), SkyOPClient.autoRefillThreshold, 1, 16, "%.0f"));
-            case AUTO_ARMOR -> List.of(info("Armor policy", "Only fills empty armor slots; never replaces worn armor"));
-            case AUTO_TOOL -> List.of(info("Tool selection", "Selects the fastest hotbar tool for the targeted block"));
-            case AUTO_FISH -> List.of(info("Fishing automation", "Reels on bite and recasts; server rules still apply"));
-            case INVENTORY_CLEANER -> List.of(info("Safe cleanup", "Consolidates matching stacks; never drops or destroys items"));
-            case HOTBAR_PRESETS -> List.of(info("Three layouts", "Save and restore hotbar item layouts"));
-            case PROFILE_MANAGER -> List.of(info("JSON profiles", "Three slots, JSON import/export, backups and restore"));
+            case AUTO_ARMOR -> List.of(info(SkyOPLanguage.text("gui.armor_policy"), SkyOPLanguage.text("gui.only_empty_armor_slots")));
+            case AUTO_TOOL -> List.of(info(SkyOPLanguage.text("gui.tool_selection"), SkyOPLanguage.text("gui.fastest_tool")));
+            case AUTO_FISH -> List.of(info(SkyOPLanguage.text("gui.fishing_automation"), SkyOPLanguage.text("gui.reel_and_recast")));
+            case INVENTORY_CLEANER -> List.of(info(SkyOPLanguage.text("gui.safe_cleanup"), SkyOPLanguage.text("gui.stack_consolidation")));
+            case HOTBAR_PRESETS -> List.of(info(SkyOPLanguage.text("gui.three_layouts"), SkyOPLanguage.text("gui.save_restore_hotbar")));
+            case PROFILE_MANAGER -> List.of(info(SkyOPLanguage.text("gui.json_profiles"), SkyOPLanguage.text("gui.profile_slots_backup_restore")));
             case AUTO_SPRINT, STEP_ASSIST, NO_FALL, HUD ->
                     List.of(info(SkyOPLanguage.text("setting.module_status"), SkyOPLanguage.text("setting.toggle_module_list")));
         };
@@ -447,7 +447,7 @@ public final class SkyOPClickGui extends Screen {
 
     private static Setting toggle(String label, String detail, boolean value) {
         return new Setting(label, detail, SettingKind.TOGGLE, value ? 1 : 0,
-                0, 1, value, value ? "ON" : "OFF");
+                0, 1, value, SkyOPLanguage.text(value ? "gui.on" : "gui.off"));
     }
 
     private static Setting slider(String label, String detail, double value,
@@ -457,7 +457,7 @@ public final class SkyOPClickGui extends Screen {
     }
 
     private static Setting info(String label, String detail) {
-        return new Setting(label, detail, SettingKind.INFO, 0, 0, 1, false, "INFO");
+        return new Setting(label, detail, SettingKind.INFO, 0, 0, 1, false, SkyOPLanguage.text("gui.info"));
     }
 
     private void applySettingClick(int index, double mouseX) {
@@ -673,9 +673,9 @@ public final class SkyOPClickGui extends Screen {
                     else if (inside(mx, my, inspectorX + 118, inspectorY + 234, 100, 23)) SkyOPProfileManager.importProfile();
                     else if (inside(mx, my, inspectorX + 12, inspectorY + 264, 100, 23)) SkyOPProfileManager.backupCurrent();
                     else return super.mouseClicked(event, doubleClick);
-                    setProfileStatus("Profile action completed");
+                    setProfileStatus(SkyOPLanguage.text("gui.profile_action_completed"));
                 } catch (Exception exception) {
-                    setProfileStatus("Profile error: " + exception.getMessage());
+                    setProfileStatus(SkyOPLanguage.text("gui.profile_error") + ": " + exception.getMessage());
                 }
                 return true;
             }
@@ -687,16 +687,16 @@ public final class SkyOPClickGui extends Screen {
                 try {
                     if (row >= 0 && row < 3 && localX >= 0 && localX < 100) {
                         SkyOPProfileManager.saveHotbarPreset(slot);
-                        setProfileStatus("Saved hotbar " + slot);
+                        setProfileStatus(SkyOPLanguage.text("gui.saved_hotbar") + " " + slot);
                         return true;
                     }
                     if (row >= 0 && row < 3 && localX >= 106 && localX < 212) {
                         SkyOPProfileManager.loadHotbarPreset(slot);
-                        setProfileStatus("Loaded hotbar " + slot);
+                        setProfileStatus(SkyOPLanguage.text("gui.loaded_hotbar") + " " + slot);
                         return true;
                     }
                 } catch (Exception exception) {
-                    setProfileStatus("Hotbar error: " + exception.getMessage());
+                    setProfileStatus(SkyOPLanguage.text("gui.hotbar_error") + ": " + exception.getMessage());
                     return true;
                 }
             }
@@ -716,7 +716,7 @@ public final class SkyOPClickGui extends Screen {
     }
 
     private void setProfileStatus(String value) {
-        profileStatus = value == null ? "Profile action completed" : value;
+        profileStatus = value == null ? SkyOPLanguage.text("gui.profile_action_completed") : value;
         profileStatusTicks = 100;
     }
 
@@ -752,9 +752,9 @@ public final class SkyOPClickGui extends Screen {
             hexColorInput = SkyOPColorCodec.formatRgb(SkyOPClient.hudAccentColor());
             editingHudColor = false;
             colorPickerOpen = false;
-            setProfileStatus("HUD color updated");
+            setProfileStatus(SkyOPLanguage.text("gui.hud_color_updated"));
         } catch (IllegalArgumentException exception) {
-            setProfileStatus("Enter 6 hex digits");
+            setProfileStatus(SkyOPLanguage.text("gui.enter_hex_digits"));
             editingHudColor = true;
         }
     }
@@ -790,7 +790,7 @@ public final class SkyOPClickGui extends Screen {
         if (SkyOPClient.isEnabled(SkyOPClient.Module.HUD)) {
             int mainHudHeight = Math.min(sh, 70 + Math.max(0, SkyOPClient.enabledModuleCount() - 1) * 12);
             previews.add(hudPreview(SkyOPClient.Module.HUD, 8, 8, 190,
-                    mainHudHeight, "Main HUD", sw, sh));
+                    mainHudHeight, SkyOPLanguage.text("gui.main_hud"), sw, sh));
         }
         if (SkyOPClient.isEnabled(SkyOPClient.Module.TARGET_HUD))
             previews.add(hudPreview(SkyOPClient.Module.TARGET_HUD, sw - 194, 8, 186, 58, null, sw, sh));
@@ -805,7 +805,7 @@ public final class SkyOPClickGui extends Screen {
         if (SkyOPClient.isEnabled(SkyOPClient.Module.COMPASS_HUD)
                 || SkyOPClient.isEnabled(SkyOPClient.Module.DIRECTION_HUD)) {
             String label = SkyOPClient.isEnabled(SkyOPClient.Module.COMPASS_HUD)
-                    ? "Compass / Direction" : SkyOPClient.Module.DIRECTION_HUD.title();
+                    ? SkyOPLanguage.text("gui.compass_direction") : SkyOPClient.Module.DIRECTION_HUD.title();
             previews.add(hudPreview(SkyOPClient.Module.COMPASS_HUD, sw / 2 - 48, 8, 96, 23, label, sw, sh));
         }
         if (SkyOPClient.isEnabled(SkyOPClient.Module.PING_HUD))
@@ -861,7 +861,7 @@ public final class SkyOPClickGui extends Screen {
             if (preview.height() > 34) {
                 g.text(font, Component.literal(preview.x() + ", " + preview.y()),
                         preview.x() + 6, preview.y() + 21, MUTED, true);
-                g.text(font, Component.literal("DRAG TO MOVE"),
+                g.text(font, Component.literal(SkyOPLanguage.text("gui.drag_to_move")),
                         preview.x() + 6, preview.y() + preview.height() - 12,
                         SkyOPClient.hudAccentColor(), true);
             }
@@ -916,7 +916,7 @@ public final class SkyOPClickGui extends Screen {
             }
             SkyOPClient.setModuleKeybind(selectedModule, event.key());
             waitingForKeybind = false;
-            setProfileStatus("Keybind updated");
+            setProfileStatus(SkyOPLanguage.text("gui.keybind_updated"));
             return true;
         }
         if (editingHudText) {
@@ -1001,6 +1001,12 @@ public final class SkyOPClickGui extends Screen {
 
     @Override
     public void onClose() {
+        draggingHud = false;
+        draggingHudModule = null;
+        waitingForKeybind = false;
+        editingHudColor = false;
+        editingHudText = false;
+        searchFocused = false;
         SkyOPClient.saveConfig();
         super.onClose();
     }
