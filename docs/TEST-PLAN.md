@@ -19,7 +19,7 @@ A green CI result proves compilation and packaging. It does not prove an in-game
 
 1. Start with no SkyOP config file; verify English is selected.
 2. Cycle through English, Bahasa Indonesia, Español, Português, Français, Chinese and Japanese.
-3. Verify category names, module names, common setting names and the language label update.
+3. Verify category names, all new module titles and descriptions, common setting names and the language label update.
 4. Close/reopen Minecraft and verify the selected language is persisted.
 
 ## ClickGUI and core
