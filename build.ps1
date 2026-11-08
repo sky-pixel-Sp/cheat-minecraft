@@ -25,12 +25,11 @@ if (-not (Test-Path $GradleExe)) {
     $url = "https://services.gradle.org/distributions/gradle-$GradleVersion-bin.zip"
     Write-Host "Downloading Gradle $GradleVersion..." -ForegroundColor Cyan
     Invoke-WebRequest -Uri $url -OutFile $zipPath
-    Write-Host 'Extracting Gradle...' -ForegroundColor Cyan
     Expand-Archive -LiteralPath $zipPath -DestinationPath $ToolRoot -Force
     Remove-Item $zipPath -Force
 }
 
-Write-Host 'Building SkyOP Client for Minecraft 26.3...' -ForegroundColor Cyan
+Write-Host 'Building SkyOP Client 1.1.0 for Minecraft 26.3...' -ForegroundColor Cyan
 Push-Location $PSScriptRoot
 try {
     & $GradleExe --no-daemon clean build
@@ -43,4 +42,4 @@ try {
 
 Write-Host ''
 Write-Host 'BUILD SUCCESSFUL' -ForegroundColor Green
-Write-Host "Mod JAR: $PSScriptRoot\build\libs\skyop-client-1.0.0.jar" -ForegroundColor Green
+Write-Host "Mod JAR: $PSScriptRoot\build\libs\skyop-client-1.1.0.jar" -ForegroundColor Green

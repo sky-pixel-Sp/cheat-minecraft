@@ -1,10 +1,13 @@
 {
-  "key.category.skyop.main": "SkyOP Client",
+  "key.category.skyop.client": "SkyOP Client",
+  "key.skyop.open_gui": "Buka ClickGUI SkyOP",
+  "key.skyop.toggle_hud": "Aktif/nonaktif HUD",
+  "key.skyop.toggle_autoclicker": "Aktif/nonaktif AutoClicker",
   "key.skyop.toggle_sprint": "Aktif/nonaktif Auto Sprint",
-  "key.skyop.toggle_speed": "Aktif/nonaktif Speed Boost",
-  "key.skyop.toggle_aura": "Aktif/nonaktif KillAura (Mob Hostile)",
+  "key.skyop.toggle_speed": "Aktif/nonaktif Speed",
+  "key.skyop.toggle_aura": "Aktif/nonaktif KillAura",
   "key.skyop.toggle_esp": "Aktif/nonaktif Entity ESP",
   "key.skyop.toggle_nofall": "Aktif/nonaktif NoFall",
-  "key.skyop.toggle_hud": "Aktif/nonaktif HUD SkyOP",
-  "key.skyop.disable_all": "Matikan Semua Modul"
+  "key.skyop.toggle_flight": "Aktif/nonaktif Flight",
+  "key.skyop.disable_all": "Matikan semua module"
 }
