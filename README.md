@@ -1,4 +1,4 @@
-# SkyOP Client 2.1.0
+# SkyOP Client 2.1.1
 
 <p align="center">
   <strong>Premium-style Minecraft Java 26.3 Fabric client</strong><br>
@@ -12,7 +12,7 @@
   <img alt="Minecraft" src="https://img.shields.io/badge/Minecraft-Java%2026.3-3C8527?logo=minecraft&logoColor=white">
   <img alt="Fabric" src="https://img.shields.io/badge/Mod%20loader-Fabric-DBD0B4?logo=fabric&logoColor=222222">
   <img alt="Java" src="https://img.shields.io/badge/Java-25-ED8B00?logo=openjdk&logoColor=white">
-  <img alt="Version" src="https://img.shields.io/badge/SkyOP-2.1.0-4BA3D9">
+  <img alt="Version" src="https://img.shields.io/badge/SkyOP-2.1.1-4BA3D9">
   <img alt="License" src="https://img.shields.io/badge/License-MIT-blue.svg">
 </p>
 
@@ -26,7 +26,7 @@
 
 ---
 
-## What is new in 2.1.0
+## What is new in 2.1.1
 
 SkyOP 2.1 polishes the client configuration workflow with custom RGB colors, independent positioning for active HUD panels, expanded localized module descriptions, and automated unit tests for color input.
 
@@ -45,7 +45,7 @@ A successful automated build checks compilation, remapping, metadata, RGB codec 
 2. Choose the newest run with a green **Success** status.
 3. Scroll to **Artifacts** and download **SkyOP-Client-Minecraft-26.3**.
 4. Extract the downloaded ZIP archive.
-5. Copy skyop-client-2.1.0.jar into the mods folder of your Minecraft 26.3 Fabric instance.
+5. Copy skyop-client-2.1.1.jar into the mods folder of your Minecraft 26.3 Fabric instance.
 6. Keep Fabric API installed in the same instance, then launch Minecraft.
 
 GitHub Actions artifacts expire after 30 days. Use the latest successful run for the most recent build.
