@@ -1,4 +1,4 @@
-# SkyOP Client 2.1.2
+# SkyOP Client 2.2.0
 
 <p align="center">
   <strong>Premium-style Minecraft Java 26.3 Fabric client</strong><br>
@@ -12,7 +12,7 @@
   <img alt="Minecraft" src="https://img.shields.io/badge/Minecraft-Java%2026.3-3C8527?logo=minecraft&logoColor=white">
   <img alt="Fabric" src="https://img.shields.io/badge/Mod%20loader-Fabric-DBD0B4?logo=fabric&logoColor=222222">
   <img alt="Java" src="https://img.shields.io/badge/Java-25-ED8B00?logo=openjdk&logoColor=white">
-  <img alt="Version" src="https://img.shields.io/badge/SkyOP-2.1.2-4BA3D9">
+  <img alt="Version" src="https://img.shields.io/badge/SkyOP-2.2.0-4BA3D9">
   <img alt="License" src="https://img.shields.io/badge/License-MIT-blue.svg">
 </p>
 
@@ -26,11 +26,11 @@
 
 ---
 
-## What is new in 2.1.2
+## What is new in 2.2.0
 
-SkyOP 2.1.2 fixes a Minecraft 26.3 SDL input crash caused by unbound module key mappings. Unbound mappings now use Minecraft's official InputConstants.UNKNOWN key value instead of passing an invalid raw -1 scancode. This release retains the 2.1.1 GUI, HUD, profile and inventory features.
+SkyOP 2.2.0 improves the ClickGUI language coverage and restores gameplay mouse capture after screens close. Bahasa Indonesia is now the default and has complete translations for module names, descriptions, settings and editor controls. Minecraft's relative mouse mode is re-captured only when the player is in-world, the game window is active, and no screen or overlay is open. The release also resets transient HUD-drag and text/keybind editing states when the ClickGUI closes.
 
-- **Language:** English is the default. The in-client selector also includes Bahasa Indonesia, Español, Português, Français, 简体中文 and 日本語. Your choice is saved independently from Minecraft's global language.
+- **Language:** Bahasa Indonesia is the default, with English available from the in-client selector. The selected language is saved independently from Minecraft's global language.
 - **Module browser:** search, category filtering, Favorites, two-column module cards and per-panel scrolling.
 - **Input and HUD editor:** per-module keybind capture, independently draggable HUD panels, six quick color swatches, and a custom RGB hex field (#RRGGBB).
 - **Inventory utilities:** Auto Eat, Auto Armor, Auto Tool, Auto Refill, Auto Fish and safe stack consolidation.
@@ -45,7 +45,7 @@ A successful automated build checks compilation, remapping, metadata, RGB codec 
 2. Choose the newest run with a green **Success** status.
 3. Scroll to **Artifacts** and download **SkyOP-Client-Minecraft-26.3**.
 4. Extract the downloaded ZIP archive.
-5. Copy skyop-client-2.1.2.jar into the mods folder of your Minecraft 26.3 Fabric instance.
+5. Copy skyop-client-2.2.0.jar into the mods folder of your Minecraft 26.3 Fabric instance.
 6. Keep Fabric API installed in the same instance, then launch Minecraft.
 
 GitHub Actions artifacts expire after 30 days. Use the latest successful run for the most recent build.
@@ -160,13 +160,8 @@ The central settings schema declares numeric defaults and valid ranges. Settings
 ## Language selection
 
 English is the default on a clean installation. Use the language control in the ClickGUI footer to cycle through:
+- Bahasa Indonesia (default)
 - English
-- Bahasa Indonesia
-- Español
-- Português
-- Français
-- 简体中文
-- 日本語
 
 The selected language is saved to .minecraft/config/skyop-client.properties.
 
