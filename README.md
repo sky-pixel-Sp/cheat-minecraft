@@ -1,46 +1,101 @@
-# SkyOP Client 1.1.0 — Minecraft Java 26.3
+# SkyOP Client
 
-A configurable client-side Fabric utility/cheat client with a category-based ClickGUI, combat automation, movement modules, entity highlighting, and a persistent configuration file.
+<p align="center">
+  <strong>A configurable Minecraft Java 26.3 Fabric client</strong><br>
+  Combat · Movement · Visual · Player · ClickGUI
+</p>
 
-[![Build SkyOP Client](https://github.com/sky-pixel-Sp/cheat-minecraft/actions/workflows/build.yml/badge.svg)](https://github.com/sky-pixel-Sp/cheat-minecraft/actions/workflows/build.yml)
+<p align="center">
+  <a href="https://github.com/sky-pixel-Sp/cheat-minecraft/actions/workflows/build.yml">
+    <img alt="Build status" src="https://github.com/sky-pixel-Sp/cheat-minecraft/actions/workflows/build.yml/badge.svg?branch=main">
+  </a>
+  <img alt="Minecraft" src="https://img.shields.io/badge/Minecraft-Java%2026.3-3C8527?logo=minecraft&logoColor=white">
+  <img alt="Fabric" src="https://img.shields.io/badge/Mod%20loader-Fabric-DBD0B4?logo=fabric&logoColor=222222">
+  <img alt="Java" src="https://img.shields.io/badge/Java-25-ED8B00?logo=openjdk&logoColor=white">
+  <img alt="Version" src="https://img.shields.io/badge/SkyOP-1.1.0-4BA3D9">
+  <img alt="License" src="https://img.shields.io/badge/License-MIT-blue.svg">
+</p>
 
-## Target toolchain
+<p align="center">
+  <a href="https://github.com/sky-pixel-Sp/cheat-minecraft/actions/runs/42497851407">
+    <strong>⬇️ DOWNLOAD SKYOP CLIENT 1.1.0</strong>
+  </a>
+  &nbsp;·&nbsp;
+  <a href="https://github.com/sky-pixel-Sp/cheat-minecraft/actions/workflows/build.yml?query=branch%3Amain">
+    Latest builds
+  </a>
+  &nbsp;·&nbsp;
+  <a href="docs/TEST-PLAN.md">Test plan</a>
+</p>
 
-| Component | Version |
+---
+
+## About
+
+SkyOP is a client-side Fabric mod for Minecraft Java 26.3. It brings together a category-based in-game module manager, configurable gameplay modules, an on-screen HUD, and saved user preferences.
+
+The interface is designed around a familiar client layout: choose a category, select a module, toggle it, and adjust its available settings without typing commands.
+
+> **Build status:** SkyOP Client 1.1.0 was compiled with Java 25 and Gradle 9.7.1. The GitHub Actions job also verified the remapped JAR's client entrypoint and Fabric metadata. A successful build is not the same as a complete in-game compatibility test.
+
+## Download
+
+### SkyOP Client 1.1.0 — Minecraft 26.3
+
+<p align="center">
+  <a href="https://github.com/sky-pixel-Sp/cheat-minecraft/actions/runs/42497851407">
+    <img alt="Download SkyOP Client 1.1.0" src="https://img.shields.io/badge/⬇%20Download-SkyOP%201.1.0-1677C8?style=for-the-badge">
+  </a>
+</p>
+
+1. Open the **Build SkyOP Client** workflow run using the download link above.
+2. Scroll down to **Artifacts**.
+3. Download **SkyOP-Client-Minecraft-26.3**.
+4. Extract the downloaded ZIP archive.
+5. Copy `skyop-client-1.1.0.jar` into your Minecraft instance's `mods` folder.
+6. Start the Minecraft 26.3 Fabric instance.
+
+**Artifact availability:** GitHub Actions artifacts are temporary downloads and are retained for 30 days. For a newer build, open [Latest builds](https://github.com/sky-pixel-Sp/cheat-minecraft/actions/workflows/build.yml?query=branch%3Amain), select the newest successful run, and download its artifact.
+
+## Requirements
+
+| Component | Required version |
 |---|---:|
-| Minecraft Java | **26.3** |
-| Fabric Loader | **0.20.1** |
+| Minecraft Java Edition | **26.3** |
+| Fabric Loader | **0.20.1 or newer compatible 26.3 build** |
 | Fabric API | **0.165.2+26.3** |
-| Java | **25** |
-| Fabric Loom | **1.18.4** |
-| Gradle | **9.7.1** |
+| Java runtime | **25 or newer** |
+| Fabric Loom (development) | **1.18.4** |
+| Gradle (development) | **9.7.1** |
 
-## In-game interface
+Install Fabric Loader and Fabric API in the **same game instance** as SkyOP. Do not put the mod in a Forge or NeoForge instance.
 
-Press **Right Shift** to open the SkyOP ClickGUI. It has separate Combat, Movement, Visual and Player categories. Left-click a module to toggle it; right-click a module to focus its settings. Slider controls and toggle controls update live.
+## Open the ClickGUI
 
-The HUD can show enabled modules, player coordinates and FPS. The client configuration is saved to `config/skyop-client.properties` and loaded on the next launch.
+Press **Right Shift** while in-game to open the SkyOP module manager.
 
-## Modules
+The interface has four categories:
 
-| Category | Module | Implementation |
-|---|---|---|
-| Combat | KillAura | Selects nearby configured targets, optional smooth rotation, attack range and tick delay settings. |
-| Combat | TriggerBot | Attacks a selected valid entity under the crosshair. |
-| Combat | AutoClicker | Repeats valid entity attacks while the attack key is held; respects vanilla attack cooldown. |
-| Movement | Auto Sprint | Sprints when forward is held and sneak is not held. |
-| Movement | Speed | Configurable horizontal movement boost. |
-| Movement | Flight | Local no-gravity flight controls; jump rises and sneak descends. |
-| Visual | Entity ESP | Uses the vanilla glowing outline for nearby loaded entities, with separate player/mob filters and range. |
-| Visual | Gamma Boost | Sets the vanilla gamma option to its maximum normal value and restores the previous value when disabled. |
-| Visual | HUD | Displays enabled modules, FPS and coordinates. |
-| Player | NoFall | Clears the local fall-distance accumulator. |
+| Category | Modules |
+|---|---|
+| **Combat** | KillAura, TriggerBot, AutoClicker |
+| **Movement** | Auto Sprint, Speed, Flight |
+| **Visual** | Entity ESP, Gamma Boost, HUD |
+| **Player** | NoFall |
 
-Keybinds are also available in **Options → Controls → Key Binds → SkyOP Client**:
+### Interface controls
+
+- **Left-click a module:** enable or disable it.
+- **Right-click a module:** select it and inspect its settings.
+- **Click a setting:** toggle it or adjust its slider.
+- **Disable All:** turn modules off and restore temporary client-side state.
+- **Close the GUI:** use the close control or press Right Shift again through the keybind.
+
+### Default keybinds
 
 | Key | Action |
 |---|---|
-| Right Shift | Open ClickGUI |
+| **Right Shift** | Open ClickGUI |
 | F4 | Toggle HUD |
 | F5 | Toggle AutoClicker |
 | F6 | Toggle Auto Sprint |
@@ -51,40 +106,99 @@ Keybinds are also available in **Options → Controls → Key Binds → SkyOP Cl
 | F11 | Toggle Flight |
 | F12 | Disable all modules |
 
-## Download the JAR
+Keybinds can also be reviewed under **Options → Controls → Key Binds → SkyOP Client**.
 
-1. Open the repository's **Actions** tab.
-2. Open the latest successful **Build SkyOP Client** run on `main`.
-3. Download the `SkyOP-Client-Minecraft-26.3` artifact.
-4. Extract the artifact ZIP.
-5. Place `skyop-client-1.1.0.jar` into the Minecraft instance's `mods` directory.
-6. Use Minecraft 26.3 with Fabric Loader 0.20.1 and Fabric API 0.165.2+26.3.
+## Module overview
 
-Every push to `main`, pull request, or manual workflow dispatch runs the build and uploads the JAR as a 30-day GitHub Actions artifact.
+### Combat
 
-## Build locally on Windows
+| Module | Available controls | Behaviour |
+|---|---|---|
+| KillAura | Target players, target hostile mobs, rotation, line of sight, range | Selects a configured nearby target and sends an attack action. |
+| TriggerBot | Target filters, trigger delay | Sends an attack attempt when a valid entity is under the crosshair. |
+| AutoClicker | Clicks per second | Repeats valid entity attack attempts while the attack key is held. Vanilla attack cooldown is still respected. |
 
-1. Install a 64-bit **JDK 25** and ensure `java -version` reports 25.
-2. Clone or extract this repository.
-3. Double-click `BUILD-WINDOWS.bat`.
-4. Find the remapped JAR in `build\libs`.
+### Movement
 
-The first build downloads Gradle and Minecraft/Fabric dependencies.
+| Module | Available controls | Behaviour |
+|---|---|---|
+| Auto Sprint | Toggle | Sprints while forward is held and sneak is not held. |
+| Speed | Movement multiplier | Applies a configurable horizontal movement boost. |
+| Flight | Flight speed | Uses local no-gravity movement; jump rises and sneak descends. |
 
-## Compatibility and honest limitations
+### Visual
 
-- SkyOP is a **client-side mod**, not a server plugin and not an operator-permission tool.
-- Combat and movement features send ordinary game actions or modify the local player state. A multiplayer server remains authoritative and can reject, correct, or flag those actions.
-- This project does not include anti-cheat bypasses. Do not assume it works on protected public servers.
-- Flight, Speed and NoFall are best tested in a local single-player world or a private server you control.
-- Entity ESP only works for entities already tracked/loaded by the client. It is not an x-ray or a way to reveal entities that the client has not received.
-- Gamma Boost only uses the maximum vanilla gamma option; it is not true shader-level fullbright.
-- A successful CI build verifies compilation and JAR structure. It does not replace a manual launch and in-game feature test.
+| Module | Available controls | Behaviour |
+|---|---|---|
+| Entity ESP | Players, mobs, range | Adds a vanilla glowing outline to nearby living entities already known to the client. |
+| Gamma Boost | Toggle | Sets the vanilla gamma option to its maximum normal value and restores the previous value when disabled. |
+| HUD | Toggle | Displays enabled modules, coordinates, and FPS. |
 
-## Test plan
+### Player
 
-See [`docs/TEST-PLAN.md`](docs/TEST-PLAN.md) for the required launcher and multiplayer-limit checks.
+| Module | Behaviour |
+|---|---|
+| NoFall | Clears the local fall-distance accumulator. A server can still apply fall damage. |
+
+## Configuration
+
+SkyOP saves preferences in:
+
+```text
+.minecraft/config/skyop-client.properties
+```
+
+The file stores enabled modules and the settings exposed by the ClickGUI, including combat filters, ranges, delays, movement values, and ESP options.
+
+You can back up this file to preserve your setup or remove it to return to default settings.
+
+## Build from source on Windows
+
+1. Install a 64-bit **JDK 25**.
+2. Confirm `java -version` reports Java 25 or newer.
+3. Clone or download this repository.
+4. Run `BUILD-WINDOWS.bat`.
+5. Wait for Gradle to download the required dependencies and complete the build.
+6. Find the remapped JAR under `build/libs/`.
+
+The build script downloads Gradle 9.7.1 into the user's local application-data directory. An internet connection is required for the first build.
+
+### GitHub Actions
+
+The workflow at [`.github/workflows/build.yml`](.github/workflows/build.yml) runs on pushes to `main`, pull requests, and manual dispatches. It:
+
+1. Checks out the source.
+2. Configures Java 25 and Gradle 9.7.1.
+3. Runs `clean build`.
+4. Checks that the remapped JAR contains the SkyOP client entrypoint and `fabric.mod.json`.
+5. Uploads the installable JAR as **SkyOP-Client-Minecraft-26.3**.
+
+## Compatibility and safety notes
+
+- SkyOP is a **client-side mod**. It is not a server plugin and does not grant operator permissions.
+- Multiplayer servers remain authoritative. They can reject or correct movement and combat actions, and server rules may prohibit these modules.
+- This project does not claim to bypass anti-cheat systems. Do not assume it will work on protected public servers.
+- Flight, Speed, NoFall, and combat automation should first be tested in a local single-player world or a private server you control.
+- Entity ESP only works with entities already tracked by the game client. It is not an x-ray and cannot reveal entities the client has not received.
+- Gamma Boost changes the vanilla gamma option; it is not shader-level fullbright.
+
+## Testing
+
+See **[docs/TEST-PLAN.md](docs/TEST-PLAN.md)** for the launch checklist, GUI checks, module checks, and evidence to collect.
+
+The automated CI build verifies compilation and packaging. It does **not** prove that the game launches successfully or that every module behaves correctly in every world or on every server. Those checks require a real Minecraft 26.3 client session.
+
+## Contributing and issues
+
+Bug reports should include:
+
+- Minecraft, Fabric Loader, Fabric API, and Java versions.
+- The module and settings being tested.
+- `logs/latest.log` or the relevant crash report.
+- Clear reproduction steps.
+
+Please avoid sharing access tokens, account credentials, or private server details in public issues.
 
 ## License
 
-MIT. See [`LICENSE`](LICENSE).
+Released under the **MIT License**. See [LICENSE](LICENSE).
