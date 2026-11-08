@@ -301,8 +301,10 @@ public final class SkyOPClient implements ClientModInitializer {
         for (Module module : Module.values()) {
             if (MODULE_KEYBINDS.containsKey(module)) continue;
             String keyName = "key.skyop.module." + module.name().toLowerCase();
+            // Minecraft 26.3 uses SDL scancodes. Never pass raw -1 to the
+            // native keyboard-state buffer for an unbound key mapping.
             KeyMapping mapping = KeyMappingHelper.registerKeyMapping(new KeyMapping(
-                    keyName, InputConstants.Type.KEYBOARD, -1, KEY_CATEGORY
+                    keyName, InputConstants.Type.KEYBOARD, InputConstants.UNKNOWN.getValue(), KEY_CATEGORY
             ));
             MODULE_KEYBINDS.put(module, mapping);
             MODULE_KEY_CODES.put(module, -1);
