@@ -239,7 +239,7 @@ public final class SkyOPClient implements ClientModInitializer {
             return;
         }
 
-        if (client.getScreen() != null) return;
+        if (client.gui.screen() != null) return;
 
         if (isEnabled(Module.AUTO_SPRINT)) tickAutoSprint(client);
         if (isEnabled(Module.SPEED)) tickSpeed(client);
