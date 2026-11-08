@@ -317,7 +317,7 @@ public final class SkyOPLanguage {
                 e("module.AUTO_FISH.description", "Menggulung pancing saat gigitan terdeteksi lalu melemparnya kembali."),
                 e("module.INVENTORY_CLEANER.description", "Menggabungkan stack sejenis tanpa menjatuhkan item."),
                 e("module.HOTBAR_PRESETS.description", "Menyimpan tiga susunan hotbar menggunakan ID item."),
-                e("module.PROFILE_MANAGER.description", "Mengimpor, mengekspor, dan mencadangkan profil konfigurasi."),
+                e("module.PROFILE_MANAGER.description", "Mengimpor, mengekspor, dan mencadangkan profil konfigurasi.")
         ));
         translate("es", Map.ofEntries(
                 e("category.inventory", "Inventario"), e("category.favorites", "Favoritos"),
@@ -350,7 +350,7 @@ public final class SkyOPLanguage {
                 e("module.AUTO_FISH.description", "Recoge el anzuelo al detectar una picada y vuelve a lanzarlo."),
                 e("module.INVENTORY_CLEANER.description", "Consolida pilas iguales sin tirar objetos."),
                 e("module.HOTBAR_PRESETS.description", "Guarda tres diseños de barra rápida mediante identificadores."),
-                e("module.PROFILE_MANAGER.description", "Importa, exporta y crea copias de perfiles."),
+                e("module.PROFILE_MANAGER.description", "Importa, exporta y crea copias de perfiles.")
         ));
         translate("pt", Map.ofEntries(
                 e("category.inventory", "Inventário"), e("category.favorites", "Favoritos"),
@@ -383,7 +383,7 @@ public final class SkyOPLanguage {
                 e("module.AUTO_FISH.description", "Recolhe a linha ao detectar uma mordida e lança novamente."),
                 e("module.INVENTORY_CLEANER.description", "Consolida pilhas iguais sem descartar itens."),
                 e("module.HOTBAR_PRESETS.description", "Salva três layouts da barra rápida usando IDs de itens."),
-                e("module.PROFILE_MANAGER.description", "Importa, exporta e cria backups de perfis."),
+                e("module.PROFILE_MANAGER.description", "Importa, exporta e cria backups de perfis.")
         ));
         translate("fr", Map.ofEntries(
                 e("category.inventory", "Inventaire"), e("category.favorites", "Favoris"),
@@ -416,7 +416,7 @@ public final class SkyOPLanguage {
                 e("module.AUTO_FISH.description", "Rembobine lors d'une touche visible puis relance la canne."),
                 e("module.INVENTORY_CLEANER.description", "Regroupe les piles identiques sans jeter d'objets."),
                 e("module.HOTBAR_PRESETS.description", "Enregistre trois dispositions de barre via les identifiants d'objets."),
-                e("module.PROFILE_MANAGER.description", "Importe, exporte et sauvegarde les profils."),
+                e("module.PROFILE_MANAGER.description", "Importe, exporte et sauvegarde les profils.")
         ));
         translate("zh", Map.ofEntries(
                 e("category.inventory", "物品栏"), e("category.favorites", "收藏"),
@@ -449,7 +449,7 @@ public final class SkyOPLanguage {
                 e("module.AUTO_FISH.description", "检测到咬钩后收线并重新抛竿。"),
                 e("module.INVENTORY_CLEANER.description", "合并相同物品堆叠，不会丢弃物品。"),
                 e("module.HOTBAR_PRESETS.description", "使用物品 ID 保存三套快捷栏布局。"),
-                e("module.PROFILE_MANAGER.description", "导入、导出并备份配置文件。"),
+                e("module.PROFILE_MANAGER.description", "导入、导出并备份配置文件。")
         ));
         translate("ja", Map.ofEntries(
                 e("category.inventory", "インベントリ"), e("category.favorites", "お気に入り"),
@@ -482,7 +482,7 @@ public final class SkyOPLanguage {
                 e("module.AUTO_FISH.description", "当たりを検知すると巻き上げて再び投げます。"),
                 e("module.INVENTORY_CLEANER.description", "アイテムを捨てずに同種スタックをまとめます。"),
                 e("module.HOTBAR_PRESETS.description", "アイテム ID を使って3つのホットバー配置を保存します。"),
-                e("module.PROFILE_MANAGER.description", "設定プロファイルをインポート、エクスポート、バックアップします。"),
+                e("module.PROFILE_MANAGER.description", "設定プロファイルをインポート、エクスポート、バックアップします。")
         ));
     }
 
