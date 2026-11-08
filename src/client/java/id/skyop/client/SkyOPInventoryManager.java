@@ -7,7 +7,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.inventory.ContainerInput;
-import net.minecraft.world.item.Equippable;
+import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.state.BlockState;
@@ -25,7 +25,7 @@ public final class SkyOPInventoryManager {
     );
     private static final Set<Object> UNSAFE_FOOD = Set.of(
             Items.ROTTEN_FLESH, Items.SPIDER_EYE, Items.POISONOUS_POTATO,
-            Items.PUFFERFISH, Items.CHORUS_FRUIT, Items.SUSPICIOUS_STEW, Items.RAW_CHICKEN
+            Items.PUFFERFISH, Items.CHORUS_FRUIT, Items.SUSPICIOUS_STEW, Items.CHICKEN
     );
 
     private static int eatRetry;

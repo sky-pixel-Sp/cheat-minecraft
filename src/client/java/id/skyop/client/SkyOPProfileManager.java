@@ -109,16 +109,29 @@ public final class SkyOPProfileManager {
         for (int hotbar = 0; hotbar < 9; hotbar++) {
             String itemId = desired.get(hotbar);
             if (itemId == null || "minecraft:air".equals(itemId)) continue;
+            String currentId = BuiltInRegistries.ITEM.getKey(inventory.getItem(hotbar).getItem()).toString();
+            if (currentId.equals(itemId)) continue;
+
             int found = -1;
-            for (int source = hotbar; source < Math.min(36, inventory.getContainerSize()); source++) {
+            // Do not disturb earlier hotbar positions that already match their preset.
+            for (int source = hotbar + 1; source < 9; source++) {
                 if (BuiltInRegistries.ITEM.getKey(inventory.getItem(source).getItem()).toString().equals(itemId)) {
                     found = source;
                     break;
                 }
             }
-            if (found >= 9) {
+            if (found < 0) {
+                for (int source = 9; source < Math.min(36, inventory.getContainerSize()); source++) {
+                    if (BuiltInRegistries.ITEM.getKey(inventory.getItem(source).getItem()).toString().equals(itemId)) {
+                        found = source;
+                        break;
+                    }
+                }
+            }
+            if (found >= 0) {
+                int menuSlot = found < 9 ? 36 + found : found;
                 client.gameMode.handleContainerInput(
-                        client.player.inventoryMenu.containerId, found, hotbar, ContainerInput.SWAP, client.player
+                        client.player.inventoryMenu.containerId, menuSlot, hotbar, ContainerInput.SWAP, client.player
                 );
             }
         }

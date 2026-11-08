@@ -281,6 +281,85 @@ public final class SkyOPLanguage {
                 e("setting.target_card", "ターゲット情報"), e("setting.key_display", "キー表示"), e("setting.player_status", "プレイヤー状態"),
                 e("setting.movement_speed", "移動速度"), e("setting.attack_rate", "攻撃速度"), e("setting.module_status", "モジュール状態")
         ));
+
+        translate("id", Map.ofEntries(
+                e("category.inventory", "Inventaris"), e("category.favorites", "Favorit"),
+                e("module.POTION_HUD.title", "HUD Ramuan"), e("module.DURABILITY_HUD.title", "HUD Daya Tahan"),
+                e("module.COMPASS_HUD.title", "HUD Kompas"), e("module.DIRECTION_HUD.title", "HUD Arah"),
+                e("module.PING_HUD.title", "HUD Ping"), e("module.FPS_HUD.title", "HUD FPS"),
+                e("module.RADAR_HUD.title", "Radar Entitas Terdekat"), e("module.TEXT_GUI.title", "Teks Kustom"),
+                e("module.AUTO_EAT.title", "Makan Otomatis"), e("module.AUTO_ARMOR.title", "Armor Otomatis"),
+                e("module.AUTO_TOOL.title", "Alat Otomatis"), e("module.AUTO_REFILL.title", "Isi Ulang Otomatis"),
+                e("module.AUTO_FISH.title", "Mancing Otomatis"), e("module.INVENTORY_CLEANER.title", "Rapikan Inventaris"),
+                e("module.HOTBAR_PRESETS.title", "Preset Hotbar"), e("module.PROFILE_MANAGER.title", "Pengelola Profil"),
+                e("setting.hunger_threshold", "Ambang rasa lapar"), e("setting.eat_below", "Mulai makan di bawah nilai ini"),
+                e("setting.refill_threshold", "Ambang isi ulang"), e("setting.refill_low", "Isi ulang saat jumlah stack di bawah nilai ini")
+        ));
+        translate("es", Map.ofEntries(
+                e("category.inventory", "Inventario"), e("category.favorites", "Favoritos"),
+                e("module.POTION_HUD.title", "HUD de pociones"), e("module.DURABILITY_HUD.title", "HUD de durabilidad"),
+                e("module.COMPASS_HUD.title", "HUD de brújula"), e("module.DIRECTION_HUD.title", "HUD de dirección"),
+                e("module.PING_HUD.title", "HUD de ping"), e("module.FPS_HUD.title", "HUD de FPS"),
+                e("module.RADAR_HUD.title", "Radar de entidades cercanas"), e("module.TEXT_GUI.title", "Texto personalizado"),
+                e("module.AUTO_EAT.title", "Comer automáticamente"), e("module.AUTO_ARMOR.title", "Armadura automática"),
+                e("module.AUTO_TOOL.title", "Herramienta automática"), e("module.AUTO_REFILL.title", "Recarga automática"),
+                e("module.AUTO_FISH.title", "Pesca automática"), e("module.INVENTORY_CLEANER.title", "Limpiador de inventario"),
+                e("module.HOTBAR_PRESETS.title", "Perfiles de barra rápida"), e("module.PROFILE_MANAGER.title", "Gestor de perfiles"),
+                e("setting.hunger_threshold", "Umbral de hambre"), e("setting.eat_below", "Comer por debajo de este nivel"),
+                e("setting.refill_threshold", "Umbral de recarga"), e("setting.refill_low", "Recargar cuando la pila sea baja")
+        ));
+        translate("pt", Map.ofEntries(
+                e("category.inventory", "Inventário"), e("category.favorites", "Favoritos"),
+                e("module.POTION_HUD.title", "HUD de poções"), e("module.DURABILITY_HUD.title", "HUD de durabilidade"),
+                e("module.COMPASS_HUD.title", "HUD de bússola"), e("module.DIRECTION_HUD.title", "HUD de direção"),
+                e("module.PING_HUD.title", "HUD de ping"), e("module.FPS_HUD.title", "HUD de FPS"),
+                e("module.RADAR_HUD.title", "Radar de entidades próximas"), e("module.TEXT_GUI.title", "Texto personalizado"),
+                e("module.AUTO_EAT.title", "Comer automaticamente"), e("module.AUTO_ARMOR.title", "Armadura automática"),
+                e("module.AUTO_TOOL.title", "Ferramenta automática"), e("module.AUTO_REFILL.title", "Reabastecimento automático"),
+                e("module.AUTO_FISH.title", "Pesca automática"), e("module.INVENTORY_CLEANER.title", "Organizador de inventário"),
+                e("module.HOTBAR_PRESETS.title", "Perfis da barra rápida"), e("module.PROFILE_MANAGER.title", "Gerenciador de perfis"),
+                e("setting.hunger_threshold", "Limite de fome"), e("setting.eat_below", "Comer abaixo deste nível"),
+                e("setting.refill_threshold", "Limite de reabastecimento"), e("setting.refill_low", "Reabastecer quando a pilha estiver baixa")
+        ));
+        translate("fr", Map.ofEntries(
+                e("category.inventory", "Inventaire"), e("category.favorites", "Favoris"),
+                e("module.POTION_HUD.title", "HUD des potions"), e("module.DURABILITY_HUD.title", "HUD de durabilité"),
+                e("module.COMPASS_HUD.title", "HUD boussole"), e("module.DIRECTION_HUD.title", "HUD direction"),
+                e("module.PING_HUD.title", "HUD ping"), e("module.FPS_HUD.title", "HUD FPS"),
+                e("module.RADAR_HUD.title", "Radar des entités proches"), e("module.TEXT_GUI.title", "Texte personnalisé"),
+                e("module.AUTO_EAT.title", "Repas automatique"), e("module.AUTO_ARMOR.title", "Armure automatique"),
+                e("module.AUTO_TOOL.title", "Outil automatique"), e("module.AUTO_REFILL.title", "Réapprovisionnement automatique"),
+                e("module.AUTO_FISH.title", "Pêche automatique"), e("module.INVENTORY_CLEANER.title", "Nettoyage inventaire"),
+                e("module.HOTBAR_PRESETS.title", "Profils de barre rapide"), e("module.PROFILE_MANAGER.title", "Gestionnaire de profils"),
+                e("setting.hunger_threshold", "Seuil de faim"), e("setting.eat_below", "Manger sous ce niveau"),
+                e("setting.refill_threshold", "Seuil de recharge"), e("setting.refill_low", "Recharger quand la pile est basse")
+        ));
+        translate("zh", Map.ofEntries(
+                e("category.inventory", "物品栏"), e("category.favorites", "收藏"),
+                e("module.POTION_HUD.title", "药水 HUD"), e("module.DURABILITY_HUD.title", "耐久 HUD"),
+                e("module.COMPASS_HUD.title", "指南针 HUD"), e("module.DIRECTION_HUD.title", "方向 HUD"),
+                e("module.PING_HUD.title", "延迟 HUD"), e("module.FPS_HUD.title", "帧率 HUD"),
+                e("module.RADAR_HUD.title", "附近实体雷达"), e("module.TEXT_GUI.title", "自定义文本"),
+                e("module.AUTO_EAT.title", "自动进食"), e("module.AUTO_ARMOR.title", "自动穿甲"),
+                e("module.AUTO_TOOL.title", "自动工具"), e("module.AUTO_REFILL.title", "自动补充"),
+                e("module.AUTO_FISH.title", "自动钓鱼"), e("module.INVENTORY_CLEANER.title", "物品栏整理"),
+                e("module.HOTBAR_PRESETS.title", "快捷栏预设"), e("module.PROFILE_MANAGER.title", "配置管理器"),
+                e("setting.hunger_threshold", "饥饿阈值"), e("setting.eat_below", "低于此数值时进食"),
+                e("setting.refill_threshold", "补充阈值"), e("setting.refill_low", "物品数量较低时补充")
+        ));
+        translate("ja", Map.ofEntries(
+                e("category.inventory", "インベントリ"), e("category.favorites", "お気に入り"),
+                e("module.POTION_HUD.title", "ポーション HUD"), e("module.DURABILITY_HUD.title", "耐久 HUD"),
+                e("module.COMPASS_HUD.title", "コンパス HUD"), e("module.DIRECTION_HUD.title", "方向 HUD"),
+                e("module.PING_HUD.title", "Ping HUD"), e("module.FPS_HUD.title", "FPS HUD"),
+                e("module.RADAR_HUD.title", "近くのエンティティレーダー"), e("module.TEXT_GUI.title", "カスタムテキスト"),
+                e("module.AUTO_EAT.title", "自動食事"), e("module.AUTO_ARMOR.title", "自動防具"),
+                e("module.AUTO_TOOL.title", "自動ツール"), e("module.AUTO_REFILL.title", "自動補充"),
+                e("module.AUTO_FISH.title", "自動釣り"), e("module.INVENTORY_CLEANER.title", "インベントリ整理"),
+                e("module.HOTBAR_PRESETS.title", "ホットバープリセット"), e("module.PROFILE_MANAGER.title", "プロファイル管理"),
+                e("setting.hunger_threshold", "空腹しきい値"), e("setting.eat_below", "この値を下回ると食事"),
+                e("setting.refill_threshold", "補充しきい値"), e("setting.refill_low", "スタックが少ないと補充")
+        ));
     }
 
     private SkyOPLanguage() { }
@@ -292,7 +371,7 @@ public final class SkyOPLanguage {
     private static void put(String key, String value) { EN.put(key, value); }
 
     private static void translate(String code, Map<String, String> values) {
-        DICTIONARIES.put(code, values);
+        DICTIONARIES.computeIfAbsent(code, ignored -> new LinkedHashMap<>()).putAll(values);
     }
 
     public static List<Language> languages() { return LANGUAGES; }

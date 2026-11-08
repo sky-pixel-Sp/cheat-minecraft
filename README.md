@@ -1,8 +1,8 @@
-# SkyOP Client
+# SkyOP Client 2.0.0
 
 <p align="center">
-  <strong>A configurable Minecraft Java 26.3 Fabric client</strong><br>
-  Combat · Movement · Visual · Player · Quick Profiles · Two-column ClickGUI
+  <strong>Premium-style Minecraft Java 26.3 Fabric client</strong><br>
+  Combat · Movement · Visual · Inventory · Profiles · HUD Studio · Multi-language
 </p>
 
 <p align="center">
@@ -12,7 +12,7 @@
   <img alt="Minecraft" src="https://img.shields.io/badge/Minecraft-Java%2026.3-3C8527?logo=minecraft&logoColor=white">
   <img alt="Fabric" src="https://img.shields.io/badge/Mod%20loader-Fabric-DBD0B4?logo=fabric&logoColor=222222">
   <img alt="Java" src="https://img.shields.io/badge/Java-25-ED8B00?logo=openjdk&logoColor=white">
-  <img alt="Version" src="https://img.shields.io/badge/SkyOP-1.3.0-4BA3D9">
+  <img alt="Version" src="https://img.shields.io/badge/SkyOP-2.0.0-4BA3D9">
   <img alt="License" src="https://img.shields.io/badge/License-MIT-blue.svg">
 </p>
 
@@ -26,125 +26,161 @@
 
 ---
 
-## About
+## What is new in 2.0.0
 
-SkyOP is a client-side Fabric mod for Minecraft Java 26.3. Version 1.3.0 adds configurable target FOV and rotation speed, corrects combat cooldown accounting, introduces Speedometer and CPS HUD telemetry, and keeps the expanded module library and quick profiles.
+SkyOP 2.0 expands the 1.3 client with a premium-style configuration layer, inventory/survival utilities, extra HUD panels, a language selector, profile storage, keybind editing, and HUD positioning/color controls.
 
-The interface uses a two-column module grid, a live settings inspector, category counts, status indicators, and one-click profiles. Settings are persisted between launches.
+- **Language:** English is the default. The in-client selector also includes Bahasa Indonesia, Español, Português, Français, 简体中文 and 日本語. Your choice is saved independently from Minecraft's global language.
+- **Module browser:** search, category filtering, Favorites, two-column module cards and per-panel scrolling.
+- **Input and HUD editor:** per-module keybind capture, drag-to-position HUD preview, and a six-color palette.
+- **Inventory utilities:** Auto Eat, Auto Armor, Auto Tool, Auto Refill, Auto Fish and safe stack consolidation.
+- **Profiles:** three JSON profile slots, JSON export/import through files in the config directory, timestamped backups and three hotbar layouts.
+- **Extra HUDs:** potion effects, durability, compass/direction, ping, FPS, nearby client-loaded entities and custom text.
 
-> **Build status:** The GitHub Actions workflow compiles the project with Java 25 and Gradle 9.7.1, checks the remapped mod JAR and uploads it as an artifact. A successful build does not replace a real in-game test.
+A successful automated build checks compilation, remapping, metadata and artifact packaging. It does not replace a real Minecraft launch and in-world test.
 
-## Download
+## Download and install
 
-1. Open [Latest successful builds](https://github.com/sky-pixel-Sp/cheat-minecraft/actions/workflows/build.yml?query=branch%3Amain).
-2. Select the newest run with a green **Success** status.
+1. Open [Latest successful GitHub Actions builds](https://github.com/sky-pixel-Sp/cheat-minecraft/actions/workflows/build.yml?query=branch%3Amain).
+2. Choose the newest run with a green **Success** status.
 3. Scroll to **Artifacts** and download **SkyOP-Client-Minecraft-26.3**.
-4. Extract the ZIP archive.
-5. Copy skyop-client-1.3.0.jar into the Minecraft instance mods folder.
-6. Launch Minecraft Java 26.3 with Fabric Loader and Fabric API installed.
+4. Extract the downloaded ZIP archive.
+5. Copy skyop-client-2.0.0.jar into the mods folder of your Minecraft 26.3 Fabric instance.
+6. Keep Fabric API installed in the same instance, then launch Minecraft.
 
-GitHub Actions artifacts are temporary and retained for 30 days. Always use the newest successful build for the latest version.
+GitHub Actions artifacts expire after 30 days. Use the latest successful run for the most recent build.
 
 ## Requirements
 
-| Component | Required version |
+| Component | Version |
 |---|---:|
 | Minecraft Java Edition | **26.3** |
-| Fabric Loader | **0.20.1 or newer compatible 26.3 build** |
+| Fabric Loader | **0.20.1 or a compatible newer 26.3 build** |
 | Fabric API | **0.165.2+26.3** |
 | Java runtime | **25 or newer** |
 | Fabric Loom (development) | **1.18.4** |
 | Gradle (development) | **9.7.1** |
 
-Install Fabric Loader, Fabric API, and SkyOP in the same game instance. Do not use this JAR in Forge or NeoForge.
+Use Fabric, not Forge or NeoForge. Install the mod in the same game directory as Fabric API.
 
-## Open the ClickGUI
+## Open and use the ClickGUI
 
-Press **Right Shift** while in-game.
+Press **Right Shift** in-game.
 
-### UI controls
-
-| Input | Action |
+| Control | Action |
 |---|---|
 | Left-click a module card | Enable or disable the module |
 | Right-click a module card | Select it without toggling |
-| Click a setting | Toggle it or set a slider value |
-| PVE profile | Load a hostile-mob focused configuration |
-| OP profile | Load the full local PvE feature preset |
-| VISUAL profile | Load ESP and player HUD features |
+| Click the star on a card | Add/remove the module from Favorites |
+| Click the search field and type | Filter modules by name or description |
+| Mouse wheel over module list | Scroll modules |
+| Mouse wheel over settings | Scroll settings |
+| Click a setting row | Toggle an option or set a slider |
+| Click a module's Keybind row, then press a key | Change its keybind |
+| Press Escape while capturing a key | Cancel key capture |
+| Click the color swatch in the header | Open the HUD color palette |
+| Click HUD Edit, then drag the preview | Move the main HUD; release to save |
+| Click a language button in the footer | Cycle the in-client language |
+| PVE / OP / VISUAL | Load the built-in quick preset |
 | Disable All | Disable modules and restore temporary client state |
-| Close button | Close the ClickGUI |
 
-### Default keybinds
-
-| Key | Action |
-|---|---|
-| Right Shift | Open ClickGUI |
-| F4 | Toggle HUD |
-| F5 | Toggle AutoClicker |
-| F6 | Toggle Auto Sprint |
-| F7 | Toggle Speed |
-| F8 | Toggle KillAura |
-| F9 | Toggle Entity ESP |
-| F10 | Toggle NoFall |
-| F11 | Toggle Flight |
-| F12 | Disable all modules |
-
-Keybinds are also listed under **Options → Controls → Key Binds → SkyOP Client**.
+The keybinds also appear in **Options → Controls → Key Binds → SkyOP Client**. Avoid assigning the same key to multiple modules because Minecraft can dispatch both mappings.
 
 ## Modules
 
 ### Combat
 
-| Module | Settings and behaviour |
+| Module | Main controls |
 |---|---|
-| KillAura | Target filters, smooth rotation, line of sight, range, lowest-health priority, aim FOV, rotation speed |
-| TriggerBot | Target filters and trigger delay; attacks a valid entity under the crosshair |
-| AutoClicker | Configurable CPS while the attack key is held; vanilla attack cooldown remains respected |
+| KillAura | Player/mob filters, line of sight, attack range, target priority, aim FOV and rotation interpolation |
+| TriggerBot | Player/mob filters and trigger delay |
+| AutoClicker | CPS target while holding the attack key; vanilla attack-strength cooldown remains respected |
 
 ### Movement
 
-| Module | Settings and behaviour |
+| Module | Main behaviour |
 |---|---|
-| Auto Sprint | Automatically sprints while moving forward |
+| Auto Sprint | Sprint while moving forward |
 | Speed | Configurable horizontal movement multiplier |
 | Flight | Local no-gravity movement; jump rises and sneak descends |
-| Auto Jump | Automatically jumps while moving forward; jump interval is configurable |
-| Step Assist | Jumps when forward movement collides with a wall |
-| Spider | Applies upward motion while pushing into a wall; climb speed is configurable |
+| Auto Jump | Automatic jumps while moving forward |
+| Step Assist | Jump when forward movement hits a wall |
+| Spider | Upward movement while pressing into a wall |
 
-### Visual
+### Visual and HUD
 
-| Module | Settings and behaviour |
+| Module | Main behaviour |
 |---|---|
-| Entity ESP | Player/mob filters and scan radius; only highlights loaded entities |
-| Gamma Boost | Sets vanilla gamma to its maximum normal value and restores the previous value |
-| HUD | Active module list, coordinates and FPS |
-| Target HUD | Crosshair target name, health bar and distance |
-| Keystrokes | Live W/A/S/D and jump key indicators |
-| Armor HUD | Current health and armor points |
-| Speedometer | Horizontal movement speed in blocks per second |
-| CPS HUD | Successful attack actions per second |
+| Entity ESP | Highlights entities already loaded by the client; player/mob filters and range |
+| Gamma Boost | Uses maximum normal vanilla gamma and restores the previous value |
+| HUD | Active modules, coordinates and FPS |
+| Target HUD | Crosshair target, health and distance |
+| Keystrokes | W/A/S/D and jump indicators |
+| Armor HUD | Health and armor points |
+| Speedometer | Horizontal blocks per second |
+| CPS HUD | Successful local attack actions per second |
+| Potion HUD | Active potion effects and duration |
+| Durability HUD | Main-hand durability percentage |
+| Compass HUD / Direction HUD | Cardinal direction and yaw |
+| Ping HUD | Multiplayer latency, where player-list latency is available |
+| FPS HUD | Current client frame rate |
+| Nearby Entity Radar | Nearby entities already tracked by the client |
+| Text GUI | Custom on-screen message |
 
-### Player
+HUD coordinates and accent color are stored in the SkyOP configuration.
 
-| Module | Settings and behaviour |
+### Inventory and survival
+
+| Module | Main behaviour |
 |---|---|
-| NoFall | Clears the local fall-distance accumulator; a server can still apply fall damage |
+| Auto Eat | Selects safe food from the hotbar below the configured hunger threshold |
+| Auto Armor | Quick-moves armor into empty armor slots; it does not replace worn armor |
+| Auto Tool | Selects the fastest tool available in the hotbar for the targeted block, then restores the previous slot |
+| Auto Refill | Swaps a matching inventory stack into the selected hotbar slot when its count is low |
+| Auto Fish | Reels when the client-visible fishing hook bite flag is set, then recasts |
+| Inventory Cleaner | Consolidates matching item stacks; it does not drop or delete items |
+| Hotbar Presets | Saves and loads three hotbar layouts using item identifiers |
 
-## Profiles
+Inventory changes use normal vanilla container actions. The server validates all inventory transactions. Auto Fish still depends on the server's fishing result and timing.
 
-- **PVE:** Enables the mob-focused combat and movement baseline.
-- **OP:** Enables the full local PvE preset, including combat automation, movement, Spider, NoFall, ESP and player HUDs. Player targeting remains disabled by default.
-- **VISUAL:** Enables ESP, gamma and the HUD overlays.
+### Profiles and settings
 
-Profiles can be adjusted after loading. Their values are saved to the local config file.
+Select **Profile Manager** under Inventory.
 
-## Configuration
+- Save or load slots 1–3.
+- Export current settings to config/skyop-client/skyop-profile-export.json.
+- To import, place a JSON profile at config/skyop-client/skyop-profile-import.json, then click **Import JSON**.
+- **Backup Now** creates a timestamped copy of skyop-client.properties in config/skyop-client/backups/.
+- Each profile is stored in config/skyop-client/profiles/.
 
-Configuration path: .minecraft/config/skyop-client.properties
+Select **Hotbar Presets** under Inventory to save or load one of three layouts. A hotbar layout stores item identifiers, not item quantities, NBT contents, enchantments, or exact stack arrangements. Verify the hotbar after applying a layout.
 
-The file stores module states, combat filters, target priority, ranges, click timing, movement values, ESP options and profile values. Back up this file to preserve a setup; remove it to reset to defaults.
+The central settings schema declares numeric defaults and valid ranges. Settings loaded from disk are clamped to their documented limits.
+
+## Language selection
+
+English is the default on a clean installation. Use the language control in the ClickGUI footer to cycle through:
+- English
+- Bahasa Indonesia
+- Español
+- Português
+- Français
+- 简体中文
+- 日本語
+
+The selected language is saved to .minecraft/config/skyop-client.properties.
+
+## Configuration locations
+
+| File/folder | Purpose |
+|---|---|
+| .minecraft/config/skyop-client.properties | Module states, settings, language, favorites, keybinds and HUD preferences |
+| .minecraft/config/skyop-client/profiles/ | JSON profiles and hotbar layouts |
+| .minecraft/config/skyop-client/skyop-profile-export.json | Current profile exported for sharing |
+| .minecraft/config/skyop-client/skyop-profile-import.json | JSON file read by Import JSON |
+| .minecraft/config/skyop-client/backups/ | Timestamped property-file backups |
+
+Back up the config folder before experimenting with imported profiles.
 
 ## Build from source on Windows
 
@@ -154,26 +190,26 @@ The file stores module states, combat filters, target priority, ranges, click ti
 4. Run BUILD-WINDOWS.bat.
 5. Find the remapped JAR under build/libs/.
 
-The first build requires an internet connection so Gradle can download dependencies.
+The first build needs an internet connection to download Gradle and dependencies.
 
-## Compatibility and safety notes
+## Compatibility and safety
 
 - SkyOP is a **client-side mod**. It does not grant operator permissions and is not a server plugin.
-- Multiplayer servers remain authoritative and may reject, correct or flag automated movement and combat actions. Server rules may prohibit these modules.
-- This project does not claim to bypass anti-cheat systems.
-- Flight, Speed, Spider, NoFall and combat automation should first be tested in a local single-player world or a private server you control.
-- ESP only works with entities already tracked by the client. It cannot reveal entities the client has not received.
-- Gamma Boost changes the normal vanilla gamma option; it is not shader-level fullbright.
+- Movement and combat actions may be rejected, corrected or flagged by a multiplayer server. Respect the server's rules.
+- The project does not claim to bypass anti-cheat systems or server authority.
+- Use automated combat or movement only in single-player or a private server where you are allowed to do so.
+- ESP and radar only work with entities already received/tracked by your client. They do not reveal unloaded or untracked entities.
+- Auto Armor, Auto Refill, Inventory Cleaner and Hotbar Presets use normal vanilla container actions; the server can reject a transaction.
+- The HUD ping value is only available when the client has player-list latency information.
+- A successful CI build proves compilation and packaging, not that every module works in every world or on every server.
 
 ## Testing
 
-See [docs/TEST-PLAN.md](docs/TEST-PLAN.md) for the launch checklist, GUI tests, module tests and evidence to collect.
-
-The automated CI job verifies compilation and packaging. It does **not** prove that the client launches or that each module behaves correctly in every world or on every server.
+See [docs/TEST-PLAN.md](docs/TEST-PLAN.md) for the complete launch, GUI, inventory, HUD and profile checklist.
 
 ## Contributing
 
-Bug reports should include the Minecraft, Loader, Fabric API and Java versions, module settings, reproduction steps, logs/latest.log, and any crash report. Do not share account credentials or private server details.
+Bug reports should include Minecraft, Fabric Loader, Fabric API and Java versions; selected modules/settings; reproduction steps; logs/latest.log; and any crash report. Never share account credentials or private server details.
 
 ## License
 

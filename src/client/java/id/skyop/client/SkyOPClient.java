@@ -130,6 +130,7 @@ public final class SkyOPClient implements ClientModInitializer {
     private static final EnumSet<Module> ENABLED = EnumSet.of(Module.HUD);
     private static final EnumSet<Module> FAVORITES = EnumSet.noneOf(Module.class);
     private static final Map<Module, KeyMapping> MODULE_KEYBINDS = new EnumMap<>(Module.class);
+    private static final Map<Module, Integer> MODULE_KEY_CODES = new EnumMap<>(Module.class);
     private static final Map<UUID, GlowState> ORIGINAL_GLOW = new HashMap<>();
     private static final Path CONFIG_FILE = FabricLoader.getInstance().getConfigDir().resolve("skyop-client.properties");
 
@@ -186,8 +187,8 @@ public final class SkyOPClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        loadConfig();
         registerModuleKeybinds();
+        loadConfig();
         HudElementRegistry.addLast(
                 Identifier.fromNamespaceAndPath("skyop", "overlay"),
                 (graphics, deltaTracker) -> renderHud(Minecraft.getInstance(), graphics)
@@ -210,9 +211,11 @@ public final class SkyOPClient implements ClientModInitializer {
     public static void setModuleKeybind(Module module, int scancode) {
         KeyMapping mapping = MODULE_KEYBINDS.get(module);
         if (mapping == null) return;
-        mapping.setKey(scancode < 0
+        int safeCode = Math.max(-1, scancode);
+        MODULE_KEY_CODES.put(module, safeCode);
+        mapping.setKey(safeCode < 0
                 ? InputConstants.UNKNOWN
-                : InputConstants.Type.KEYBOARD.getOrCreate(scancode));
+                : InputConstants.Type.KEYBOARD.getOrCreate(safeCode));
         KeyMapping.resetMapping();
         saveConfig();
     }
@@ -256,14 +259,14 @@ public final class SkyOPClient implements ClientModInitializer {
     }
 
     private static void registerModuleKeybinds() {
-        MODULE_KEYBINDS.put(Module.HUD, KEY_HUD);
-        MODULE_KEYBINDS.put(Module.AUTO_CLICKER, KEY_AUTO_CLICKER);
-        MODULE_KEYBINDS.put(Module.AUTO_SPRINT, KEY_SPRINT);
-        MODULE_KEYBINDS.put(Module.SPEED, KEY_SPEED);
-        MODULE_KEYBINDS.put(Module.KILL_AURA, KEY_AURA);
-        MODULE_KEYBINDS.put(Module.ENTITY_ESP, KEY_ESP);
-        MODULE_KEYBINDS.put(Module.NO_FALL, KEY_NO_FALL);
-        MODULE_KEYBINDS.put(Module.FLIGHT, KEY_FLIGHT);
+        registerMapping(Module.HUD, KEY_HUD, InputConstants.KEY_F4);
+        registerMapping(Module.AUTO_CLICKER, KEY_AUTO_CLICKER, InputConstants.KEY_F5);
+        registerMapping(Module.AUTO_SPRINT, KEY_SPRINT, InputConstants.KEY_F6);
+        registerMapping(Module.SPEED, KEY_SPEED, InputConstants.KEY_F7);
+        registerMapping(Module.KILL_AURA, KEY_AURA, InputConstants.KEY_F8);
+        registerMapping(Module.ENTITY_ESP, KEY_ESP, InputConstants.KEY_F9);
+        registerMapping(Module.NO_FALL, KEY_NO_FALL, InputConstants.KEY_F10);
+        registerMapping(Module.FLIGHT, KEY_FLIGHT, InputConstants.KEY_F11);
 
         for (Module module : Module.values()) {
             if (MODULE_KEYBINDS.containsKey(module)) continue;
@@ -272,10 +275,23 @@ public final class SkyOPClient implements ClientModInitializer {
                     keyName, InputConstants.Type.KEYBOARD, -1, KEY_CATEGORY
             ));
             MODULE_KEYBINDS.put(module, mapping);
+            MODULE_KEY_CODES.put(module, -1);
         }
     }
 
+    private static void registerMapping(Module module, KeyMapping mapping, int keyCode) {
+        MODULE_KEYBINDS.put(module, mapping);
+        MODULE_KEY_CODES.put(module, keyCode);
+    }
+
     public static void setEnabled(Minecraft client, Module module, boolean enabled) {
+        if (enabled && !SkyOPModuleDependencies.isAvailable(client, module)) {
+            String missing = SkyOPModuleDependencies.missingRequirement(client, module);
+            if (client != null && client.player != null) {
+                client.player.sendSystemMessage(Component.literal("[SkyOP] " + missing));
+            }
+            return;
+        }
         if (enabled) ENABLED.add(module); else ENABLED.remove(module);
 
         if (module == Module.ENTITY_ESP && !enabled) restoreGlow();
@@ -886,7 +902,8 @@ public final class SkyOPClient implements ClientModInitializer {
         p.setProperty("customHudText", customHudText);
         for (Module module : FAVORITES) p.setProperty("favorite." + module.name(), "true");
         for (Map.Entry<Module, KeyMapping> entry : MODULE_KEYBINDS.entrySet()) {
-            p.setProperty("keybind." + entry.getKey().name(), Integer.toString(entry.getValue().getKey().getValue()));
+            p.setProperty("keybind." + entry.getKey().name(),
+                    Integer.toString(MODULE_KEY_CODES.getOrDefault(entry.getKey(), -1)));
         }
 
         try {
@@ -945,7 +962,8 @@ public final class SkyOPClient implements ClientModInitializer {
                 KeyMapping mapping = MODULE_KEYBINDS.get(module);
                 if (keybind != null && mapping != null) {
                     try {
-                        int code = Integer.parseInt(keybind);
+                        int code = Math.max(-1, Integer.parseInt(keybind));
+                        MODULE_KEY_CODES.put(module, code);
                         mapping.setKey(code < 0 ? InputConstants.UNKNOWN : InputConstants.Type.KEYBOARD.getOrCreate(code));
                     } catch (NumberFormatException ignored) { }
                 }
