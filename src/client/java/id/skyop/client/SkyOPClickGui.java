@@ -1,6 +1,8 @@
 package id.skyop.client;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -316,16 +318,19 @@ public final class SkyOPClickGui extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int button = event.input();
         int mx = (int) mouseX, my = (int) mouseY;
         int closeX = panelX + panelWidth - 48;
-        if (button == 0 && inside(mx, my, closeX, panelY + 12, 30, 23)) {
+        if (button == InputConstants.MOUSE_BUTTON_LEFT && inside(mx, my, closeX, panelY + 12, 30, 23)) {
             onClose();
             return true;
         }
 
         int disableX = panelX + panelWidth - 144, footerY = panelY + panelHeight - 38;
-        if (button == 0 && inside(mx, my, disableX, footerY + 7, 124, 24)) {
+        if (button == InputConstants.MOUSE_BUTTON_LEFT && inside(mx, my, disableX, footerY + 7, 124, 24)) {
             SkyOPClient.disableAll(Minecraft.getInstance());
             return true;
         }
@@ -333,7 +338,7 @@ public final class SkyOPClickGui extends Screen {
         int navX = panelX + 17, navY = panelY + 93, navIndex = 0;
         for (SkyOPClient.Category category : SkyOPClient.Category.values()) {
             int rowY = navY + navIndex * 36;
-            if (button == 0 && inside(mx, my, navX, rowY, 116, 30)) {
+            if (button == InputConstants.MOUSE_BUTTON_LEFT && inside(mx, my, navX, rowY, 116, 30)) {
                 selectedCategory = category;
                 selectFirstModule();
                 return true;
@@ -347,7 +352,7 @@ public final class SkyOPClickGui extends Screen {
             int rowY = moduleY + moduleIndex * 60;
             if (inside(mx, my, moduleX, rowY, moduleW, 52)) {
                 selectedModule = module;
-                if (button == 0) SkyOPClient.toggle(Minecraft.getInstance(), module);
+                if (button == InputConstants.MOUSE_BUTTON_LEFT) SkyOPClient.toggle(Minecraft.getInstance(), module);
                 return true;
             }
             moduleIndex++;
@@ -358,13 +363,13 @@ public final class SkyOPClickGui extends Screen {
             int settingsY = panelY + 141;
             int rowIndex = (my - settingsY) / 49;
             List<Setting> settings = settingsFor(selectedModule);
-            if (button == 0 && mx >= settingsX && mx <= panelX + panelWidth - 15
+            if (button == InputConstants.MOUSE_BUTTON_LEFT && mx >= settingsX && mx <= panelX + panelWidth - 15
                     && my >= settingsY && rowIndex >= 0 && rowIndex < settings.size()) {
                 applySettingClick(rowIndex, mouseX);
                 return true;
             }
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubleClick);
     }
 
     private boolean inside(int mx, int my, int x, int y, int w, int h) {

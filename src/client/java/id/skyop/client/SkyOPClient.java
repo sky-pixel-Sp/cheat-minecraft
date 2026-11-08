@@ -74,16 +74,16 @@ public final class SkyOPClient implements ClientModInitializer {
 
     private static final Identifier KEY_CATEGORY_ID = Identifier.fromNamespaceAndPath("skyop", "client");
     private static final KeyMapping.Category KEY_CATEGORY = KeyMapping.Category.register(KEY_CATEGORY_ID);
-    private static final KeyMapping KEY_GUI = key("key.skyop.open_gui", 344);
-    private static final KeyMapping KEY_HUD = key("key.skyop.toggle_hud", 293);
-    private static final KeyMapping KEY_AUTO_CLICKER = key("key.skyop.toggle_autoclicker", 294);
-    private static final KeyMapping KEY_SPRINT = key("key.skyop.toggle_sprint", 295);
-    private static final KeyMapping KEY_SPEED = key("key.skyop.toggle_speed", 296);
-    private static final KeyMapping KEY_AURA = key("key.skyop.toggle_aura", 297);
-    private static final KeyMapping KEY_ESP = key("key.skyop.toggle_esp", 298);
-    private static final KeyMapping KEY_NO_FALL = key("key.skyop.toggle_nofall", 299);
-    private static final KeyMapping KEY_FLIGHT = key("key.skyop.toggle_flight", 300);
-    private static final KeyMapping KEY_DISABLE_ALL = key("key.skyop.disable_all", 301);
+    private static final KeyMapping KEY_GUI = key("key.skyop.open_gui", InputConstants.KEY_RSHIFT);
+    private static final KeyMapping KEY_HUD = key("key.skyop.toggle_hud", InputConstants.KEY_F4);
+    private static final KeyMapping KEY_AUTO_CLICKER = key("key.skyop.toggle_autoclicker", InputConstants.KEY_F5);
+    private static final KeyMapping KEY_SPRINT = key("key.skyop.toggle_sprint", InputConstants.KEY_F6);
+    private static final KeyMapping KEY_SPEED = key("key.skyop.toggle_speed", InputConstants.KEY_F7);
+    private static final KeyMapping KEY_AURA = key("key.skyop.toggle_aura", InputConstants.KEY_F8);
+    private static final KeyMapping KEY_ESP = key("key.skyop.toggle_esp", InputConstants.KEY_F9);
+    private static final KeyMapping KEY_NO_FALL = key("key.skyop.toggle_nofall", InputConstants.KEY_F10);
+    private static final KeyMapping KEY_FLIGHT = key("key.skyop.toggle_flight", InputConstants.KEY_F11);
+    private static final KeyMapping KEY_DISABLE_ALL = key("key.skyop.disable_all", InputConstants.KEY_F12);
 
     private static final EnumSet<Module> ENABLED = EnumSet.of(Module.HUD);
     private static final Map<UUID, GlowState> ORIGINAL_GLOW = new HashMap<>();
@@ -114,7 +114,7 @@ public final class SkyOPClient implements ClientModInitializer {
 
     private static KeyMapping key(String translationKey, int keyCode) {
         return KeyMappingHelper.registerKeyMapping(new KeyMapping(
-                translationKey, InputConstants.Type.KEYSYM, keyCode, KEY_CATEGORY
+                translationKey, InputConstants.Type.KEYBOARD, keyCode, KEY_CATEGORY
         ));
     }
 
