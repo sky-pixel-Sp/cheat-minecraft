@@ -229,7 +229,9 @@ public final class SkyOPClickGui extends Screen {
 
         KeyMapping mapping = SkyOPClient.keybindFor(selectedModule);
         String keyName = waitingForKeybind ? SkyOPLanguage.text("gui.press_a_key") :
-                (mapping == null ? SkyOPLanguage.text("gui.unbound") : mapping.getTranslatedKeyMessage().getString());
+                (mapping == null || SkyOPClient.isModuleKeybindUnbound(selectedModule)
+                        ? SkyOPLanguage.text("gui.unbound")
+                        : mapping.getTranslatedKeyMessage().getString());
         int keyY = y + 72;
         boolean keyHovered = inside(mouseX, mouseY, x + 8, keyY, w - 16, 24);
         g.fill(x + 8, keyY, x + w - 8, keyY + 23,
