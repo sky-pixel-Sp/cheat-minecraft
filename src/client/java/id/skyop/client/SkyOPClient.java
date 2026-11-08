@@ -408,6 +408,7 @@ public final class SkyOPClient implements ClientModInitializer {
 
     private static void onClientTick(Minecraft client) {
         handleKeybinds(client);
+        ensureMouseCaptured(client);
         if (client.player == null || client.level == null) {
             restoreGlow();
             restoreGamma(client);
@@ -435,6 +436,19 @@ public final class SkyOPClient implements ClientModInitializer {
         if (isEnabled(Module.TRIGGER_BOT)) tickTriggerBot(client); else triggerCooldown = 0;
         if (isEnabled(Module.AUTO_CLICKER)) tickAutoClicker(client); else clickerCooldown = 0;
         SkyOPInventoryManager.tick(client);
+    }
+
+    /**
+     * Recover Minecraft's relative mouse mode if another screen/client transition
+     * leaves the pointer released while the player is back in active gameplay.
+     * Never steal the pointer while the window is unfocused or a UI is open.
+     */
+    private static void ensureMouseCaptured(Minecraft client) {
+        if (client.player == null || client.level == null || !client.isWindowActive()) return;
+        if (client.gui.screen() != null || client.gui.overlay() != null) return;
+        if (!client.mouseHandler.isMouseGrabbed()) {
+            client.mouseHandler.grabMouse();
+        }
     }
 
     private static void handleKeybinds(Minecraft client) {
@@ -973,7 +987,7 @@ public final class SkyOPClient implements ClientModInitializer {
         Properties p = new Properties();
         try (Reader reader = Files.newBufferedReader(CONFIG_FILE)) {
             p.load(reader);
-            SkyOPLanguage.set(p.getProperty("language", "en"));
+            SkyOPLanguage.set(p.getProperty("language", "id"));
             for (Module module : Module.values()) {
                 String value = p.getProperty("module." + module.name());
                 if (value != null) {
