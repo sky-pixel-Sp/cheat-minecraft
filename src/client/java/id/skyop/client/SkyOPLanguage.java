@@ -545,6 +545,7 @@ public final class SkyOPLanguage {
 
         // Complete Indonesian coverage for every ClickGUI label and module.
         translate("id", Map.ofEntries(
+                e("gui.brand", "SKYOP"),
                 e("gui.client", "KLIEN / 26.3"),
                 e("gui.hud_edit", "EDIT HUD"),
                 e("gui.hud_edit_on", "EDIT HUD AKTIF"),
