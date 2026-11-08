@@ -1,5 +1,7 @@
 package id.skyop.client;
 
+import id.skyop.mixin.SkyOPFishingHookAccessor;
+
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;

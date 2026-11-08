@@ -47,8 +47,48 @@ jobs:
             find build/libs -maxdepth 1 -type f -print || true
             exit 1
           fi
-          jar tf "$JAR_PATH" | grep -q '^id/skyop/client/SkyOPClient.class$'
+          JAR_ENTRIES="$(jar tf "$JAR_PATH")"
+          grep -q '^id/skyop/client/SkyOPClient.class
+          echo "Verified JAR: $JAR_PATH"
+          echo "SKYOP_JAR_PATH=$JAR_PATH" >> "$GITHUB_ENV"
+
+      - name: Upload ready-to-install JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: SkyOP-Client-Minecraft-26.3
+          path: ${{ env.SKYOP_JAR_PATH }}
+          if-no-files-found: error
+          retention-days: 30
+ <<< "$JAR_ENTRIES"
+          grep -q '^id/skyop/mixin/SkyOPFishingHookAccessor.class
+          echo "Verified JAR: $JAR_PATH"
+          echo "SKYOP_JAR_PATH=$JAR_PATH" >> "$GITHUB_ENV"
+
+      - name: Upload ready-to-install JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: SkyOP-Client-Minecraft-26.3
+          path: ${{ env.SKYOP_JAR_PATH }}
+          if-no-files-found: error
+          retention-days: 30
+ <<< "$JAR_ENTRIES"
+          if grep -q '^id/skyop/client/SkyOPFishingHookAccessor.class
+          echo "Verified JAR: $JAR_PATH"
+          echo "SKYOP_JAR_PATH=$JAR_PATH" >> "$GITHUB_ENV"
+
+      - name: Upload ready-to-install JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: SkyOP-Client-Minecraft-26.3
+          path: ${{ env.SKYOP_JAR_PATH }}
+          if-no-files-found: error
+          retention-days: 30
+ <<< "$JAR_ENTRIES"; then
+            echo 'Mixin accessor must not remain in the client entrypoint package.' >&2
+            exit 1
+          fi
           unzip -p "$JAR_PATH" fabric.mod.json | grep -q '"id": "skyop"'
+          unzip -p "$JAR_PATH" skyop.mixins.json | grep -q '"package": "id.skyop.mixin"'
           echo "Verified JAR: $JAR_PATH"
           echo "SKYOP_JAR_PATH=$JAR_PATH" >> "$GITHUB_ENV"
 
