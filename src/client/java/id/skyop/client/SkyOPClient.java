@@ -707,6 +707,12 @@ public final class SkyOPClient implements ClientModInitializer {
         }
     }
 
+    static void trackDisabledJumpInputs(Minecraft client) {
+        if (client == null || client.options == null) return;
+        if (!isEnabled(Module.JUMP_BOOST)) jumpBoostKeyWasDown = client.options.keyJump.isDown();
+        if (!isEnabled(Module.INFINITE_JUMP)) jumpKeyWasDown = client.options.keyJump.isDown();
+    }
+
     static void cleanupWorldState(Minecraft client) {
         restoreGlow();
         restoreGamma(client);
@@ -1205,6 +1211,7 @@ public final class SkyOPClient implements ClientModInitializer {
             p.setProperty("keybind." + entry.getKey().name(),
                     Integer.toString(MODULE_KEY_CODES.getOrDefault(entry.getKey(), -1)));
         }
+        SkyOPModuleManager.saveSettings(p);
 
         try {
             SkyOPConfigManager.save(CONFIG_FILE, p);
@@ -1281,6 +1288,7 @@ public final class SkyOPClient implements ClientModInitializer {
                     } catch (NumberFormatException ignored) { }
                 }
             }
+            SkyOPModuleManager.loadSettings(p);
             KeyMapping.resetMapping();
         } catch (IOException exception) {
             System.err.println("[SkyOP] Could not load config: " + exception.getMessage());
