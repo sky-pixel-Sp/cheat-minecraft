@@ -189,6 +189,7 @@ public final class SkyOPClient implements ClientModInitializer {
     private static int autoHuntCooldown;
     private static int bridgeCooldown;
     private static boolean jumpKeyWasDown;
+    private static boolean jumpBoostKeyWasDown;
     private static int cpsWindowTicks;
     private static int attacksThisWindow;
     private static int currentCps;
@@ -308,7 +309,7 @@ public final class SkyOPClient implements ClientModInitializer {
         ENABLED.add(Module.HUD);
         FAVORITES.clear();
         loadConfig();
-        if (!ENABLED.contains(Module.ENTITY_ESP)) restoreGlow();
+        if (!ENABLED.contains(Module.ENTITY_ESP) && !ENABLED.contains(Module.ITEM_ESP)) restoreGlow();
         if (!ENABLED.contains(Module.GAMMA_BOOST) && !ENABLED.contains(Module.NIGHT_VISION)) restoreGamma(Minecraft.getInstance());
         if (!ENABLED.contains(Module.FLIGHT)) restoreFlight(Minecraft.getInstance());
     }
@@ -408,7 +409,7 @@ public final class SkyOPClient implements ClientModInitializer {
 
         if (!isEnabled(Module.ENTITY_ESP) && !isEnabled(Module.ITEM_ESP)) restoreGlow();
         if (!isEnabled(Module.FLIGHT)) restoreFlight(client);
-        if (!isEnabled(Module.GAMMA_BOOST)) restoreGamma(client);
+        if (!isEnabled(Module.GAMMA_BOOST) && !isEnabled(Module.NIGHT_VISION)) restoreGamma(client);
         if (!isEnabled(Module.AUTO_FISH)) SkyOPInventoryManager.stop(client);
         saveConfig();
         if (client.player != null) {
@@ -426,6 +427,7 @@ public final class SkyOPClient implements ClientModInitializer {
         autoHuntCooldown = 0;
         bridgeCooldown = 0;
         jumpKeyWasDown = false;
+        jumpBoostKeyWasDown = false;
         restoreGlow();
         restoreGamma(client);
         restoreFlight(client);
@@ -457,7 +459,9 @@ public final class SkyOPClient implements ClientModInitializer {
         if (isEnabled(Module.SPIDER)) tickSpider(client);
         if (isEnabled(Module.AUTO_BRIDGE)) tickAutoBridge(client); else bridgeCooldown = 0;
         if (isEnabled(Module.JUMP_BOOST)) tickJumpBoost(client);
-        if (isEnabled(Module.INFINITE_JUMP)) tickInfiniteJump(client); else jumpKeyWasDown = client.options.keyJump.isDown();
+        else jumpBoostKeyWasDown = client.options.keyJump.isDown();
+        if (isEnabled(Module.INFINITE_JUMP)) tickInfiniteJump(client);
+        else jumpKeyWasDown = client.options.keyJump.isDown();
 
         if (isEnabled(Module.NO_FALL) && client.player.fallDistance > 1.0F) {
             client.player.fallDistance = 0.0F;
@@ -629,11 +633,14 @@ public final class SkyOPClient implements ClientModInitializer {
 
     private static void tickJumpBoost(Minecraft client) {
         Player player = client.player;
-        if (!client.options.keyJump.isDown() || !player.onGround()
-                || !player.isAlive() || player.isPassenger()) return;
-        double boost = 0.42 * clamp(jumpBoostMultiplier, 1.0, 3.0);
-        Vec3 motion = player.getDeltaMovement();
-        player.setDeltaMovement(motion.x, Math.max(motion.y, boost), motion.z);
+        boolean jumpDown = client.options.keyJump.isDown();
+        if (jumpDown && !jumpBoostKeyWasDown && player.onGround()
+                && player.isAlive() && !player.isPassenger()) {
+            double boost = 0.42 * clamp(jumpBoostMultiplier, 1.0, 3.0);
+            Vec3 motion = player.getDeltaMovement();
+            player.setDeltaMovement(motion.x, Math.max(motion.y, boost), motion.z);
+        }
+        jumpBoostKeyWasDown = jumpDown;
     }
 
     private static void tickInfiniteJump(Minecraft client) {
