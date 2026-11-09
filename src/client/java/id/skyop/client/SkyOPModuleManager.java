@@ -30,6 +30,10 @@ public final class SkyOPModuleManager {
             SkyOPModuleId.KILL_AURA, SkyOPModuleId.AUTO_HUNT,
             SkyOPModuleId.TRIGGER_BOT, SkyOPModuleId.AUTO_CLICKER
     );
+    private static final List<SkyOPModuleId> INVENTORY_TICK_ORDER = List.of(
+            SkyOPModuleId.AUTO_EAT, SkyOPModuleId.AUTO_ARMOR, SkyOPModuleId.AUTO_TOOL,
+            SkyOPModuleId.AUTO_REFILL, SkyOPModuleId.INVENTORY_CLEANER, SkyOPModuleId.AUTO_FISH
+    );
 
     private SkyOPModuleManager() { }
 
@@ -102,7 +106,7 @@ public final class SkyOPModuleManager {
         SkyOPVisualModules.tickShared(client);
 
         tickModules(client, COMBAT_TICK_ORDER);
-        SkyOPInventoryManager.tick(client);
+        tickModules(client, INVENTORY_TICK_ORDER);
     }
 
     private static void tickModules(Minecraft client, List<SkyOPModuleId> order) {
