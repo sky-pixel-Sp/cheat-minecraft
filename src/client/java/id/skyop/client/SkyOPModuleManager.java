@@ -97,6 +97,10 @@ public final class SkyOPModuleManager {
 
     public static void tick(Minecraft client) {
         if (client == null || client.player == null || client.level == null) return;
+        if (client.gameMode == null) {
+            SkyOPInventoryManager.stop(client);
+            return;
+        }
         syncAllStates(client);
         SkyOPMovementModules.trackDisabledJumpInputs(client);
 
