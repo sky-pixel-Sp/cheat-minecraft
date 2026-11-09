@@ -22,11 +22,11 @@ A green CI result proves compilation and packaging. It does not prove an in-game
 
 ## Language
 
-1. Start with no SkyOP config file; verify the entire client interface is English.
-2. Load a legacy config containing `language=id`; verify it is backed up and migrated to `language=en`.
-3. Verify all six categories, module titles and descriptions, setting labels, keybind controls, profile/hotbar controls and HUD hints are English.
-4. Open ClickGUI, verify the English labels remain stable while the screen is resized, then close and reopen Minecraft.
-5. Verify the persisted config contains `language=en` and `configVersion=2`.
+1. Start with no SkyOP config file; verify Bahasa Indonesia is selected by default.
+2. Load a legacy config containing `language=id`; verify it remains Indonesian while configVersion migrates to 2.
+3. Select English from the in-client language control; verify categories, module titles/descriptions, setting labels, keybind labels, profile/hotbar controls and HUD hints change.
+4. Change language while ClickGUI remains open; verify setting titles and descriptions update without reopening the screen.
+5. Restart Minecraft; verify the chosen `language=id` or `language=en` setting is persisted.
 
 ## ClickGUI and core
 
@@ -129,7 +129,7 @@ The feature branch CI also runs on branch pushes so every incremental fix is com
 
 ## Phase 1 architecture and configuration regression checks
 
-1. Start with no SkyOP config; verify defaults load and the first save writes `configVersion=2` and `language=en`.
+1. Start with no SkyOP config; verify defaults load and the first save writes `configVersion=2` and `language=id`.
 2. Copy a legacy v0 config with existing module toggles, keybinds and numeric settings; start SkyOP and verify a backup is created before migration and all existing values are preserved.
 3. Start with a v1 config; verify it migrates to v2 and the backup contains the exact pre-migration file.
 4. Put an invalid Unicode escape in the Properties file; verify the original file is backed up, safe defaults are loaded, and the client does not crash.
@@ -140,8 +140,27 @@ The feature branch CI also runs on branch pushes so every incremental fix is com
 9. Rebind several modules, save/restart, and verify all keybinds round-trip; invalid scancodes return to their module default or Unbound.
 10. Test all module categories and presets; verify the tick order remains Movement → NoFall → Visual → Combat → Inventory, and Disable All restores temporary state.
 11. Resize the window repeatedly while ClickGUI is open; repeat at GUI scale 1 and 4, and at 854x480; record clipping/overlap for the upcoming compact-UI phase.
-12. Open ClickGUI, verify all visible labels are English, and confirm legacy language config migration does not introduce an unsupported language option.
-13. Import a profile with invalid numeric values; verify validated values are applied, the pre-import config backup exists, and the client remains responsive.
+12. Open ClickGUI, switch between Indonesian and English while the screen remains open, and verify every title, description, setting row, keybind, profile action and HUD hint updates.
+13. Verify every module's inspector rows come from its registered `SkyOPSetting<?>` list; toggle Boolean, drag Number, cycle Mode, select Multi chips, edit Color and rebind Keybind settings.
+14. Verify Profile Manager, Hotbar Presets and Custom HUD pages keep their keybind row visible and retain their existing actions.
+15. Verify all module categories and module titles/descriptions are translated in both dictionaries, with no unresolved translation keys.
+16. Import a profile with invalid numeric values; verify validated values are applied, the pre-import config backup exists, and the client remains responsive.
 14. Switch worlds while the GUI is open, close it, and verify the client retains mouse capture only during active gameplay.
 
 CI coverage for Phase 1 includes ConfigManager migration/corruption tests and typed-setting serialization tests. Manual Minecraft checks remain required for lifecycle and in-game behavior.
+
+
+## Modular runtime checks
+
+1. Confirm `SkyOPClient.java` contains only the Fabric bootstrap delegation.
+2. Toggle each movement module and verify it is invoked through its own concrete module class.
+3. Toggle KillAura, TriggerBot, AutoClicker and Auto Hunt independently; verify cooldown state resets on disable.
+4. Toggle Entity ESP, Item ESP, Gamma Boost and Night Vision in combinations; verify shared glow/gamma state restores only when the final related module is disabled.
+5. Test Auto Eat, Auto Armor, Auto Tool, Auto Refill, Inventory Cleaner and Auto Fish separately; verify each has a concrete tick/disable lifecycle and no inventory state remains after disable.
+6. Open and close screens while inventory modules are active; verify use-key and hotbar selection are restored.
+7. Disconnect and reconnect while Flight, ESP, Gamma and Auto Eat are active; verify gravity, entity glow, gamma and use-key state restore.
+8. Change dimension and respawn; verify the module registry synchronizes active modules with the new player/world context.
+9. Search for a module, favorite it, and verify the Favorites category and module counts update.
+10. Verify the ClickGUI inspector has no per-module settings switch and uses the registered typed setting instance as the source of truth.
+
+CI covers compilation, JUnit tests for legacy utilities, config migration, typed setting validation/serialization and dynamic bilingual setting labels. Manual Minecraft 26.3 launch/gameplay checks remain mandatory.
