@@ -1,4 +1,4 @@
-# SkyOP Client 2.2.1
+# SkyOP Client 2.3.0-dev
 
 <p align="center">
   <strong>Premium-style Minecraft Java 26.3 Fabric client</strong><br>
@@ -26,6 +26,14 @@
 
 ---
 
+## 2.3.0 development branch additions
+
+The `feature/skyop-2.3.0-expansion` branch adds working client-side modules for Auto Hunt, Auto Bridge, Infinite Jump, Jump Boost, Item ESP, Waypoints and Mini Map, plus Night Vision using the local gamma setting. New gameplay settings are persisted and validated, new modules are available in ClickGUI, and V saves the player's current coordinates as a waypoint (up to 32).
+
+A separate Windows password-generator source and GitHub Actions EXE packaging workflow are included under `tools/password-generator/`. This utility generates a local random password; **it is not a login or license server and does not enforce a login gate inside the Minecraft mod**.
+
+The new features remain client-side. They do not grant server permissions, guarantee inventory or combat outcomes, or defeat anti-cheat. The mini map and ESP only use entities already loaded by the client. The Auto Bridge module places a block from the hotbar beneath the player when a valid support block and placeable block are available.
+
 ## What is new in 2.2.1
 
 SkyOP 2.2.1 fixes a Minecraft 26.3 SDL keyboard-state crash that could interrupt world loading and mouse capture. A small Mixin bounds-checks keyboard-state lookups so negative or out-of-range indexes are treated as not pressed, while unbound module keys retain Minecraft's normal Unbound semantics. Newly captured and saved keybinds are validated; invalid config values are safely reset to Unbound. The release retains the Indonesian/English language work and mouse-capture recovery.
@@ -45,7 +53,7 @@ A successful automated build checks compilation, remapping, metadata, RGB codec 
 2. Choose the newest run with a green **Success** status.
 3. Scroll to **Artifacts** and download **SkyOP-Client-Minecraft-26.3**.
 4. Extract the downloaded ZIP archive.
-5. Copy skyop-client-2.2.1.jar into the mods folder of your Minecraft 26.3 Fabric instance.
+5. Copy the versioned `skyop-client-*.jar` from the selected successful build into the mods folder of your Minecraft 26.3 Fabric instance.
 6. Keep Fabric API installed in the same instance, then launch Minecraft.
 
 GitHub Actions artifacts expire after 30 days. Use the latest successful run for the most recent build.
