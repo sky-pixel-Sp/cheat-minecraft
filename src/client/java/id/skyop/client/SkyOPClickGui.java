@@ -102,7 +102,7 @@ public final class SkyOPClickGui extends Screen {
             int hudEditX = panelX + panelWidth - 320;
             boolean colorHovered = inside(mouseX, mouseY, colorX, panelY + 12, 48, 24);
             g.fill(colorX, panelY + 12, colorX + 48, panelY + 36, colorHovered ? PANEL_HOVER : PANEL_LIGHT);
-            g.fill(colorX + 16, panelY + 20, colorX + 32, panelY + 28, SkyOPState.hudAccentColor());
+            g.fill(colorX + 16, panelY + 20, colorX + 32, panelY + 28, SkyOPCore.hudAccentColor());
             boolean editHovered = inside(mouseX, mouseY, hudEditX, panelY + 12, 72, 24);
             g.fill(hudEditX, panelY + 12, hudEditX + 72, panelY + 36, editHovered || hudEditMode ? 0xFF263D53 : PANEL_LIGHT);
             g.text(font, Component.literal(SkyOPLanguage.text(hudEditMode ? "gui.hud_edit_on" : "gui.hud_edit")),
@@ -480,7 +480,7 @@ public final class SkyOPClickGui extends Screen {
                 if (inside(mx, my, colorX, panelY + 12, 48, 24)) {
                     colorPickerOpen = !colorPickerOpen;
                     editingHudColor = false;
-                    hexColorInput = SkyOPColorCodec.formatRgb(SkyOPState.hudAccentColor());
+                    hexColorInput = SkyOPColorCodec.formatRgb(SkyOPCore.hudAccentColor());
                     return true;
                 }
                 if (inside(mx, my, editX, panelY + 12, 72, 24)) {
@@ -676,7 +676,7 @@ public final class SkyOPClickGui extends Screen {
     private void applyHexColor() {
         try {
             SkyOPCore.setHudAccentColor(SkyOPColorCodec.parseRgb(hexColorInput));
-            hexColorInput = SkyOPColorCodec.formatRgb(SkyOPState.hudAccentColor());
+            hexColorInput = SkyOPColorCodec.formatRgb(SkyOPCore.hudAccentColor());
             editingHudColor = false;
             colorPickerOpen = false;
             setProfileStatus(SkyOPLanguage.text("gui.hud_color_updated"));
@@ -697,7 +697,7 @@ public final class SkyOPClickGui extends Screen {
         for (int row = 0; row < 2; row++) for (int col = 0; col < 3; col++) {
             int px = x + 8 + col * 28, py = y + 20 + row * 27;
             g.fill(px, py, px + 22, py + 22, colors[row][col]);
-            if (colors[row][col] == SkyOPState.hudAccentColor()) g.outline(px - 2, py - 2, 26, 26, TEXT);
+            if (colors[row][col] == SkyOPCore.hudAccentColor()) g.outline(px - 2, py - 2, 26, 26, TEXT);
         }
         int fieldX = x + 8, fieldY = y + 76;
         g.fill(fieldX, fieldY, fieldX + 96, fieldY + 22, editingHudColor ? 0xFF263D53 : PANEL_LIGHT);
@@ -774,15 +774,15 @@ public final class SkyOPClickGui extends Screen {
     private void drawHudEditorPreview(GuiGraphicsExtractor g, int mouseX, int mouseY) {
         if (!hudEditMode) return;
         g.text(font, Component.literal(SkyOPLanguage.text("gui.hud_layout") + " • "
-                + SkyOPLanguage.text("gui.drag_hud")), 12, 12, SkyOPState.hudAccentColor(), true);
+                + SkyOPLanguage.text("gui.drag_hud")), 12, 12, SkyOPCore.hudAccentColor(), true);
         for (HudPreview preview : buildHudPreviews()) {
             boolean hovered = inside(mouseX, mouseY, preview.x(), preview.y(), preview.width(), preview.height());
-            int border = hovered ? TEXT : SkyOPState.hudAccentColor();
+            int border = hovered ? TEXT : SkyOPCore.hudAccentColor();
             g.fill(preview.x(), preview.y(), preview.x() + preview.width(), preview.y() + preview.height(),
                     hovered ? 0xE51C2A3B : 0xD5101726);
             g.outline(preview.x(), preview.y(), preview.width(), preview.height(), border);
             g.fill(preview.x(), preview.y(), preview.x() + preview.width(), preview.y() + 2,
-                    SkyOPState.hudAccentColor());
+                    SkyOPCore.hudAccentColor());
             g.text(font, Component.literal(trim(preview.label(), 22)),
                     preview.x() + 6, preview.y() + 7, TEXT, true);
             if (preview.height() > 34) {
@@ -790,7 +790,7 @@ public final class SkyOPClickGui extends Screen {
                         preview.x() + 6, preview.y() + 21, MUTED, true);
                 g.text(font, Component.literal(SkyOPLanguage.text("gui.drag_to_move")),
                         preview.x() + 6, preview.y() + preview.height() - 12,
-                        SkyOPState.hudAccentColor(), true);
+                        SkyOPCore.hudAccentColor(), true);
             }
         }
     }
