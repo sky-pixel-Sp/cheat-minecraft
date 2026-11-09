@@ -63,6 +63,35 @@ class SkyOPGuiLayoutTest {
     }
 
     @Test
+    void compactHeaderControlsCategoryRailAndColorPickerStayInside480By270Panel() {
+        SkyOPGuiLayout layout = SkyOPGuiLayout.calculate(480, 270);
+
+        assertTrue(layout.colorButtonX() >= layout.panelX());
+        assertTrue(layout.colorButtonX() + 20 <= layout.hudButtonX());
+        assertTrue(layout.hudButtonX() + 22 <= layout.closeButtonX());
+        assertTrue(layout.closeButtonX() + 22 <= layout.panelX() + layout.panelWidth());
+
+        assertTrue(layout.categoryRowY(5) + layout.categoryButtonHeight()
+                <= layout.footerY());
+        assertTrue(layout.colorPickerX() >= layout.panelX());
+        assertTrue(layout.colorPickerX() + 166 <= layout.panelX() + layout.panelWidth());
+        assertTrue(layout.colorPickerY() >= layout.panelY());
+        assertTrue(layout.colorPickerY() + 104 <= layout.panelY() + layout.panelHeight());
+    }
+
+    @Test
+    void wideHeaderControlsStayInside854By480Panel() {
+        SkyOPGuiLayout layout = SkyOPGuiLayout.calculate(854, 480);
+
+        assertFalse(layout.compact());
+        assertTrue(layout.colorButtonX() + 48 <= layout.hudButtonX());
+        assertTrue(layout.hudButtonX() + 72 <= layout.panelX() + layout.panelWidth() - 172);
+        assertTrue(layout.closeButtonX() + 30 <= layout.panelX() + layout.panelWidth());
+        assertTrue(layout.colorPickerX() + 166 <= layout.panelX() + layout.panelWidth());
+        assertTrue(layout.colorPickerY() + 104 <= layout.panelY() + layout.panelHeight());
+    }
+
+    @Test
     void verySmallViewportNeverProducesNegativeDimensionsOrOutOfBoundsPanel() {
         SkyOPGuiLayout layout = SkyOPGuiLayout.calculate(320, 200);
 
