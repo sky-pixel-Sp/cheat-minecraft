@@ -93,6 +93,25 @@ class SkyOPSettingsTest {
     }
 
     @Test
+    void settingLabelsResolveDynamicallyWhenLanguageChanges() {
+        AtomicReference<Boolean> value = new AtomicReference<>(false);
+        BooleanSetting setting = new BooleanSetting(
+                "targetPlayers", "lang:setting.target_players", "lang:setting.include_other_players",
+                false, value::get, value::set
+        );
+
+        SkyOPLanguage.set("id");
+        String indonesianTitle = setting.title();
+        String indonesianDescription = setting.description();
+        SkyOPLanguage.set("en");
+
+        assertNotEquals(indonesianTitle, setting.title());
+        assertNotEquals(indonesianDescription, setting.description());
+        assertEquals("Target players", setting.title());
+        SkyOPLanguage.set("id");
+    }
+
+    @Test
     void keybindSettingAcceptsUnboundAndValidScancodesOnly() {
         AtomicInteger value = new AtomicInteger(61);
         KeybindSetting setting = new KeybindSetting(
