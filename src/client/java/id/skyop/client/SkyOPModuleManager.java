@@ -18,6 +18,16 @@ import java.util.function.Supplier;
 public final class SkyOPModuleManager {
     private static final Map<SkyOPClient.Module, SkyOPModule> MODULES =
             new EnumMap<>(SkyOPClient.Module.class);
+    private static final List<SkyOPClient.Module> MOVEMENT_TICK_ORDER = List.of(
+            SkyOPClient.Module.AUTO_SPRINT, SkyOPClient.Module.SPEED, SkyOPClient.Module.FLIGHT,
+            SkyOPClient.Module.AUTO_JUMP, SkyOPClient.Module.STEP_ASSIST, SkyOPClient.Module.SPIDER,
+            SkyOPClient.Module.AUTO_BRIDGE, SkyOPClient.Module.JUMP_BOOST, SkyOPClient.Module.INFINITE_JUMP
+    );
+    private static final List<SkyOPClient.Module> COMBAT_TICK_ORDER = List.of(
+            SkyOPClient.Module.KILL_AURA, SkyOPClient.Module.AUTO_HUNT,
+            SkyOPClient.Module.TRIGGER_BOT, SkyOPClient.Module.AUTO_CLICKER
+    );
+    private static final List<SkyOPClient.Module> NO_FALL_TICK_ORDER = List.of(SkyOPClient.Module.NO_FALL);
     private static boolean initialized;
 
     private SkyOPModuleManager() { }
@@ -81,12 +91,8 @@ public final class SkyOPModuleManager {
         SkyOPClient.trackDisabledJumpInputs(client);
 
         // Preserve the original phase order: movement, NoFall, visuals, combat, inventory.
-        tickModules(client, List.of(
-                SkyOPClient.Module.AUTO_SPRINT, SkyOPClient.Module.SPEED, SkyOPClient.Module.FLIGHT,
-                SkyOPClient.Module.AUTO_JUMP, SkyOPClient.Module.STEP_ASSIST, SkyOPClient.Module.SPIDER,
-                SkyOPClient.Module.AUTO_BRIDGE, SkyOPClient.Module.JUMP_BOOST, SkyOPClient.Module.INFINITE_JUMP
-        ));
-        tickModules(client, List.of(SkyOPClient.Module.NO_FALL));
+        tickModules(client, MOVEMENT_TICK_ORDER);
+        tickModules(client, NO_FALL_TICK_ORDER);
 
         // ESP and gamma are shared by paired modules and are evaluated once per tick.
         if (SkyOPClient.isEnabled(SkyOPClient.Module.ENTITY_ESP)
@@ -103,10 +109,7 @@ public final class SkyOPModuleManager {
             SkyOPClient.restoreGamma(client);
         }
 
-        tickModules(client, List.of(
-                SkyOPClient.Module.KILL_AURA, SkyOPClient.Module.AUTO_HUNT,
-                SkyOPClient.Module.TRIGGER_BOT, SkyOPClient.Module.AUTO_CLICKER
-        ));
+        tickModules(client, COMBAT_TICK_ORDER);
         SkyOPInventoryManager.tick(client);
     }
 
