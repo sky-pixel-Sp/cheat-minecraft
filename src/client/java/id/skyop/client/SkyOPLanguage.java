@@ -213,6 +213,7 @@ public final class SkyOPLanguage {
         put("setting.successful_attacks", "Successful attack actions per second");
         put("setting.module_status", "Module status");
         put("setting.toggle_module_list", "Toggle this module from the module list");
+    }
 
     private SkyOPLanguage() { }
 
