@@ -122,3 +122,5 @@ Run these checks in a disposable single-player world before using a private serv
 11. Disable All: enable all new modules, press F12, and confirm temporary glow/gamma state is restored and movement automation stops.
 
 A green CI build does not replace these in-game checks.
+
+The feature branch CI also runs on branch pushes so every incremental fix is compiled and the remapped distributable is checked.
