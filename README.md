@@ -45,7 +45,7 @@ SkyOP 2.2.1 fixes a Minecraft 26.3 SDL keyboard-state crash that could interrupt
 - **Profiles:** three JSON profile slots, JSON export/import through files in the config directory, timestamped backups and three hotbar layouts.
 - **Extra HUDs:** potion effects, durability, compass/direction, ping, FPS, nearby client-loaded entities and custom text.
 
-The CI pipeline explicitly runs Fabric Loom's remapJar task before verifying and packaging the distributable JAR. A successful automated build checks compilation, remapping, metadata, RGB codec unit tests and artifact packaging. It does not replace a real Minecraft launch and in-world test.
+Minecraft 26.3 is unobfuscated, so this project uses Fabric Loom's non-remapping plugin and packages the ordinary `jar` output (there is no `remapJar` task for this target). CI checks compilation, metadata, RGB codec unit tests and artifact packaging. It does not replace a real Minecraft launch and in-world test.
 
 ## Download and install
 
@@ -191,7 +191,7 @@ Back up the config folder before experimenting with imported profiles.
 2. Confirm java -version reports Java 25 or newer.
 3. Clone or download this repository.
 4. Run BUILD-WINDOWS.bat.
-5. Find the remapped JAR under build/libs/.
+5. Find `skyop-client-2.3.0-dev.jar` under `build/libs/`.
 
 The first build needs an internet connection to download Gradle and dependencies.
 
