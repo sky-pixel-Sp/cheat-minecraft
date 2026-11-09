@@ -84,7 +84,8 @@ public final class SkyOPConfigManager {
         Properties snapshot = new Properties();
         snapshot.putAll(values);
         snapshot.setProperty("configVersion", Integer.toString(CURRENT_CONFIG_VERSION));
-        snapshot.setProperty("language", "id");
+        String language = snapshot.getProperty("language", "id");
+        snapshot.setProperty("language", "id".equals(language) || "en".equals(language) ? language : "id");
 
         Path temporary = Files.createTempFile(parent, "skyop-config-", ".tmp");
         try {
@@ -113,17 +114,19 @@ public final class SkyOPConfigManager {
             version++;
             properties.setProperty("configVersion", Integer.toString(version));
         }
-        if (!"en".equals(properties.getProperty("language"))) properties.setProperty("language", "id");
+        String language = properties.getProperty("language", "id");
+        properties.setProperty("language", "id".equals(language) || "en".equals(language) ? language : "id");
     }
 
     private static void migrateV0ToV1(Properties properties) {
-        // The first versioned schema preserves all existing keys and normalizes the locale.
-        properties.setProperty("language", "id");
+        // Version 1 adds schema tracking without changing existing preferences.
+        properties.putIfAbsent("language", "id");
     }
 
     private static void migrateV1ToV2(Properties properties) {
-        // Version 2 makes the client English-only; gameplay and HUD values are unchanged.
-        properties.setProperty("language", "id");
+        // Version 2 preserves both supported in-client languages.
+        String language = properties.getProperty("language", "id");
+        properties.setProperty("language", "id".equals(language) || "en".equals(language) ? language : "id");
     }
 
     private static void backup(Path source, Path backupDirectory, String reason) throws IOException {
