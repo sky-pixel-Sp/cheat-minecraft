@@ -995,7 +995,7 @@ public final class SkyOPClickGui extends Screen {
         draggingHudModule = null;
         waitingForKeybind = false;
         editingHudColor = false;
-        editingHudText = false;
+        editingStringSetting = null;
         searchFocused = false;
         SkyOPCore.saveConfig();
         super.onClose();
