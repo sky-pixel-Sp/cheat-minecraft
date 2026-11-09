@@ -26,24 +26,19 @@ public final class SkyOPClickGui extends Screen {
     private static final int GREEN = 0xFF57D69A;
     private static final int RED = 0xFFFF7885;
 
-    private SkyOPClient.Category selectedCategory = SkyOPClient.Category.COMBAT;
-    private SkyOPClient.Module selectedModule = SkyOPClient.Module.KILL_AURA;
+    private SkyOPCategory selectedCategory = SkyOPCategory.COMBAT;
+    private SkyOPModuleId selectedModule = SkyOPModuleId.KILL_AURA;
     private int panelX, panelY, panelWidth, panelHeight;
     private String searchQuery = "";
     private boolean searchFocused, waitingForKeybind, hudEditMode, draggingHud, colorPickerOpen, editingHudText;
     private boolean editingHudColor;
     private String hexColorInput = "";
-    private SkyOPClient.Module draggingHudModule;
+    private SkyOPModuleId draggingHudModule;
     private int moduleScroll, settingsScroll, hudDragOffsetX, hudDragOffsetY;
-    private record HudPreview(SkyOPClient.Module module, int x, int y, int width, int height, String label) { }
+    private record HudPreview(SkyOPModuleId module, int x, int y, int width, int height, String label) { }
     private long animationTicks;
     private String profileStatus = "";
     private int profileStatusTicks;
-
-    private enum SettingKind { TOGGLE, SLIDER, INFO }
-    private record Setting(String label, String detail, SettingKind kind,
-                           double value, double min, double max, boolean enabled,
-                           String displayValue) { }
 
     public SkyOPClickGui() {
         super(Component.literal("SkyOP Client"));
@@ -63,7 +58,7 @@ public final class SkyOPClickGui extends Screen {
     }
 
     private void selectFirstModule() {
-        for (SkyOPClient.Module module : SkyOPClient.Module.values()) {
+        for (SkyOPModuleId module : SkyOPModuleId.values()) {
             if (module.category() == selectedCategory) {
                 selectedModule = module;
                 return;
@@ -107,7 +102,7 @@ public final class SkyOPClickGui extends Screen {
             int hudEditX = panelX + panelWidth - 320;
             boolean colorHovered = inside(mouseX, mouseY, colorX, panelY + 12, 48, 24);
             g.fill(colorX, panelY + 12, colorX + 48, panelY + 36, colorHovered ? PANEL_HOVER : PANEL_LIGHT);
-            g.fill(colorX + 16, panelY + 20, colorX + 32, panelY + 28, SkyOPClient.hudAccentColor());
+            g.fill(colorX + 16, panelY + 20, colorX + 32, panelY + 28, SkyOPState.hudAccentColor());
             boolean editHovered = inside(mouseX, mouseY, hudEditX, panelY + 12, 72, 24);
             g.fill(hudEditX, panelY + 12, hudEditX + 72, panelY + 36, editHovered || hudEditMode ? 0xFF263D53 : PANEL_LIGHT);
             g.text(font, Component.literal(SkyOPLanguage.text(hudEditMode ? "gui.hud_edit_on" : "gui.hud_edit")),
@@ -128,7 +123,7 @@ public final class SkyOPClickGui extends Screen {
         g.fill(x, y, x + w, panelY + panelHeight - 48, 0xFF111A27);
         g.text(font, Component.literal(SkyOPLanguage.text("gui.categories")), x + 10, y + 10, MUTED, true);
         int index = 0;
-        for (SkyOPClient.Category category : SkyOPClient.Category.values()) {
+        for (SkyOPCategory category : SkyOPCategory.values()) {
             int rowY = y + 31 + index * 36;
             boolean selected = category == selectedCategory;
             boolean hovered = inside(mouseX, mouseY, x + 5, rowY, w - 10, 30);
@@ -145,7 +140,7 @@ public final class SkyOPClickGui extends Screen {
         int activeY = panelY + panelHeight - 98;
         g.fill(x + 5, activeY, x + w - 5, activeY + 1, 0xFF2B394A);
         g.text(font, Component.literal(SkyOPLanguage.text("gui.active_modules")), x + 10, activeY + 12, MUTED, true);
-        g.text(font, Component.literal(Integer.toString(SkyOPClient.enabledModuleCount())),
+        g.text(font, Component.literal(Integer.toString(SkyOPCore.enabledModuleCount())),
                 x + 10, activeY + 30, ACCENT, true);
     }
 
@@ -162,7 +157,7 @@ public final class SkyOPClickGui extends Screen {
         g.text(font, Component.literal(SkyOPLanguage.text("gui.left_toggle_right_inspect")),
                 x, y + 54, MUTED, true);
 
-        List<SkyOPClient.Module> modules = modulesForCategory();
+        List<SkyOPModuleId> modules = modulesForCategory();
         int cardWidth = (w - 8) / 2;
         int listTop = y + 76;
         int listBottom = panelY + panelHeight - 58;
@@ -172,13 +167,13 @@ public final class SkyOPClickGui extends Screen {
         moduleScroll = Math.min(moduleScroll, maxScroll);
         g.enableScissor(x, listTop, x + w, listBottom);
         int index = 0;
-        SkyOPClient.Module hoveredModule = null;
-        for (SkyOPClient.Module module : modules) {
+        SkyOPModuleId hoveredModule = null;
+        for (SkyOPModuleId module : modules) {
             int col = index % 2;
             int row = index / 2;
             int cardX = x + col * (cardWidth + 8);
             int cardY = listTop + row * 60 - moduleScroll;
-            boolean enabled = SkyOPClient.isEnabled(module);
+            boolean enabled = SkyOPCore.isEnabled(module);
             boolean selected = module == selectedModule;
             boolean hovered = inside(mouseX, mouseY, cardX, cardY, cardWidth, 52);
             g.fill(cardX, cardY, cardX + cardWidth, cardY + 52,
@@ -190,8 +185,8 @@ public final class SkyOPClickGui extends Screen {
                     cardX + 10, cardY + 25, MUTED, true);
 
             int favoriteX = cardX + cardWidth - 74;
-            g.text(font, Component.literal(SkyOPClient.isFavorite(module) ? "★" : "☆"),
-                    favoriteX, cardY + 8, SkyOPClient.isFavorite(module) ? 0xFFFFC85A : MUTED, true);
+            g.text(font, Component.literal(SkyOPCore.isFavorite(module) ? "★" : "☆"),
+                    favoriteX, cardY + 8, SkyOPCore.isFavorite(module) ? 0xFFFFC85A : MUTED, true);
             int pillX = cardX + cardWidth - 48;
             g.fill(pillX, cardY + 15, pillX + 40, cardY + 36,
                     enabled ? 0xFF174633 : 0xFF3B2631);
@@ -221,65 +216,65 @@ public final class SkyOPClickGui extends Screen {
             return;
         }
 
-        boolean enabled = SkyOPClient.isEnabled(selectedModule);
+        boolean enabled = SkyOPCore.isEnabled(selectedModule);
         g.text(font, Component.literal(selectedModule.title()), x + 12, y + 31, TEXT, true);
         g.text(font, Component.literal(enabled ? "● " + SkyOPLanguage.text("gui.enabled") : "○ " + SkyOPLanguage.text("gui.disabled")),
                 x + 12, y + 47, enabled ? GREEN : MUTED, true);
         g.fill(x + 12, y + 66, x + w - 12, y + 67, 0xFF2B394A);
 
-        KeyMapping mapping = SkyOPClient.keybindFor(selectedModule);
-        String keyName = waitingForKeybind ? SkyOPLanguage.text("gui.press_a_key") :
-                (mapping == null || SkyOPClient.isModuleKeybindUnbound(selectedModule)
-                        ? SkyOPLanguage.text("gui.unbound")
-                        : mapping.getTranslatedKeyMessage().getString());
-        int keyY = y + 72;
-        boolean keyHovered = inside(mouseX, mouseY, x + 8, keyY, w - 16, 24);
-        g.fill(x + 8, keyY, x + w - 8, keyY + 23,
-                keyHovered || waitingForKeybind ? 0xFF263D53 : PANEL_LIGHT);
-        g.text(font, Component.literal(SkyOPLanguage.text("gui.keybind") + "  " + trim(keyName, 20)),
-                x + 15, keyY + 8, waitingForKeybind ? 0xFFFFC85A : ACCENT, true);
-
-        if (selectedModule == SkyOPClient.Module.PROFILE_MANAGER) {
+        if (selectedModule == SkyOPModuleId.PROFILE_MANAGER) {
             drawProfileControls(g, mouseX, mouseY, x, y);
             return;
         }
-        if (selectedModule == SkyOPClient.Module.HOTBAR_PRESETS) {
+        if (selectedModule == SkyOPModuleId.HOTBAR_PRESETS) {
             drawHotbarControls(g, mouseX, mouseY, x, y);
             return;
         }
-        if (selectedModule == SkyOPClient.Module.TEXT_GUI) {
-            g.text(font, Component.literal(editingHudText ? SkyOPLanguage.text("gui.edit_text") + ": " + SkyOPClient.customHudText + "|" : SkyOPLanguage.text("gui.custom_hud_text")),
+        if (selectedModule == SkyOPModuleId.TEXT_GUI) {
+            g.text(font, Component.literal(editingHudText ? SkyOPLanguage.text("gui.edit_text") + ": " + SkyOPState.customHudText + "|" : SkyOPLanguage.text("gui.custom_hud_text")),
                     x + 12, y + 125, editingHudText ? 0xFFFFC85A : TEXT, true);
             g.text(font, Component.literal(SkyOPLanguage.text("gui.edit_text_help")),
                     x + 12, y + 145, MUTED, true);
             return;
         }
 
-        List<Setting> settings = settingsFor(selectedModule);
-        int rowY = y + 104 - settingsScroll * 42;
+        List<SkyOPSetting<?>> settings = visibleSettings(selectedModule);
+        int rowY = y + 72 - settingsScroll * 42;
         int settingsBottom = y + h - 8;
-        g.enableScissor(x + 8, y + 100, x + w - 8, settingsBottom);
-        for (Setting setting : settings) {
+        g.enableScissor(x + 8, y + 70, x + w - 8, settingsBottom);
+        for (SkyOPSetting<?> setting : settings) {
             int rowH = 39;
             boolean hovered = inside(mouseX, mouseY, x + 8, rowY, w - 16, rowH);
             g.fill(x + 8, rowY, x + w - 8, rowY + rowH - 2,
                     hovered ? PANEL_HOVER : PANEL_LIGHT);
-            g.text(font, Component.literal(trim(setting.label(), 21)),
+            g.text(font, Component.literal(trim(setting.title(), 20)),
                     x + 15, rowY + 5, TEXT, true);
-
-            int valueColor = setting.kind() == SettingKind.TOGGLE
-                    ? (setting.enabled() ? GREEN : RED) : ACCENT;
-            g.text(font, Component.literal(setting.displayValue()),
-                    x + w - 68, rowY + 5, valueColor, true);
-            g.text(font, Component.literal(trim(setting.detail(), 31)),
+            g.text(font, Component.literal(trim(settingValue(setting), 15)),
+                    x + w - 80, rowY + 5, settingValueColor(setting), true);
+            g.text(font, Component.literal(trim(setting.description(), 31)),
                     x + 15, rowY + 19, MUTED, true);
 
-            if (setting.kind() == SettingKind.SLIDER) {
+            if (setting instanceof NumberSetting number) {
                 int trackX = x + 15, trackY = rowY + 32, trackW = w - 30;
                 g.fill(trackX, trackY, trackX + trackW, trackY + 3, 0xFF36465A);
-                double fraction = (setting.value() - setting.min()) / (setting.max() - setting.min());
+                double fraction = (number.value() - number.minimum()) /
+                        (number.maximum() - number.minimum());
                 int fillW = (int) (trackW * Math.max(0.0, Math.min(1.0, fraction)));
                 g.fill(trackX, trackY, trackX + fillW, trackY + 3, ACCENT);
+            } else if (setting instanceof MultiSetting multi) {
+                int chipX = x + 15;
+                for (String option : multi.options().stream().sorted().toList()) {
+                    boolean selected = multi.value().contains(option);
+                    int chipWidth = 64;
+                    g.fill(chipX, rowY + 29, chipX + chipWidth - 3, rowY + 38,
+                            selected ? 0xFF285B70 : 0xFF36465A);
+                    g.text(font, Component.literal(trim(option, 8)), chipX + 3, rowY + 29,
+                            selected ? TEXT : MUTED, false);
+                    chipX += chipWidth;
+                    if (chipX > x + w - 60) break;
+                }
+            } else if (setting instanceof ColorSetting color) {
+                g.fill(x + w - 22, rowY + 20, x + w - 12, rowY + 30, color.value());
             }
             rowY += 42;
         }
@@ -359,12 +354,12 @@ public final class SkyOPClickGui extends Screen {
                 y + 8, hovered ? TEXT : ACCENT, true);
     }
 
-    private List<SkyOPClient.Module> modulesForCategory() {
-        List<SkyOPClient.Module> modules = new ArrayList<>();
+    private List<SkyOPModuleId> modulesForCategory() {
+        List<SkyOPModuleId> modules = new ArrayList<>();
         String query = searchQuery.toLowerCase(java.util.Locale.ROOT);
-        for (SkyOPClient.Module module : SkyOPClient.Module.values()) {
-            boolean inCategory = selectedCategory == SkyOPClient.Category.FAVORITES
-                    ? SkyOPClient.isFavorite(module) : module.category() == selectedCategory;
+        for (SkyOPModuleId module : SkyOPModuleId.values()) {
+            boolean inCategory = selectedCategory == SkyOPCategory.FAVORITES
+                    ? SkyOPCore.isFavorite(module) : module.category() == selectedCategory;
             boolean matches = query.isEmpty()
                     || module.title().toLowerCase(java.util.Locale.ROOT).contains(query)
                     || module.description().toLowerCase(java.util.Locale.ROOT).contains(query);
@@ -373,198 +368,80 @@ public final class SkyOPClickGui extends Screen {
         return modules;
     }
 
-    private int countModules(SkyOPClient.Category category) {
+    private int countModules(SkyOPCategory category) {
         int count = 0;
-        for (SkyOPClient.Module module : SkyOPClient.Module.values()) {
-            if (category == SkyOPClient.Category.FAVORITES ? SkyOPClient.isFavorite(module)
+        for (SkyOPModuleId module : SkyOPModuleId.values()) {
+            if (category == SkyOPCategory.FAVORITES ? SkyOPCore.isFavorite(module)
                     : module.category() == category) count++;
         }
         return count;
     }
 
-    private List<Setting> settingsFor(SkyOPClient.Module module) {
-        return switch (module) {
-            case KILL_AURA -> List.of(
-                    toggle(SkyOPLanguage.text("setting.target_players"), SkyOPLanguage.text("setting.include_other_players"), SkyOPClient.targetPlayers),
-                    toggle(SkyOPLanguage.text("setting.target_mobs"), SkyOPLanguage.text("setting.include_hostile_mobs"), SkyOPClient.targetMobs),
-                    toggle(SkyOPLanguage.text("setting.smooth_rotation"), SkyOPLanguage.text("setting.rotate_target"), SkyOPClient.auraRotate),
-                    toggle(SkyOPLanguage.text("setting.line_of_sight"), SkyOPLanguage.text("setting.clear_view"), SkyOPClient.auraRequireLineOfSight),
-                    slider(SkyOPLanguage.text("setting.attack_range"), SkyOPLanguage.text("setting.distance_blocks"), SkyOPClient.auraRange, 2.5, 6.0, "%.1f"),
-                    toggle(SkyOPLanguage.text("setting.lowest_health"), SkyOPLanguage.text("setting.weakest_target"), SkyOPClient.auraTargetLowestHealth),
-                    slider(SkyOPLanguage.text("setting.aim_fov"), SkyOPLanguage.text("setting.target_cone"), SkyOPClient.auraFov, 30, 180, "%.0f°"),
-                    slider(SkyOPLanguage.text("setting.rotation_speed"), SkyOPLanguage.text("setting.rotation_interpolation"), SkyOPClient.auraRotationSpeed, 0.10, 1.0, "%.2f")
-            );
-            case TRIGGER_BOT -> List.of(
-                    toggle(SkyOPLanguage.text("setting.target_players"), SkyOPLanguage.text("setting.include_other_players"), SkyOPClient.targetPlayers),
-                    toggle(SkyOPLanguage.text("setting.target_mobs"), SkyOPLanguage.text("setting.include_hostile_mobs"), SkyOPClient.targetMobs),
-                    slider(SkyOPLanguage.text("setting.trigger_delay"), SkyOPLanguage.text("setting.delay_between"), SkyOPClient.triggerDelayTicks, 1, 12, "%.0f")
-            );
-            case AUTO_CLICKER -> List.of(
-                    slider(SkyOPLanguage.text("setting.clicks_per_second"), SkyOPLanguage.text("setting.vanilla_cooldown"), SkyOPClient.autoClickerCps, 4, 20, "%.0f CPS")
-            );
-            case AUTO_HUNT -> List.of(
-                    slider("Hunt range", "Maximum target distance", SkyOPClient.autoHuntRange, 2.5, 6.0, "%.1f blocks"),
-                    info("Target filter", "Hostile mobs only; no camera rotation")
-            );
-            case AUTO_BRIDGE -> List.of(
-                    slider("Placement delay", "Ticks between block placements", SkyOPClient.bridgeDelayTicks, 1, 10, "%.0f ticks"),
-                    info("Block selection", "Uses the first placeable block in your hotbar")
-            );
-            case INFINITE_JUMP -> List.of(
-                    info("Jump input", "Press jump again while airborne to jump a second time")
-            );
-            case JUMP_BOOST -> List.of(
-                    slider("Jump multiplier", "Local vertical jump impulse", SkyOPClient.jumpBoostMultiplier, 1.0, 3.0, "%.2fx")
-            );
-            case SPEED -> List.of(
-                    slider(SkyOPLanguage.text("setting.movement_multiplier"), SkyOPLanguage.text("setting.horizontal_multiplier"), SkyOPClient.speedMultiplier, 1.0, 2.8, "%.2fx")
-            );
-            case FLIGHT -> List.of(
-                    slider(SkyOPLanguage.text("setting.flight_speed"), SkyOPLanguage.text("setting.vertical_speed"), SkyOPClient.flightSpeed, 0.12, 0.9, "%.2f")
-            );
-            case AUTO_JUMP -> List.of(
-                    slider(SkyOPLanguage.text("setting.jump_interval"), SkyOPLanguage.text("setting.ticks_between_jumps"), SkyOPClient.autoJumpDelayTicks, 2, 12, "%.0f ticks")
-            );
-            case SPIDER -> List.of(
-                    slider(SkyOPLanguage.text("setting.climb_speed"), SkyOPLanguage.text("setting.wall_vertical_speed"), SkyOPClient.spiderClimbSpeed, 0.08, 0.38, "%.2f")
-            );
-            case ENTITY_ESP -> List.of(
-                    toggle(SkyOPLanguage.text("setting.show_players"), SkyOPLanguage.text("setting.highlight_players"), SkyOPClient.espPlayers),
-                    toggle(SkyOPLanguage.text("setting.show_mobs"), SkyOPLanguage.text("setting.highlight_mobs"), SkyOPClient.espMobs),
-                    toggle("Dropped items", "Include item entities in ESP", SkyOPClient.espItems),
-                    slider(SkyOPLanguage.text("setting.esp_range"), SkyOPLanguage.text("setting.scan_radius"), SkyOPClient.espRange, 8, 96, "%.0f blocks")
-            );
-            case ITEM_ESP -> List.of(
-                    toggle("Dropped items", "Highlight dropped item entities", SkyOPClient.espItems),
-                    slider(SkyOPLanguage.text("setting.esp_range"), SkyOPLanguage.text("setting.scan_radius"), SkyOPClient.espRange, 8, 96, "%.0f blocks")
-            );
-            case WAYPOINTS -> List.of(
-                    info("Save waypoint", "Press V in a world to save your current coordinates"),
-                    info("Waypoint limit", "Up to 32 saved locations, persisted locally")
-            );
-            case MINIMAP -> List.of(
-                    info("Entity radar", "Shows nearby players, hostile mobs and dropped items already loaded by the client")
-            );
-            case NIGHT_VISION -> List.of(
-                    info("Visibility", "Uses the local gamma control; no potion is granted")
-            );
-            case GAMMA_BOOST -> List.of(info(SkyOPLanguage.text("setting.vanilla_gamma"), SkyOPLanguage.text("setting.max_gamma")));
-            case TARGET_HUD -> List.of(info(SkyOPLanguage.text("setting.target_card"), SkyOPLanguage.text("setting.crosshair_target")));
-            case KEYSTROKES_HUD -> List.of(info(SkyOPLanguage.text("setting.key_display"), SkyOPLanguage.text("setting.wasd_jump")));
-            case ARMOR_HUD -> List.of(info(SkyOPLanguage.text("setting.player_status"), SkyOPLanguage.text("setting.health_armor")));
-            case SPEEDOMETER -> List.of(info(SkyOPLanguage.text("setting.movement_speed"), SkyOPLanguage.text("setting.blocks_second")));
-            case CPS_HUD -> List.of(info(SkyOPLanguage.text("setting.attack_rate"), SkyOPLanguage.text("setting.successful_attacks")));
-            case POTION_HUD -> List.of(info(SkyOPLanguage.text("gui.potion_effects"), SkyOPLanguage.text("gui.active_effects_duration")));
-            case DURABILITY_HUD -> List.of(info(SkyOPLanguage.text("gui.main_hand_item"), SkyOPLanguage.text("gui.remaining_durability")));
-            case COMPASS_HUD, DIRECTION_HUD -> List.of(info(SkyOPLanguage.text("gui.direction"), SkyOPLanguage.text("gui.cardinal_heading")));
-            case PING_HUD -> List.of(info(SkyOPLanguage.text("gui.latency"), SkyOPLanguage.text("gui.current_multiplayer_ping")));
-            case FPS_HUD -> List.of(info(SkyOPLanguage.text("gui.frame_rate"), SkyOPLanguage.text("gui.current_fps")));
-            case RADAR_HUD -> List.of(info(SkyOPLanguage.text("gui.loaded_entities"), SkyOPLanguage.text("gui.nearby_loaded_entities")));
-            case TEXT_GUI -> List.of(info(SkyOPLanguage.text("gui.custom_hud_text"), SkyOPLanguage.text("gui.edit_text_help")));
-            case AUTO_EAT -> List.of(slider(SkyOPLanguage.text("setting.hunger_threshold"),
-                    SkyOPLanguage.text("setting.eat_below"), SkyOPClient.autoEatThreshold, 2, 18, "%.0f"));
-            case AUTO_REFILL -> List.of(slider(SkyOPLanguage.text("setting.refill_threshold"),
-                    SkyOPLanguage.text("setting.refill_low"), SkyOPClient.autoRefillThreshold, 1, 16, "%.0f"));
-            case AUTO_ARMOR -> List.of(info(SkyOPLanguage.text("gui.armor_policy"), SkyOPLanguage.text("gui.only_empty_armor_slots")));
-            case AUTO_TOOL -> List.of(info(SkyOPLanguage.text("gui.tool_selection"), SkyOPLanguage.text("gui.fastest_tool")));
-            case AUTO_FISH -> List.of(info(SkyOPLanguage.text("gui.fishing_automation"), SkyOPLanguage.text("gui.reel_and_recast")));
-            case INVENTORY_CLEANER -> List.of(info(SkyOPLanguage.text("gui.safe_cleanup"), SkyOPLanguage.text("gui.stack_consolidation")));
-            case HOTBAR_PRESETS -> List.of(info(SkyOPLanguage.text("gui.three_layouts"), SkyOPLanguage.text("gui.save_restore_hotbar")));
-            case PROFILE_MANAGER -> List.of(info(SkyOPLanguage.text("gui.json_profiles"), SkyOPLanguage.text("gui.profile_slots_backup_restore")));
-            case AUTO_SPRINT, STEP_ASSIST, NO_FALL, HUD ->
-                    List.of(info(SkyOPLanguage.text("setting.module_status"), SkyOPLanguage.text("setting.toggle_module_list")));
-            default -> List.of(info("Module settings", "This module uses its default configuration"));
-        };
+    private List<SkyOPSetting<?>> visibleSettings(SkyOPModuleId module) {
+        return SkyOPModuleManager.settings(module);
     }
 
-    private static Setting toggle(String label, String detail, boolean value) {
-        return new Setting(label, detail, SettingKind.TOGGLE, value ? 1 : 0,
-                0, 1, value, SkyOPLanguage.text(value ? "gui.on" : "gui.off"));
+    private String settingValue(SkyOPSetting<?> setting) {
+        if (setting instanceof BooleanSetting bool) {
+            return Boolean.TRUE.equals(bool.value()) ? SkyOPLanguage.text("gui.on") : SkyOPLanguage.text("gui.off");
+        }
+        if (setting instanceof NumberSetting number) {
+            double value = number.value();
+            return number.integer() ? Long.toString(Math.round(value))
+                    : String.format(java.util.Locale.ROOT, "%.2f", value);
+        }
+        if (setting instanceof ModeSetting mode) return mode.value();
+        if (setting instanceof MultiSetting multi) {
+            return multi.value().size() + " " + SkyOPLanguage.text("gui.selected");
+        }
+        if (setting instanceof ColorSetting color) return "#" + SkyOPColorCodec.formatRgb(color.value());
+        if (setting instanceof KeybindSetting) {
+            KeyMapping mapping = SkyOPCore.keybindFor(selectedModule);
+            return waitingForKeybind ? SkyOPLanguage.text("gui.press_a_key")
+                    : mapping == null || SkyOPCore.isModuleKeybindUnbound(selectedModule)
+                    ? SkyOPLanguage.text("gui.unbound")
+                    : mapping.getTranslatedKeyMessage().getString();
+        }
+        return String.valueOf(setting.value());
     }
 
-    private static Setting slider(String label, String detail, double value,
-                                  double min, double max, String format) {
-        return new Setting(label, detail, SettingKind.SLIDER, value, min, max,
-                false, String.format(format, value));
+    private int settingValueColor(SkyOPSetting<?> setting) {
+        if (setting instanceof BooleanSetting bool) return bool.value() ? GREEN : RED;
+        return ACCENT;
     }
 
-    private static Setting info(String label, String detail) {
-        return new Setting(label, detail, SettingKind.INFO, 0, 0, 1, false, SkyOPLanguage.text("gui.info"));
-    }
-
-    private void applySettingClick(int index, double mouseX) {
-        List<Setting> settings = settingsFor(selectedModule);
-        if (index < 0 || index >= settings.size()) return;
-        Setting setting = settings.get(index);
-        if (setting.kind() == SettingKind.SLIDER) {
-            int sliderX = panelX + panelWidth - 248;
-            int sliderWidth = 216;
+    private void applySettingClick(SkyOPSetting<?> setting, double mouseX,
+                                   int inspectorX, int rowY) {
+        if (setting instanceof BooleanSetting bool) {
+            bool.set(!bool.value());
+        } else if (setting instanceof NumberSetting number) {
+            int sliderX = inspectorX + 15;
+            int sliderWidth = 218;
             double fraction = Math.max(0.0, Math.min(1.0, (mouseX - sliderX) / sliderWidth));
-            setSliderValue(selectedModule, index, setting.min() + fraction * (setting.max() - setting.min()));
-        } else if (setting.kind() == SettingKind.TOGGLE) {
-            toggleSetting(selectedModule, index);
+            number.set(number.minimum() + fraction * (number.maximum() - number.minimum()));
+        } else if (setting instanceof ModeSetting mode) {
+            List<String> options = mode.options();
+            int index = options.indexOf(mode.value());
+            mode.set(options.get((index + 1) % options.size()));
+        } else if (setting instanceof MultiSetting multi) {
+            int localX = (int) mouseX - (inspectorX + 15);
+            int chipWidth = 64;
+            int index = Math.max(0, localX / chipWidth);
+            List<String> options = multi.options().stream().sorted().toList();
+            if (index < options.size()) {
+                java.util.Set<String> selected = new java.util.LinkedHashSet<>(multi.value());
+                String option = options.get(index);
+                if (!selected.add(option)) selected.remove(option);
+                multi.set(selected);
+            }
+        } else if (setting instanceof ColorSetting color) {
+            colorPickerOpen = true;
+            editingHudColor = false;
+            hexColorInput = SkyOPColorCodec.formatRgb(color.value());
+        } else if (setting instanceof KeybindSetting) {
+            waitingForKeybind = true;
         }
-        SkyOPClient.saveConfig();
-    }
-
-    private void toggleSetting(SkyOPClient.Module module, int index) {
-        switch (module) {
-            case KILL_AURA -> {
-                switch (index) {
-                    case 0 -> SkyOPClient.targetPlayers = !SkyOPClient.targetPlayers;
-                    case 1 -> SkyOPClient.targetMobs = !SkyOPClient.targetMobs;
-                    case 2 -> SkyOPClient.auraRotate = !SkyOPClient.auraRotate;
-                    case 3 -> SkyOPClient.auraRequireLineOfSight = !SkyOPClient.auraRequireLineOfSight;
-                    case 5 -> SkyOPClient.auraTargetLowestHealth = !SkyOPClient.auraTargetLowestHealth;
-                }
-            }
-            case TRIGGER_BOT -> {
-                if (index == 0) SkyOPClient.targetPlayers = !SkyOPClient.targetPlayers;
-                if (index == 1) SkyOPClient.targetMobs = !SkyOPClient.targetMobs;
-            }
-            case ENTITY_ESP -> {
-                if (index == 0) SkyOPClient.espPlayers = !SkyOPClient.espPlayers;
-                if (index == 1) SkyOPClient.espMobs = !SkyOPClient.espMobs;
-                if (index == 2) SkyOPClient.espItems = !SkyOPClient.espItems;
-            }
-            case ITEM_ESP -> SkyOPClient.espItems = !SkyOPClient.espItems;
-            default -> { }
-        }
-    }
-
-    private void setSliderValue(SkyOPClient.Module module, int index, double value) {
-        switch (module) {
-            case KILL_AURA -> {
-                if (index == 4) SkyOPClient.auraRange = round(value, 1);
-                if (index == 6) SkyOPClient.auraFov = Math.round(value);
-                if (index == 7) SkyOPClient.auraRotationSpeed = round(value, 2);
-            }
-            case TRIGGER_BOT -> {
-                if (index == 2) SkyOPClient.triggerDelayTicks = SkyOPClient.clamp((int) Math.round(value), 1, 12);
-            }
-            case AUTO_CLICKER -> SkyOPClient.autoClickerCps = SkyOPClient.clamp((int) Math.round(value), 4, 20);
-            case SPEED -> SkyOPClient.speedMultiplier = round(value, 2);
-            case FLIGHT -> SkyOPClient.flightSpeed = round(value, 2);
-            case AUTO_JUMP -> SkyOPClient.autoJumpDelayTicks = SkyOPClient.clamp((int) Math.round(value), 2, 12);
-            case SPIDER -> SkyOPClient.spiderClimbSpeed = round(value, 2);
-            case ENTITY_ESP -> {
-                if (index == 3) SkyOPClient.espRange = Math.round(value);
-            }
-            case ITEM_ESP -> {
-                if (index == 1) SkyOPClient.espRange = Math.round(value);
-            }
-            case AUTO_HUNT -> SkyOPClient.autoHuntRange = round(value, 1);
-            case AUTO_BRIDGE -> SkyOPClient.bridgeDelayTicks = SkyOPClient.clamp((int) Math.round(value), 1, 10);
-            case JUMP_BOOST -> SkyOPClient.jumpBoostMultiplier = round(value, 2);
-            case AUTO_EAT -> SkyOPClient.autoEatThreshold = SkyOPClient.clamp((int) Math.round(value), 2, 18);
-            case AUTO_REFILL -> SkyOPClient.autoRefillThreshold = SkyOPClient.clamp((int) Math.round(value), 1, 16);
-            default -> { }
-        }
-    }
-
-    private static double round(double value, int decimals) {
-        double scale = Math.pow(10, decimals);
-        return Math.round(value * scale) / scale;
+        SkyOPCore.saveConfig();
     }
 
     @Override
@@ -589,7 +466,7 @@ public final class SkyOPClickGui extends Screen {
                 if (inside(mx, my, colorX, panelY + 12, 48, 24)) {
                     colorPickerOpen = !colorPickerOpen;
                     editingHudColor = false;
-                    hexColorInput = SkyOPColorCodec.formatRgb(SkyOPClient.hudAccentColor());
+                    hexColorInput = SkyOPColorCodec.formatRgb(SkyOPState.hudAccentColor());
                     return true;
                 }
                 if (inside(mx, my, editX, panelY + 12, 72, 24)) {
@@ -612,26 +489,26 @@ public final class SkyOPClickGui extends Screen {
             }
             int languageX = panelX + 320;
             if (inside(mx, my, languageX, footerY + 7, 150, 24)) {
-                SkyOPClient.cycleLanguage();
+                SkyOPCore.cycleLanguage();
                 return true;
             }
             int presetY = footerY + 7;
             if (inside(mx, my, panelX + 130, presetY, 48, 24)) {
-                SkyOPClient.applyPreset(Minecraft.getInstance(), SkyOPClient.Preset.PVE);
+                SkyOPCore.applyPreset(Minecraft.getInstance(), SkyOPPreset.PVE);
                 return true;
             }
             if (inside(mx, my, panelX + 184, presetY, 48, 24)) {
-                SkyOPClient.applyPreset(Minecraft.getInstance(), SkyOPClient.Preset.OP);
+                SkyOPCore.applyPreset(Minecraft.getInstance(), SkyOPPreset.OP);
                 return true;
             }
             if (inside(mx, my, panelX + 238, presetY, 66, 24)) {
-                SkyOPClient.applyPreset(Minecraft.getInstance(), SkyOPClient.Preset.VISUAL);
+                SkyOPCore.applyPreset(Minecraft.getInstance(), SkyOPPreset.VISUAL);
                 return true;
             }
 
             int disableX = panelX + panelWidth - 144;
             if (inside(mx, my, disableX, footerY + 7, 124, 24)) {
-                SkyOPClient.disableAll(Minecraft.getInstance());
+                SkyOPCore.disableAll(Minecraft.getInstance());
                 return true;
             }
         }
@@ -648,7 +525,7 @@ public final class SkyOPClickGui extends Screen {
         searchFocused = false;
 
         int navX = panelX + 17, navY = panelY + 93, navIndex = 0;
-        for (SkyOPClient.Category category : SkyOPClient.Category.values()) {
+        for (SkyOPCategory category : SkyOPCategory.values()) {
             int rowY = navY + navIndex * 36;
             if (button == InputConstants.MOUSE_BUTTON_LEFT && inside(mx, my, navX, rowY, 116, 30)) {
                 selectedCategory = category;
@@ -659,7 +536,7 @@ public final class SkyOPClickGui extends Screen {
         }
 
         int moduleIndex = 0;
-        for (SkyOPClient.Module module : modulesForCategory()) {
+        for (SkyOPModuleId module : modulesForCategory()) {
             int col = moduleIndex % 2;
             int row = moduleIndex / 2;
             int cardX = moduleX + col * (cardWidth + 8);
@@ -667,14 +544,14 @@ public final class SkyOPClickGui extends Screen {
             int favoriteX = cardX + cardWidth - 74;
             if (button == InputConstants.MOUSE_BUTTON_LEFT
                     && inside(mx, my, favoriteX, cardY + 3, 18, 18)) {
-                SkyOPClient.toggleFavorite(module);
+                SkyOPCore.toggleFavorite(module);
                 return true;
             }
             if (inside(mx, my, cardX, cardY, cardWidth, 52)) {
                 selectedModule = module;
                 settingsScroll = 0;
                 if (button == InputConstants.MOUSE_BUTTON_LEFT) {
-                    SkyOPClient.toggle(Minecraft.getInstance(), module);
+                    SkyOPCore.toggle(Minecraft.getInstance(), module);
                 } else if (button != InputConstants.MOUSE_BUTTON_RIGHT) {
                     return super.mouseClicked(event, doubleClick);
                 }
@@ -687,18 +564,13 @@ public final class SkyOPClickGui extends Screen {
             int inspectorX = panelX + panelWidth - 263;
             int inspectorY = panelY + 63;
 
-            if (inside(mx, my, inspectorX + 8, inspectorY + 72, 232, 24)) {
-                if (SkyOPClient.keybindFor(selectedModule) != null) waitingForKeybind = true;
-                return true;
-            }
-
-            if (selectedModule == SkyOPClient.Module.TEXT_GUI
+            if (selectedModule == SkyOPModuleId.TEXT_GUI
                     && inside(mx, my, inspectorX + 8, inspectorY + 115, 232, 40)) {
                 editingHudText = true;
                 return true;
             }
 
-            if (selectedModule == SkyOPClient.Module.PROFILE_MANAGER) {
+            if (selectedModule == SkyOPModuleId.PROFILE_MANAGER) {
                 int localX = mx - (inspectorX + 12);
                 int localY = my - (inspectorY + 138);
                 int row = localY >= 0 ? localY / 30 : -1;
@@ -720,7 +592,7 @@ public final class SkyOPClickGui extends Screen {
                 return true;
             }
 
-            if (selectedModule == SkyOPClient.Module.HOTBAR_PRESETS) {
+            if (selectedModule == SkyOPModuleId.HOTBAR_PRESETS) {
                 int row = (my - (inspectorY + 140)) / 34;
                 int localX = mx - (inspectorX + 12);
                 int slot = row + 1;
@@ -742,13 +614,14 @@ public final class SkyOPClickGui extends Screen {
             }
 
             int settingsX = inspectorX + 8;
-            int settingsY = inspectorY + 104;
+            int settingsY = inspectorY + 70;
             int visibleRow = (my - settingsY) / 42;
             int rowIndex = visibleRow + settingsScroll;
-            List<Setting> settings = settingsFor(selectedModule);
+            List<SkyOPSetting<?>> settings = visibleSettings(selectedModule);
             if (mx >= settingsX && mx <= inspectorX + 240
                     && my >= settingsY && visibleRow >= 0 && rowIndex < settings.size()) {
-                applySettingClick(rowIndex, mouseX);
+                applySettingClick(settings.get(rowIndex), mouseX, inspectorX + 8,
+                        settingsY + visibleRow * 42);
                 return true;
             }
         }
@@ -767,7 +640,7 @@ public final class SkyOPClickGui extends Screen {
         for (int row = 0; row < 2; row++) for (int col = 0; col < 3; col++) {
             int px = x + 8 + col * 28, py = y + 20 + row * 27;
             if (inside(mx, my, px, py, 22, 22)) {
-                SkyOPClient.setHudAccentColor(colors[row][col]);
+                SkyOPCore.setHudAccentColor(colors[row][col]);
                 hexColorInput = SkyOPColorCodec.formatRgb(colors[row][col]);
                 editingHudColor = false;
                 colorPickerOpen = false;
@@ -788,8 +661,8 @@ public final class SkyOPClickGui extends Screen {
 
     private void applyHexColor() {
         try {
-            SkyOPClient.setHudAccentColor(SkyOPColorCodec.parseRgb(hexColorInput));
-            hexColorInput = SkyOPColorCodec.formatRgb(SkyOPClient.hudAccentColor());
+            SkyOPCore.setHudAccentColor(SkyOPColorCodec.parseRgb(hexColorInput));
+            hexColorInput = SkyOPColorCodec.formatRgb(SkyOPState.hudAccentColor());
             editingHudColor = false;
             colorPickerOpen = false;
             setProfileStatus(SkyOPLanguage.text("gui.hud_color_updated"));
@@ -810,7 +683,7 @@ public final class SkyOPClickGui extends Screen {
         for (int row = 0; row < 2; row++) for (int col = 0; col < 3; col++) {
             int px = x + 8 + col * 28, py = y + 20 + row * 27;
             g.fill(px, py, px + 22, py + 22, colors[row][col]);
-            if (colors[row][col] == SkyOPClient.hudAccentColor()) g.outline(px - 2, py - 2, 26, 26, TEXT);
+            if (colors[row][col] == SkyOPState.hudAccentColor()) g.outline(px - 2, py - 2, 26, 26, TEXT);
         }
         int fieldX = x + 8, fieldY = y + 76;
         g.fill(fieldX, fieldY, fieldX + 96, fieldY + 22, editingHudColor ? 0xFF263D53 : PANEL_LIGHT);
@@ -827,49 +700,49 @@ public final class SkyOPClickGui extends Screen {
     private List<HudPreview> buildHudPreviews() {
         List<HudPreview> previews = new ArrayList<>();
         int sw = width, sh = height;
-        if (SkyOPClient.isEnabled(SkyOPClient.Module.HUD)) {
-            int mainHudHeight = Math.min(sh, 70 + Math.max(0, SkyOPClient.enabledModuleCount() - 1) * 12);
-            previews.add(hudPreview(SkyOPClient.Module.HUD, 8, 8, 190,
+        if (SkyOPCore.isEnabled(SkyOPModuleId.HUD)) {
+            int mainHudHeight = Math.min(sh, 70 + Math.max(0, SkyOPCore.enabledModuleCount() - 1) * 12);
+            previews.add(hudPreview(SkyOPModuleId.HUD, 8, 8, 190,
                     mainHudHeight, SkyOPLanguage.text("gui.main_hud"), sw, sh));
         }
-        if (SkyOPClient.isEnabled(SkyOPClient.Module.TARGET_HUD))
-            previews.add(hudPreview(SkyOPClient.Module.TARGET_HUD, sw - 194, 8, 186, 58, null, sw, sh));
-        if (SkyOPClient.isEnabled(SkyOPClient.Module.KEYSTROKES_HUD))
-            previews.add(hudPreview(SkyOPClient.Module.KEYSTROKES_HUD, 10, sh - 62, 86, 42, null, sw, sh));
-        if (SkyOPClient.isEnabled(SkyOPClient.Module.ARMOR_HUD))
-            previews.add(hudPreview(SkyOPClient.Module.ARMOR_HUD, sw - 150, sh - 38, 142, 28, null, sw, sh));
-        if (SkyOPClient.isEnabled(SkyOPClient.Module.POTION_HUD))
-            previews.add(hudPreview(SkyOPClient.Module.POTION_HUD, sw - 198, 76, 190, 96, null, sw, sh));
-        if (SkyOPClient.isEnabled(SkyOPClient.Module.DURABILITY_HUD))
-            previews.add(hudPreview(SkyOPClient.Module.DURABILITY_HUD, sw / 2 - 82, sh - 94, 164, 24, null, sw, sh));
-        if (SkyOPClient.isEnabled(SkyOPClient.Module.COMPASS_HUD)
-                || SkyOPClient.isEnabled(SkyOPClient.Module.DIRECTION_HUD)) {
-            String label = SkyOPClient.isEnabled(SkyOPClient.Module.COMPASS_HUD)
-                    ? SkyOPLanguage.text("gui.compass_direction") : SkyOPClient.Module.DIRECTION_HUD.title();
-            previews.add(hudPreview(SkyOPClient.Module.COMPASS_HUD, sw / 2 - 48, 8, 96, 23, label, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.TARGET_HUD))
+            previews.add(hudPreview(SkyOPModuleId.TARGET_HUD, sw - 194, 8, 186, 58, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.KEYSTROKES_HUD))
+            previews.add(hudPreview(SkyOPModuleId.KEYSTROKES_HUD, 10, sh - 62, 86, 42, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.ARMOR_HUD))
+            previews.add(hudPreview(SkyOPModuleId.ARMOR_HUD, sw - 150, sh - 38, 142, 28, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.POTION_HUD))
+            previews.add(hudPreview(SkyOPModuleId.POTION_HUD, sw - 198, 76, 190, 96, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.DURABILITY_HUD))
+            previews.add(hudPreview(SkyOPModuleId.DURABILITY_HUD, sw / 2 - 82, sh - 94, 164, 24, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.COMPASS_HUD)
+                || SkyOPCore.isEnabled(SkyOPModuleId.DIRECTION_HUD)) {
+            String label = SkyOPCore.isEnabled(SkyOPModuleId.COMPASS_HUD)
+                    ? SkyOPLanguage.text("gui.compass_direction") : SkyOPModuleId.DIRECTION_HUD.title();
+            previews.add(hudPreview(SkyOPModuleId.COMPASS_HUD, sw / 2 - 48, 8, 96, 23, label, sw, sh));
         }
-        if (SkyOPClient.isEnabled(SkyOPClient.Module.PING_HUD))
-            previews.add(hudPreview(SkyOPClient.Module.PING_HUD, sw - 100, 8, 92, 22, null, sw, sh));
-        if (SkyOPClient.isEnabled(SkyOPClient.Module.FPS_HUD))
-            previews.add(hudPreview(SkyOPClient.Module.FPS_HUD, sw - 100, 34, 92, 22, null, sw, sh));
-        if (SkyOPClient.isEnabled(SkyOPClient.Module.RADAR_HUD))
-            previews.add(hudPreview(SkyOPClient.Module.RADAR_HUD, sw - 202, sh / 2 - 12, 194, 90, null, sw, sh));
-        if (SkyOPClient.isEnabled(SkyOPClient.Module.TEXT_GUI)) {
-            int textWidth = Math.min(sw, Math.max(120, Math.min(480, font.width(SkyOPClient.customHudText) + 16)));
-            previews.add(hudPreview(SkyOPClient.Module.TEXT_GUI, 8, sh - 27, textWidth, 19, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.PING_HUD))
+            previews.add(hudPreview(SkyOPModuleId.PING_HUD, sw - 100, 8, 92, 22, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.FPS_HUD))
+            previews.add(hudPreview(SkyOPModuleId.FPS_HUD, sw - 100, 34, 92, 22, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.RADAR_HUD))
+            previews.add(hudPreview(SkyOPModuleId.RADAR_HUD, sw - 202, sh / 2 - 12, 194, 90, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.TEXT_GUI)) {
+            int textWidth = Math.min(sw, Math.max(120, Math.min(480, font.width(SkyOPState.customHudText) + 16)));
+            previews.add(hudPreview(SkyOPModuleId.TEXT_GUI, 8, sh - 27, textWidth, 19, null, sw, sh));
         }
-        if (SkyOPClient.isEnabled(SkyOPClient.Module.SPEEDOMETER))
-            previews.add(hudPreview(SkyOPClient.Module.SPEEDOMETER, sw / 2 - 58, sh - 37, 116, 25, null, sw, sh));
-        if (SkyOPClient.isEnabled(SkyOPClient.Module.CPS_HUD))
-            previews.add(hudPreview(SkyOPClient.Module.CPS_HUD, sw / 2 - 48, sh - 66, 96, 24, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.SPEEDOMETER))
+            previews.add(hudPreview(SkyOPModuleId.SPEEDOMETER, sw / 2 - 58, sh - 37, 116, 25, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.CPS_HUD))
+            previews.add(hudPreview(SkyOPModuleId.CPS_HUD, sw / 2 - 48, sh - 66, 96, 24, null, sw, sh));
         return previews;
     }
 
-    private HudPreview hudPreview(SkyOPClient.Module module, int defaultX, int defaultY,
+    private HudPreview hudPreview(SkyOPModuleId module, int defaultX, int defaultY,
                                   int previewWidth, int previewHeight, String label,
                                   int screenWidth, int screenHeight) {
-        int x = SkyOPClient.hudXFor(module, defaultX, screenWidth, previewWidth);
-        int y = SkyOPClient.hudYFor(module, defaultY, screenHeight, previewHeight);
+        int x = SkyOPState.hudXFor(module, defaultX, screenWidth, previewWidth);
+        int y = SkyOPState.hudYFor(module, defaultY, screenHeight, previewHeight);
         return new HudPreview(module, x, y, previewWidth, previewHeight,
                 label == null ? module.title() : label);
     }
@@ -887,15 +760,15 @@ public final class SkyOPClickGui extends Screen {
     private void drawHudEditorPreview(GuiGraphicsExtractor g, int mouseX, int mouseY) {
         if (!hudEditMode) return;
         g.text(font, Component.literal(SkyOPLanguage.text("gui.hud_layout") + " • "
-                + SkyOPLanguage.text("gui.drag_hud")), 12, 12, SkyOPClient.hudAccentColor(), true);
+                + SkyOPLanguage.text("gui.drag_hud")), 12, 12, SkyOPState.hudAccentColor(), true);
         for (HudPreview preview : buildHudPreviews()) {
             boolean hovered = inside(mouseX, mouseY, preview.x(), preview.y(), preview.width(), preview.height());
-            int border = hovered ? TEXT : SkyOPClient.hudAccentColor();
+            int border = hovered ? TEXT : SkyOPState.hudAccentColor();
             g.fill(preview.x(), preview.y(), preview.x() + preview.width(), preview.y() + preview.height(),
                     hovered ? 0xE51C2A3B : 0xD5101726);
             g.outline(preview.x(), preview.y(), preview.width(), preview.height(), border);
             g.fill(preview.x(), preview.y(), preview.x() + preview.width(), preview.y() + 2,
-                    SkyOPClient.hudAccentColor());
+                    SkyOPState.hudAccentColor());
             g.text(font, Component.literal(trim(preview.label(), 22)),
                     preview.x() + 6, preview.y() + 7, TEXT, true);
             if (preview.height() > 34) {
@@ -903,7 +776,7 @@ public final class SkyOPClickGui extends Screen {
                         preview.x() + 6, preview.y() + 21, MUTED, true);
                 g.text(font, Component.literal(SkyOPLanguage.text("gui.drag_to_move")),
                         preview.x() + 6, preview.y() + preview.height() - 12,
-                        SkyOPClient.hudAccentColor(), true);
+                        SkyOPState.hudAccentColor(), true);
             }
         }
     }
@@ -918,9 +791,9 @@ public final class SkyOPClickGui extends Screen {
             }
             return true;
         }
-        if (editingHudText && selectedModule == SkyOPClient.Module.TEXT_GUI) {
-            if (event.isAllowedChatCharacter() && SkyOPClient.customHudText.length() < 80) {
-                SkyOPClient.setCustomHudText(SkyOPClient.customHudText + event.codepointAsString());
+        if (editingHudText && selectedModule == SkyOPModuleId.TEXT_GUI) {
+            if (event.isAllowedChatCharacter() && SkyOPState.customHudText.length() < 80) {
+                SkyOPCore.setCustomHudText(SkyOPState.customHudText + event.codepointAsString());
             }
             return true;
         }
@@ -954,7 +827,7 @@ public final class SkyOPClickGui extends Screen {
                 waitingForKeybind = false;
                 return true;
             }
-            SkyOPClient.setModuleKeybind(selectedModule, event.key());
+            SkyOPCore.setModuleKeybind(selectedModule, event.key());
             waitingForKeybind = false;
             setProfileStatus(SkyOPLanguage.text("gui.keybind_updated"));
             return true;
@@ -964,8 +837,8 @@ public final class SkyOPClickGui extends Screen {
                 editingHudText = false;
                 return true;
             }
-            if (event.key() == InputConstants.KEY_BACKSPACE && !SkyOPClient.customHudText.isEmpty()) {
-                SkyOPClient.setCustomHudText(SkyOPClient.customHudText.substring(0, SkyOPClient.customHudText.length() - 1));
+            if (event.key() == InputConstants.KEY_BACKSPACE && !SkyOPState.customHudText.isEmpty()) {
+                SkyOPCore.setCustomHudText(SkyOPState.customHudText.substring(0, SkyOPState.customHudText.length() - 1));
                 return true;
             }
         }
@@ -991,7 +864,7 @@ public final class SkyOPClickGui extends Screen {
                     .filter(value -> value.module() == draggingHudModule)
                     .findFirst().orElse(null);
             if (preview != null) {
-                SkyOPClient.setHudPosition(draggingHudModule,
+                SkyOPCore.setHudPosition(draggingHudModule,
                         (int) event.x() - hudDragOffsetX, (int) event.y() - hudDragOffsetY,
                         width, height, preview.width(), preview.height());
             }
@@ -1005,7 +878,7 @@ public final class SkyOPClickGui extends Screen {
         if (draggingHud) {
             draggingHud = false;
             draggingHudModule = null;
-            SkyOPClient.saveConfig();
+            SkyOPCore.saveConfig();
             return true;
         }
         return super.mouseReleased(event);
@@ -1047,7 +920,7 @@ public final class SkyOPClickGui extends Screen {
         editingHudColor = false;
         editingHudText = false;
         searchFocused = false;
-        SkyOPClient.saveConfig();
+        SkyOPCore.saveConfig();
         super.onClose();
     }
 }
