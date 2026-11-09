@@ -16,9 +16,9 @@ A green CI result proves compilation and packaging. It does not prove an in-game
 6. Repeat with SkyOP module keybinds left unassigned; verify unbound keys do not crash world loading or mouse capture; the vanilla UNKNOWN key uses SDL scancode 0, and invalid negative indexes must be rejected before ByteBuffer access.
 7. Open ClickGUI with Right Shift, close it with Escape and verify the mouse is re-captured for camera movement without requiring another click.
 8. Open ClickGUI, assign a module keybind, restart the client and verify the saved scancode is restored; invalid negative/out-of-range values must safely become Unbound.
-7. Close ClickGUI while HUD editor drag mode is active; verify no stale drag state remains and mouse camera control resumes.
-8. While chat or another screen is open, verify the mod does not force mouse capture.
-6. Confirm another mod using mixins does not conflict with skyop.mixins.json.
+9. Close ClickGUI while HUD editor drag mode is active; verify no stale drag state remains and mouse camera control resumes.
+10. While chat or another screen is open, verify the mod does not force mouse capture.
+11. Confirm another mod using mixins does not conflict with skyop.mixins.json.
 
 ## Language
 
@@ -42,7 +42,7 @@ A green CI result proves compilation and packaging. It does not prove an in-game
 10. Enter a custom #RRGGBB value, apply it, and verify the HUD accent changes. Also check #RGB shorthand and invalid input.
 11. Enable several HUD panels, toggle HUD Edit, and drag each visible preview independently; release and reopen the GUI to verify positions persist.
 12. Edit the Text GUI label by clicking its text row, typing, and pressing Enter.
-12. Use Disable All; verify temporary ESP glow, gamma and flight state are restored.
+13. Use Disable All; verify temporary ESP glow, gamma and flight state are restored.
 
 ## Inventory and survival
 
@@ -136,7 +136,7 @@ Run these checks in Minecraft 26.3 at GUI Scale **1, 2, 3 and 4**. Repeat after 
 7. Verify the compact header exposes the collapsed color swatch and HUD-edit controls. Open the color picker, choose a swatch, enter a custom RGB value, and close it without drawing outside the panel.
 8. Verify compact footer controls for PVE, OP, VISUAL, language switching and Disable All are clickable and do not overlap.
 9. At 854x480 GUI units, verify the regular two-panel layout remains intact, all four panel edges stay on-screen, and the inspector does not overlap the module browser.
-10. At GUI Scale 1 and 2, verify the regular inspector remains visible and its setting rows, special Profile Manager/Hotbar Presets controls, HUD editor and color picker retain their actions.
+10. At GUI Scale 1 and 2, verify the regular inspector remains visible and its registered setting rows, Profile Manager/Hotbar Presets actions, HUD editor and color picker retain their functions.
 11. Resize continuously across the compact/wide breakpoint and verify the layout reflows without a stuck inspector overlay, lost selected module, or negative scroll position.
 12. Capture screenshots for 480x270 and 854x480, and attach the latest.log file to the manual test report.
 
@@ -160,11 +160,10 @@ The feature branch CI also runs on branch pushes so every incremental fix is com
 11. Resize the window repeatedly while ClickGUI is open; repeat at GUI scale 1 and 4, and at 854x480; record clipping/overlap for the upcoming compact-UI phase.
 12. Open ClickGUI, switch between Indonesian and English while the screen remains open, and verify every title, description, setting row, keybind, profile action and HUD hint updates.
 13. Verify every module's inspector rows come from its registered `SkyOPSetting<?>` list; toggle Boolean, drag Number, cycle Mode, select Multi chips, edit Color and rebind Keybind settings.
-14. Verify Profile Manager, Hotbar Presets and Custom HUD pages keep their keybind row visible and retain their existing actions.
+14. Verify Profile Manager, Hotbar Presets and Custom Text HUD expose their actions/text input as registered setting rows in the same generic inspector; confirm the keybind row remains registry-backed.
 15. Verify all module categories and module titles/descriptions are translated in both dictionaries, with no unresolved translation keys.
 16. Import a profile with invalid numeric values; verify validated values are applied, the pre-import config backup exists, and the client remains responsive.
-18. Switch worlds while the GUI is open
-19. Verify Profile Manager, Hotbar Presets and Custom Text HUD use the same generic registry inspector as every other module: actions and text input must appear as registered setting rows, with no module-specific inspector rendering branch., close it, and verify the client retains mouse capture only during active gameplay.
+17. Switch worlds while the GUI is open, close it, and verify the client retains mouse capture only during active gameplay.
 
 CI coverage for Phase 1 includes ConfigManager migration/corruption tests and typed-setting serialization tests. Manual Minecraft checks remain required for lifecycle and in-game behavior.
 
