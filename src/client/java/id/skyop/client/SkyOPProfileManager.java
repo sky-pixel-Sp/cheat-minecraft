@@ -42,7 +42,7 @@ public final class SkyOPProfileManager {
         checkSlot(slot);
         Files.createDirectories(PROFILE_DIR);
         backupCurrent();
-        SkyOPClient.saveConfig();
+        SkyOPCore.saveConfig();
         Properties p = loadCurrentProperties();
         Map<String, String> values = new HashMap<>();
         for (String name : p.stringPropertyNames()) values.put(name, p.getProperty(name));
@@ -57,7 +57,7 @@ public final class SkyOPProfileManager {
 
     public static void exportCurrent() throws IOException {
         Files.createDirectories(ROOT);
-        SkyOPClient.saveConfig();
+        SkyOPCore.saveConfig();
         Properties p = loadCurrentProperties();
         Map<String, String> values = new HashMap<>();
         for (String name : p.stringPropertyNames()) values.put(name, p.getProperty(name));
@@ -71,12 +71,12 @@ public final class SkyOPProfileManager {
     }
 
     public static void backupCurrent() throws IOException {
-        if (!Files.exists(SkyOPClient.configPath())) {
-            SkyOPClient.saveConfig();
+        if (!Files.exists(SkyOPCore.configPath())) {
+            SkyOPCore.saveConfig();
         }
         Files.createDirectories(BACKUP_DIR);
         String stamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss"));
-        Files.copy(SkyOPClient.configPath(), BACKUP_DIR.resolve("skyop-" + stamp + ".properties"),
+        Files.copy(SkyOPCore.configPath(), BACKUP_DIR.resolve("skyop-" + stamp + ".properties"),
                 StandardCopyOption.REPLACE_EXISTING);
     }
 
@@ -140,14 +140,14 @@ public final class SkyOPProfileManager {
     private static void apply(Map<String, String> values) throws IOException {
         Properties p = new Properties();
         p.putAll(values);
-        SkyOPConfigManager.save(SkyOPClient.configPath(), p);
-        SkyOPClient.reloadConfigFromDisk();
+        SkyOPConfigManager.save(SkyOPCore.configPath(), p);
+        SkyOPCore.reloadConfigFromDisk();
     }
 
     private static Properties loadCurrentProperties() throws IOException {
         Properties p = new Properties();
-        if (Files.exists(SkyOPClient.configPath())) {
-            try (var reader = Files.newBufferedReader(SkyOPClient.configPath())) {
+        if (Files.exists(SkyOPCore.configPath())) {
+            try (var reader = Files.newBufferedReader(SkyOPCore.configPath())) {
                 p.load(reader);
             }
         }
