@@ -144,8 +144,7 @@ public static void setHudAccentColor(int color) {
 
 public static void setCustomHudText(String text) {
         if (text == null) return;
-        String safe = text.strip();
-        if (safe.length() > 80) safe = safe.substring(0, 80);
+        String safe = text.length() > 80 ? text.substring(0, 80) : text;
         SkyOPState.customHudText = safe;
         saveConfig();
     }
