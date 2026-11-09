@@ -35,7 +35,7 @@ jobs:
           gradle-version: '9.7.1'
 
       - name: Build and run verification tasks
-        run: gradle --no-daemon clean build
+        run: gradle --no-daemon clean build remapJar
 
       - name: Verify remapped mod JAR
         shell: bash
