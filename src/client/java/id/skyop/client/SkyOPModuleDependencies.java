@@ -17,7 +17,8 @@ public final class SkyOPModuleDependencies {
                     Requirement.INVENTORY;
             case AUTO_FISH -> Requirement.FISHING_ROD;
             case AUTO_JUMP, STEP_ASSIST, SPIDER, SPEED, FLIGHT, NO_FALL, KILL_AURA,
-                    TRIGGER_BOT, AUTO_CLICKER, ENTITY_ESP, GAMMA_BOOST -> Requirement.WORLD;
+                    TRIGGER_BOT, AUTO_CLICKER, AUTO_HUNT, AUTO_BRIDGE, INFINITE_JUMP, JUMP_BOOST,
+                    ENTITY_ESP, ITEM_ESP, WAYPOINTS, MINIMAP, GAMMA_BOOST, NIGHT_VISION -> Requirement.WORLD;
             default -> Requirement.CLIENT;
         };
     }
