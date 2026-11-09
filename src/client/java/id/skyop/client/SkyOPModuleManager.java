@@ -63,8 +63,9 @@ public final class SkyOPModuleManager {
         for (SkyOPModule module : MODULES.values()) {
             SkyOPModuleId type = module.type();
             boolean enabled = SkyOPCore.isEnabled(type);
-            if (enabled && ACTIVE.add(type)) {
-                if (module.isReady(client)) module.onEnable(client);
+            if (enabled && !ACTIVE.contains(type) && module.isReady(client)) {
+                ACTIVE.add(type);
+                module.onEnable(client);
             } else if (!enabled && ACTIVE.remove(type)) {
                 module.onDisable(client);
             }
