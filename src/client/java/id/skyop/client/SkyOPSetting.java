@@ -26,8 +26,12 @@ public abstract class SkyOPSetting<T> {
     }
 
     public final String id() { return id; }
-    public final String title() { return title; }
-    public final String description() { return description; }
+    public final String title() { return resolveText(title); }
+    public final String description() { return resolveText(description); }
+
+    private static String resolveText(String value) {
+        return value.startsWith("lang:") ? SkyOPLanguage.text(value.substring(5)) : value;
+    }
     public final T value() { return getter.get(); }
 
     public final void set(T value) {
