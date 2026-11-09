@@ -223,14 +223,17 @@ public final class SkyOPClickGui extends Screen {
         g.fill(x + 12, y + 66, x + w - 12, y + 67, 0xFF2B394A);
 
         if (selectedModule == SkyOPModuleId.PROFILE_MANAGER) {
+            drawKeybindSetting(g, x, y);
             drawProfileControls(g, mouseX, mouseY, x, y);
             return;
         }
         if (selectedModule == SkyOPModuleId.HOTBAR_PRESETS) {
+            drawKeybindSetting(g, x, y);
             drawHotbarControls(g, mouseX, mouseY, x, y);
             return;
         }
         if (selectedModule == SkyOPModuleId.TEXT_GUI) {
+            drawKeybindSetting(g, x, y);
             g.text(font, Component.literal(editingHudText ? SkyOPLanguage.text("gui.edit_text") + ": " + SkyOPState.customHudText + "|" : SkyOPLanguage.text("gui.custom_hud_text")),
                     x + 12, y + 125, editingHudText ? 0xFFFFC85A : TEXT, true);
             g.text(font, Component.literal(SkyOPLanguage.text("gui.edit_text_help")),
@@ -289,6 +292,17 @@ public final class SkyOPClickGui extends Screen {
             g.text(font, Component.literal(trim(SkyOPLanguage.text("gui.requires") + ": " + missing, 32)),
                     x + 12, y + h - 18, 0xFFFFC85A, true);
         }
+    }
+
+    private void drawKeybindSetting(GuiGraphicsExtractor g, int x, int y) {
+        SkyOPSetting<?> setting = visibleSettings(selectedModule).stream()
+                .filter(KeybindSetting.class::isInstance).findFirst().orElse(null);
+        if (setting == null) return;
+        int keyY = y + 72;
+        g.fill(x + 8, keyY, x + 240, keyY + 23, waitingForKeybind ? 0xFF263D53 : PANEL_LIGHT);
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.keybind") + "  "
+                        + trim(settingValue(setting), 20)),
+                x + 15, keyY + 8, waitingForKeybind ? 0xFFFFC85A : ACCENT, true);
     }
 
     private void drawProfileControls(GuiGraphicsExtractor g, int mouseX, int mouseY, int x, int y) {
