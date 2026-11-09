@@ -35,15 +35,15 @@ jobs:
           gradle-version: '9.7.1'
 
       - name: Build and run verification tasks
-        run: gradle --no-daemon clean build remapJar
+        run: gradle --no-daemon clean build
 
-      - name: Verify remapped mod JAR
+      - name: Verify installable mod JAR
         shell: bash
         run: |
           set -euo pipefail
-          JAR_PATH="$(find build/libs -maxdepth 1 -type f -name 'skyop-client-*.jar' ! -name '*-dev.jar' ! -name '*-sources.jar' | sort | head -n 1)"
+          JAR_PATH="$(find build/libs -maxdepth 1 -type f -name 'skyop-client-*.jar' ! -name '*-sources.jar' | sort | head -n 1)"
           if [[ -z "$JAR_PATH" ]]; then
-            echo 'No remapped SkyOP JAR was produced.' >&2
+            echo 'No SkyOP mod JAR was produced.'
             find build/libs -maxdepth 1 -type f -print || true
             exit 1
           fi
@@ -85,7 +85,7 @@ jobs:
           fi
           unzip -p "$JAR_PATH" fabric.mod.json | grep -q '"id": "skyop"'
           unzip -p "$JAR_PATH" skyop.mixins.json | grep -q '"package": "id.skyop.mixin"'
-          echo "Verified JAR: $JAR_PATH"
+          echo "Verified installable JAR: $JAR_PATH"
           echo "SKYOP_JAR_PATH=$JAR_PATH" >> "$GITHUB_ENV"
 
       - name: Upload ready-to-install JAR
