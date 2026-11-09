@@ -593,8 +593,17 @@ public final class SkyOPClient implements ClientModInitializer {
 
         BlockPos target = player.blockPosition().below();
         if (!client.level.getBlockState(target).isAir()) return;
-        BlockPos support = target.below();
-        if (client.level.getBlockState(support).isAir()) return;
+        BlockPos support = null;
+        Direction placeFace = null;
+        for (Direction direction : List.of(Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST)) {
+            BlockPos candidate = target.relative(direction);
+            if (!client.level.getBlockState(candidate).isAir()) {
+                support = candidate;
+                placeFace = direction.getOpposite();
+                break;
+            }
+        }
+        if (support == null || placeFace == null) return;
 
         int previousSlot = player.getInventory().selected;
         int blockSlot = -1;
@@ -607,9 +616,11 @@ public final class SkyOPClient implements ClientModInitializer {
         if (blockSlot < 0) return;
 
         player.getInventory().selected = blockSlot;
-        BlockHitResult hit = new BlockHitResult(
-                new Vec3(support.getX() + 0.5, support.getY() + 1.0, support.getZ() + 0.5),
-                Direction.UP, support, false);
+        Vec3 hitLocation = new Vec3(
+                support.getX() + 0.5 + placeFace.getStepX() * 0.5,
+                support.getY() + 0.5,
+                support.getZ() + 0.5 + placeFace.getStepZ() * 0.5);
+        BlockHitResult hit = new BlockHitResult(hitLocation, placeFace, support, false);
         client.gameMode.useItemOn(player, InteractionHand.MAIN_HAND, hit);
         player.swing(InteractionHand.MAIN_HAND, SwingAnimation.DEFAULT, true);
         player.getInventory().selected = previousSlot;
