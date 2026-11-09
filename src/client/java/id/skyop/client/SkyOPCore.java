@@ -303,7 +303,7 @@ private static void onClientTick(Minecraft client) {
             return;
         }
 
-        updateTelemetry(client);
+        SkyOPTelemetry.update(client);
         if (client.gui.screen() != null) {
             SkyOPInventoryManager.stop(client);
             return;
@@ -342,39 +342,39 @@ public static void saveConfig() {
             p.setProperty("module." + module.name(), Boolean.toString(isEnabled(module)));
         }
         p.setProperty("language", SkyOPLanguage.code());
-        p.setProperty("SkyOPState.targetPlayers", Boolean.toString(SkyOPState.targetPlayers));
-        p.setProperty("SkyOPState.targetMobs", Boolean.toString(SkyOPState.targetMobs));
-        p.setProperty("SkyOPState.auraRotate", Boolean.toString(SkyOPState.auraRotate));
-        p.setProperty("SkyOPState.auraRequireLineOfSight", Boolean.toString(SkyOPState.auraRequireLineOfSight));
-        p.setProperty("SkyOPState.auraTargetLowestHealth", Boolean.toString(SkyOPState.auraTargetLowestHealth));
-        p.setProperty("SkyOPState.auraFov", Double.toString(SkyOPState.auraFov));
-        p.setProperty("SkyOPState.auraRotationSpeed", Double.toString(SkyOPState.auraRotationSpeed));
-        p.setProperty("SkyOPState.auraRange", Double.toString(SkyOPState.auraRange));
-        p.setProperty("SkyOPState.auraDelayTicks", Integer.toString(SkyOPState.auraDelayTicks));
-        p.setProperty("SkyOPState.triggerDelayTicks", Integer.toString(SkyOPState.triggerDelayTicks));
-        p.setProperty("SkyOPState.autoClickerCps", Integer.toString(SkyOPState.autoClickerCps));
-        p.setProperty("SkyOPState.speedMultiplier", Double.toString(SkyOPState.speedMultiplier));
-        p.setProperty("SkyOPState.flightSpeed", Double.toString(SkyOPState.flightSpeed));
-        p.setProperty("SkyOPState.autoJumpDelayTicks", Integer.toString(SkyOPState.autoJumpDelayTicks));
-        p.setProperty("SkyOPState.spiderClimbSpeed", Double.toString(SkyOPState.spiderClimbSpeed));
-        p.setProperty("SkyOPState.espRange", Double.toString(SkyOPState.espRange));
-        p.setProperty("SkyOPState.espPlayers", Boolean.toString(SkyOPState.espPlayers));
-        p.setProperty("SkyOPState.espMobs", Boolean.toString(SkyOPState.espMobs));
-        p.setProperty("SkyOPState.espItems", Boolean.toString(SkyOPState.espItems));
-        p.setProperty("SkyOPState.autoHuntRange", Double.toString(SkyOPState.autoHuntRange));
-        p.setProperty("SkyOPState.jumpBoostMultiplier", Double.toString(SkyOPState.jumpBoostMultiplier));
-        p.setProperty("SkyOPState.bridgeDelayTicks", Integer.toString(SkyOPState.bridgeDelayTicks));
-        p.setProperty("SkyOPState.autoEatThreshold", Integer.toString(SkyOPState.autoEatThreshold));
-        p.setProperty("SkyOPState.autoRefillThreshold", Integer.toString(SkyOPState.autoRefillThreshold));
-        p.setProperty("SkyOPState.hudX", Integer.toString(SkyOPState.hudX));
-        p.setProperty("SkyOPState.hudY", Integer.toString(SkyOPState.hudY));
+        p.setProperty("targetPlayers", Boolean.toString(SkyOPState.targetPlayers));
+        p.setProperty("targetMobs", Boolean.toString(SkyOPState.targetMobs));
+        p.setProperty("auraRotate", Boolean.toString(SkyOPState.auraRotate));
+        p.setProperty("auraRequireLineOfSight", Boolean.toString(SkyOPState.auraRequireLineOfSight));
+        p.setProperty("auraTargetLowestHealth", Boolean.toString(SkyOPState.auraTargetLowestHealth));
+        p.setProperty("auraFov", Double.toString(SkyOPState.auraFov));
+        p.setProperty("auraRotationSpeed", Double.toString(SkyOPState.auraRotationSpeed));
+        p.setProperty("auraRange", Double.toString(SkyOPState.auraRange));
+        p.setProperty("auraDelayTicks", Integer.toString(SkyOPState.auraDelayTicks));
+        p.setProperty("triggerDelayTicks", Integer.toString(SkyOPState.triggerDelayTicks));
+        p.setProperty("autoClickerCps", Integer.toString(SkyOPState.autoClickerCps));
+        p.setProperty("speedMultiplier", Double.toString(SkyOPState.speedMultiplier));
+        p.setProperty("flightSpeed", Double.toString(SkyOPState.flightSpeed));
+        p.setProperty("autoJumpDelayTicks", Integer.toString(SkyOPState.autoJumpDelayTicks));
+        p.setProperty("spiderClimbSpeed", Double.toString(SkyOPState.spiderClimbSpeed));
+        p.setProperty("espRange", Double.toString(SkyOPState.espRange));
+        p.setProperty("espPlayers", Boolean.toString(SkyOPState.espPlayers));
+        p.setProperty("espMobs", Boolean.toString(SkyOPState.espMobs));
+        p.setProperty("espItems", Boolean.toString(SkyOPState.espItems));
+        p.setProperty("autoHuntRange", Double.toString(SkyOPState.autoHuntRange));
+        p.setProperty("jumpBoostMultiplier", Double.toString(SkyOPState.jumpBoostMultiplier));
+        p.setProperty("bridgeDelayTicks", Integer.toString(SkyOPState.bridgeDelayTicks));
+        p.setProperty("autoEatThreshold", Integer.toString(SkyOPState.autoEatThreshold));
+        p.setProperty("autoRefillThreshold", Integer.toString(SkyOPState.autoRefillThreshold));
+        p.setProperty("hudX", Integer.toString(SkyOPState.hudX));
+        p.setProperty("hudY", Integer.toString(SkyOPState.hudY));
         for (Map.Entry<SkyOPModuleId, SkyOPState.HudPosition> entry : SkyOPState.HUD_POSITIONS.entrySet()) {
             String prefix = "hud." + entry.getKey().name() + ".";
             p.setProperty(prefix + "x", Integer.toString(entry.getValue().x()));
             p.setProperty(prefix + "y", Integer.toString(entry.getValue().y()));
         }
-        p.setProperty("SkyOPState.hudAccentColor", Integer.toString(SkyOPState.hudAccentColor));
-        p.setProperty("SkyOPState.customHudText", SkyOPState.customHudText);
+        p.setProperty("hudAccentColor", Integer.toString(SkyOPState.hudAccentColor));
+        p.setProperty("customHudText", SkyOPState.customHudText);
         for (SkyOPModuleId module : SkyOPState.FAVORITES) p.setProperty("favorite." + module.name(), "true");
         for (Map.Entry<SkyOPModuleId, KeyMapping> entry : SkyOPState.MODULE_KEYBINDS.entrySet()) {
             p.setProperty("keybind." + entry.getKey().name(),
@@ -395,7 +395,7 @@ private static void loadConfig() {
             Path backupDirectory = FabricLoader.getInstance().getConfigDir()
                     .resolve("skyop-client").resolve("backups");
             p = SkyOPConfigManager.load(SkyOPState.CONFIG_FILE, backupDirectory);
-            SkyOPLanguage.set(p.getProperty("language", "en"));
+            SkyOPLanguage.set(p.getProperty("language", "id"));
             for (SkyOPModuleId module : SkyOPModuleId.values()) {
                 String value = p.getProperty("module." + module.name());
                 if (value != null) {
@@ -403,34 +403,34 @@ private static void loadConfig() {
                     else SkyOPState.ENABLED.remove(module);
                 }
             }
-            SkyOPState.targetPlayers = bool(p, "SkyOPState.targetPlayers", SkyOPState.targetPlayers);
-            SkyOPState.targetMobs = bool(p, "SkyOPState.targetMobs", SkyOPState.targetMobs);
-            SkyOPState.auraRotate = bool(p, "SkyOPState.auraRotate", SkyOPState.auraRotate);
-            SkyOPState.auraRequireLineOfSight = bool(p, "SkyOPState.auraRequireLineOfSight", SkyOPState.auraRequireLineOfSight);
-            SkyOPState.auraTargetLowestHealth = bool(p, "SkyOPState.auraTargetLowestHealth", SkyOPState.auraTargetLowestHealth);
-            SkyOPState.auraFov = number(p, "SkyOPState.auraFov", SkyOPState.auraFov, 30.0, 180.0);
-            SkyOPState.auraRotationSpeed = number(p, "SkyOPState.auraRotationSpeed", SkyOPState.auraRotationSpeed, 0.10, 1.0);
-            SkyOPState.auraRange = number(p, "SkyOPState.auraRange", SkyOPState.auraRange, 2.5, 6.0);
-            SkyOPState.auraDelayTicks = integer(p, "SkyOPState.auraDelayTicks", SkyOPState.auraDelayTicks, 1, 20);
-            SkyOPState.triggerDelayTicks = integer(p, "SkyOPState.triggerDelayTicks", SkyOPState.triggerDelayTicks, 1, 12);
-            SkyOPState.autoClickerCps = integer(p, "SkyOPState.autoClickerCps", SkyOPState.autoClickerCps, 4, 20);
-            SkyOPState.speedMultiplier = number(p, "SkyOPState.speedMultiplier", SkyOPState.speedMultiplier, 1.0, 2.8);
-            SkyOPState.flightSpeed = number(p, "SkyOPState.flightSpeed", SkyOPState.flightSpeed, 0.12, 0.9);
-            SkyOPState.autoJumpDelayTicks = integer(p, "SkyOPState.autoJumpDelayTicks", SkyOPState.autoJumpDelayTicks, 2, 12);
-            SkyOPState.spiderClimbSpeed = number(p, "SkyOPState.spiderClimbSpeed", SkyOPState.spiderClimbSpeed, 0.08, 0.38);
-            SkyOPState.espRange = number(p, "SkyOPState.espRange", SkyOPState.espRange, 8.0, 96.0);
-            SkyOPState.espPlayers = bool(p, "SkyOPState.espPlayers", SkyOPState.espPlayers);
-            SkyOPState.espMobs = bool(p, "SkyOPState.espMobs", SkyOPState.espMobs);
-            SkyOPState.espItems = bool(p, "SkyOPState.espItems", SkyOPState.espItems);
-            SkyOPState.autoHuntRange = number(p, "SkyOPState.autoHuntRange", SkyOPState.autoHuntRange, 2.5, 6.0);
-            SkyOPState.jumpBoostMultiplier = number(p, "SkyOPState.jumpBoostMultiplier", SkyOPState.jumpBoostMultiplier, 1.0, 3.0);
-            SkyOPState.bridgeDelayTicks = integer(p, "SkyOPState.bridgeDelayTicks", SkyOPState.bridgeDelayTicks, 1, 10);
-            SkyOPState.autoEatThreshold = (int) SkyOPSettingsSchema.validate("SkyOPState.autoEatThreshold",
-                    integer(p, "SkyOPState.autoEatThreshold", SkyOPState.autoEatThreshold, 2, 18), SkyOPState.autoEatThreshold);
-            SkyOPState.autoRefillThreshold = (int) SkyOPSettingsSchema.validate("SkyOPState.autoRefillThreshold",
-                    integer(p, "SkyOPState.autoRefillThreshold", SkyOPState.autoRefillThreshold, 1, 16), SkyOPState.autoRefillThreshold);
-            SkyOPState.hudX = integer(p, "SkyOPState.hudX", SkyOPState.hudX, 0, 10000);
-            SkyOPState.hudY = integer(p, "SkyOPState.hudY", SkyOPState.hudY, 0, 10000);
+            SkyOPState.targetPlayers = bool(p, "targetPlayers", SkyOPState.targetPlayers);
+            SkyOPState.targetMobs = bool(p, "targetMobs", SkyOPState.targetMobs);
+            SkyOPState.auraRotate = bool(p, "auraRotate", SkyOPState.auraRotate);
+            SkyOPState.auraRequireLineOfSight = bool(p, "auraRequireLineOfSight", SkyOPState.auraRequireLineOfSight);
+            SkyOPState.auraTargetLowestHealth = bool(p, "auraTargetLowestHealth", SkyOPState.auraTargetLowestHealth);
+            SkyOPState.auraFov = number(p, "auraFov", SkyOPState.auraFov, 30.0, 180.0);
+            SkyOPState.auraRotationSpeed = number(p, "auraRotationSpeed", SkyOPState.auraRotationSpeed, 0.10, 1.0);
+            SkyOPState.auraRange = number(p, "auraRange", SkyOPState.auraRange, 2.5, 6.0);
+            SkyOPState.auraDelayTicks = integer(p, "auraDelayTicks", SkyOPState.auraDelayTicks, 1, 20);
+            SkyOPState.triggerDelayTicks = integer(p, "triggerDelayTicks", SkyOPState.triggerDelayTicks, 1, 12);
+            SkyOPState.autoClickerCps = integer(p, "autoClickerCps", SkyOPState.autoClickerCps, 4, 20);
+            SkyOPState.speedMultiplier = number(p, "speedMultiplier", SkyOPState.speedMultiplier, 1.0, 2.8);
+            SkyOPState.flightSpeed = number(p, "flightSpeed", SkyOPState.flightSpeed, 0.12, 0.9);
+            SkyOPState.autoJumpDelayTicks = integer(p, "autoJumpDelayTicks", SkyOPState.autoJumpDelayTicks, 2, 12);
+            SkyOPState.spiderClimbSpeed = number(p, "spiderClimbSpeed", SkyOPState.spiderClimbSpeed, 0.08, 0.38);
+            SkyOPState.espRange = number(p, "espRange", SkyOPState.espRange, 8.0, 96.0);
+            SkyOPState.espPlayers = bool(p, "espPlayers", SkyOPState.espPlayers);
+            SkyOPState.espMobs = bool(p, "espMobs", SkyOPState.espMobs);
+            SkyOPState.espItems = bool(p, "espItems", SkyOPState.espItems);
+            SkyOPState.autoHuntRange = number(p, "autoHuntRange", SkyOPState.autoHuntRange, 2.5, 6.0);
+            SkyOPState.jumpBoostMultiplier = number(p, "jumpBoostMultiplier", SkyOPState.jumpBoostMultiplier, 1.0, 3.0);
+            SkyOPState.bridgeDelayTicks = integer(p, "bridgeDelayTicks", SkyOPState.bridgeDelayTicks, 1, 10);
+            SkyOPState.autoEatThreshold = (int) SkyOPSettingsSchema.validate("autoEatThreshold",
+                    integer(p, "autoEatThreshold", SkyOPState.autoEatThreshold, 2, 18), SkyOPState.autoEatThreshold);
+            SkyOPState.autoRefillThreshold = (int) SkyOPSettingsSchema.validate("autoRefillThreshold",
+                    integer(p, "autoRefillThreshold", SkyOPState.autoRefillThreshold, 1, 16), SkyOPState.autoRefillThreshold);
+            SkyOPState.hudX = integer(p, "hudX", SkyOPState.hudX, 0, 10000);
+            SkyOPState.hudY = integer(p, "hudY", SkyOPState.hudY, 0, 10000);
             SkyOPState.HUD_POSITIONS.clear();
             for (SkyOPModuleId module : SkyOPModuleId.values()) {
                 String prefix = "hud." + module.name() + ".";
@@ -440,9 +440,9 @@ private static void loadConfig() {
                     SkyOPState.HUD_POSITIONS.put(module, new SkyOPState.HudPosition(savedX, savedY));
                 }
             }
-            SkyOPState.hudAccentColor = 0xFF000000 | (integer(p, "SkyOPState.hudAccentColor", SkyOPState.hudAccentColor,
+            SkyOPState.hudAccentColor = 0xFF000000 | (integer(p, "hudAccentColor", SkyOPState.hudAccentColor,
                     Integer.MIN_VALUE, Integer.MAX_VALUE) & 0x00FFFFFF);
-            SkyOPState.customHudText = p.getProperty("SkyOPState.customHudText", SkyOPState.customHudText);
+            SkyOPState.customHudText = p.getProperty("customHudText", SkyOPState.customHudText);
             SkyOPState.FAVORITES.clear();
             for (SkyOPModuleId module : SkyOPModuleId.values()) {
                 if (bool(p, "favorite." + module.name(), false)) SkyOPState.FAVORITES.add(module);
