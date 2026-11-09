@@ -276,7 +276,7 @@ public final class SkyOPModuleManager {
                     () -> (double) SkyOPState.autoEatThreshold, value -> SkyOPState.autoEatThreshold = value.intValue()));
             case AUTO_REFILL -> settings.add(number("autoRefillThreshold", "setting.refill_threshold", "setting.refill_low",
                     () -> (double) SkyOPState.autoRefillThreshold, value -> SkyOPState.autoRefillThreshold = value.intValue()));
-            case HUD -> settings.add(new ColorSetting("hudAccentColor", "setting.hud_accent", "setting.hud_accent_desc",
+            case HUD -> settings.add(new ColorSetting("hudAccentColor", "lang:setting.hud_accent", "lang:setting.hud_accent_desc",
                     0xFF61C7F2, SkyOPCore::hudAccentColor, SkyOPCore::setHudAccentColor));
             default -> { }
         }
