@@ -42,4 +42,11 @@ try {
 
 Write-Host ''
 Write-Host 'BUILD SUCCESSFUL' -ForegroundColor Green
-Write-Host "Mod JAR: $PSScriptRoot\build\libs\skyop-client-1.1.0.jar" -ForegroundColor Green
+$modJar = Get-ChildItem -Path (Join-Path $PSScriptRoot 'build\libs') -Filter 'skyop-client-*.jar' |
+    Where-Object { $_.Name -notlike '*-sources.jar' } |
+    Sort-Object Name |
+    Select-Object -First 1
+if (-not $modJar) {
+    throw 'Gradle completed but the SkyOP mod JAR was not found in build\libs.'
+}
+Write-Host "Mod JAR: $($modJar.FullName)" -ForegroundColor Green
