@@ -168,8 +168,14 @@ public final class SkyOPClickGui extends Screen {
                 g.fill(x, rowY, x + buttonWidth, rowY + buttonHeight,
                         selected ? 0xFF263B50 : (hovered ? PANEL_HOVER : 0xFF111A27));
                 if (selected) g.fill(x, rowY, x + 3, rowY + buttonHeight, ACCENT);
-                String icon = category == SkyOPCategory.FAVORITES ? "★"
-                        : category.name().substring(0, 1);
+                String icon = switch (category) {
+                    case COMBAT -> "⚔";
+                    case MOVEMENT -> "↗";
+                    case VISUAL -> "◉";
+                    case PLAYER -> "♟";
+                    case INVENTORY -> "▣";
+                    case FAVORITES -> "★";
+                };
                 int textX = x + (buttonWidth - font.width(icon)) / 2;
                 g.text(font, Component.literal(icon), textX, rowY + 8,
                         selected ? TEXT : MUTED, true);
@@ -678,6 +684,34 @@ public final class SkyOPClickGui extends Screen {
             }
         }
 
+        if ((layout.inspectorOverlay() && inspectorOpen || !layout.inspectorOverlay())
+                && selectedModule != null && button == InputConstants.MOUSE_BUTTON_LEFT) {
+            int inspectorX = layout.inspectorX();
+            int inspectorY = layout.inspectorY();
+            int inspectorW = layout.inspectorWidth();
+
+            int settingsX = inspectorX + 8;
+            int settingsY = inspectorY + layout.settingsTopOffset();
+            int visibleRow = (my - settingsY) / layout.settingRowStep();
+            int rowIndex = visibleRow + settingsScroll;
+            List<SkyOPSetting<?>> settings = visibleSettings(selectedModule);
+            if (mx >= settingsX && mx <= inspectorX + inspectorW - 8
+                    && my >= settingsY && visibleRow >= 0 && rowIndex < settings.size()) {
+                SkyOPSetting<?> setting = settings.get(rowIndex);
+                if (setting instanceof StringSetting string) {
+                    editingStringSetting = string;
+                } else {
+                    applySettingClick(setting, mouseX, inspectorX + 8,
+                            settingsY + visibleRow * layout.settingRowStep());
+                }
+                return true;
+            }
+            if (layout.inspectorOverlay() && inspectorOpen
+                    && inside(mx, my, inspectorX, inspectorY, inspectorW, layout.inspectorHeight())) {
+                return true; // Prevent clicks passing through the inspector overlay to module cards.
+            }
+        }
+
         int moduleX = layout.contentX();
         int searchY = layout.contentY() + (layout.compact() ? 20 : 27);
         int moduleWidth = layout.contentWidth();
@@ -720,29 +754,7 @@ public final class SkyOPClickGui extends Screen {
             moduleIndex++;
         }
 
-        if ((layout.inspectorOverlay() && inspectorOpen || !layout.inspectorOverlay())
-                && selectedModule != null && button == InputConstants.MOUSE_BUTTON_LEFT) {
-            int inspectorX = layout.inspectorX();
-            int inspectorY = layout.inspectorY();
-            int inspectorW = layout.inspectorWidth();
 
-            int settingsX = inspectorX + 8;
-            int settingsY = inspectorY + layout.settingsTopOffset();
-            int visibleRow = (my - settingsY) / layout.settingRowStep();
-            int rowIndex = visibleRow + settingsScroll;
-            List<SkyOPSetting<?>> settings = visibleSettings(selectedModule);
-            if (mx >= settingsX && mx <= inspectorX + inspectorW - 8
-                    && my >= settingsY && visibleRow >= 0 && rowIndex < settings.size()) {
-                SkyOPSetting<?> setting = settings.get(rowIndex);
-                if (setting instanceof StringSetting string) {
-                    editingStringSetting = string;
-                } else {
-                    applySettingClick(setting, mouseX, inspectorX + 8,
-                            settingsY + visibleRow * layout.settingRowStep());
-                }
-                return true;
-            }
-        }
         return super.mouseClicked(event, doubleClick);
     }
 
