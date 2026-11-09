@@ -51,25 +51,25 @@ public final class SkyOPInventoryManager {
             return;
         }
 
-        if (SkyOPClient.isEnabled(SkyOPClient.Module.AUTO_EAT)) tickAutoEat(client);
+        if (SkyOPCore.isEnabled(SkyOPModuleId.AUTO_EAT)) tickAutoEat(client);
         else stopEating(client);
 
         if (client.gui.screen() != null || client.player.isSpectator()
                 || client.player.containerMenu != client.player.inventoryMenu) return;
 
-        if (SkyOPClient.isEnabled(SkyOPClient.Module.AUTO_ARMOR)) tickAutoArmor(client);
+        if (SkyOPCore.isEnabled(SkyOPModuleId.AUTO_ARMOR)) tickAutoArmor(client);
         else armorDelay = 0;
 
-        if (SkyOPClient.isEnabled(SkyOPClient.Module.AUTO_TOOL)) tickAutoTool(client);
+        if (SkyOPCore.isEnabled(SkyOPModuleId.AUTO_TOOL)) tickAutoTool(client);
         else restoreAutoTool(client);
 
-        if (SkyOPClient.isEnabled(SkyOPClient.Module.AUTO_REFILL)) tickAutoRefill(client);
+        if (SkyOPCore.isEnabled(SkyOPModuleId.AUTO_REFILL)) tickAutoRefill(client);
         else refillDelay = 0;
 
-        if (SkyOPClient.isEnabled(SkyOPClient.Module.INVENTORY_CLEANER)) tickInventoryCleaner(client);
+        if (SkyOPCore.isEnabled(SkyOPModuleId.INVENTORY_CLEANER)) tickInventoryCleaner(client);
         else cleanDelay = 0;
 
-        if (SkyOPClient.isEnabled(SkyOPClient.Module.AUTO_FISH)) tickAutoFish(client);
+        if (SkyOPCore.isEnabled(SkyOPModuleId.AUTO_FISH)) tickAutoFish(client);
         else fishDelay = 0;
     }
 
@@ -93,7 +93,7 @@ public final class SkyOPInventoryManager {
 
         int foodLevel = player.getFoodData().getFoodLevel();
         if (!eating) {
-            if (foodLevel >= SkyOPClient.autoEatThreshold || player.isUsingItem()
+            if (foodLevel >= SkyOPState.autoEatThreshold || player.isUsingItem()
                     || (client.options.keyUse.isDown() && !ownsUseKey) || eatRetry > 0) return;
 
             int slot = findFoodHotbar(player.getInventory(), 20 - foodLevel);
@@ -255,7 +255,7 @@ public final class SkyOPInventoryManager {
         var inventory = player.getInventory();
         int selected = inventory.getSelectedSlot();
         ItemStack current = inventory.getItem(selected);
-        if (current.isEmpty() || current.getCount() > SkyOPClient.autoRefillThreshold) return;
+        if (current.isEmpty() || current.getCount() > SkyOPState.autoRefillThreshold) return;
 
         for (int slot = 9; slot < Math.min(36, inventory.getContainerSize()); slot++) {
             ItemStack candidate = inventory.getItem(slot);
