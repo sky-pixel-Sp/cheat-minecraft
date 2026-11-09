@@ -124,6 +124,14 @@ public final class SkyOPLanguage {
         put("module.TRIGGER_BOT.description", "Attacks a valid target under the crosshair.");
         put("module.AUTO_CLICKER.title", "AutoClicker");
         put("module.AUTO_CLICKER.description", "Repeats attacks while the attack key is held.");
+        put("module.AUTO_HUNT.title", "Auto Hunt");
+        put("module.AUTO_HUNT.description", "Automatically attacks the nearest loaded hostile mob without camera movement.");
+        put("module.AUTO_BRIDGE.title", "Auto Bridge");
+        put("module.AUTO_BRIDGE.description", "Places a selected hotbar block beneath the player while moving.");
+        put("module.INFINITE_JUMP.title", "Infinite Jump");
+        put("module.INFINITE_JUMP.description", "Allows another jump after leaving the ground when jump is pressed again.");
+        put("module.JUMP_BOOST.title", "Jump Boost");
+        put("module.JUMP_BOOST.description", "Adjusts the local jump impulse multiplier.");
         put("module.AUTO_SPRINT.title", "Auto Sprint");
         put("module.AUTO_SPRINT.description", "Sprints while moving forward.");
         put("module.SPEED.title", "Speed");
@@ -137,7 +145,15 @@ public final class SkyOPLanguage {
         put("module.SPIDER.title", "Spider");
         put("module.SPIDER.description", "Climbs a wall while moving into it.");
         put("module.ENTITY_ESP.title", "Entity ESP");
-        put("module.ENTITY_ESP.description", "Highlights nearby loaded living entities.");
+        put("module.ENTITY_ESP.description", "Highlights nearby loaded living entities and dropped items.");
+        put("module.ITEM_ESP.title", "Item ESP");
+        put("module.ITEM_ESP.description", "Includes dropped item entities in the Entity ESP highlight filter.");
+        put("module.WAYPOINTS.title", "Waypoints");
+        put("module.WAYPOINTS.description", "Displays saved coordinates and distances; press V to save a waypoint.");
+        put("module.MINIMAP.title", "Mini Map");
+        put("module.MINIMAP.description", "Shows nearby entities already loaded by the client.");
+        put("module.NIGHT_VISION.title", "Night Vision");
+        put("module.NIGHT_VISION.description", "Improves local visibility using the client gamma setting.");
         put("module.GAMMA_BOOST.title", "Gamma Boost");
         put("module.GAMMA_BOOST.description", "Sets vanilla gamma to its maximum normal value.");
         put("module.HUD.title", "HUD");
@@ -622,6 +638,14 @@ public final class SkyOPLanguage {
                 e("module.TRIGGER_BOT.description", "Menyerang target valid yang berada tepat di crosshair."),
                 e("module.AUTO_CLICKER.title", "Klik Otomatis"),
                 e("module.AUTO_CLICKER.description", "Mengulangi serangan selama tombol serang ditekan."),
+                e("module.AUTO_HUNT.title", "Berburu Otomatis"),
+                e("module.AUTO_HUNT.description", "Menyerang mob agresif terdekat tanpa menggerakkan kamera."),
+                e("module.AUTO_BRIDGE.title", "Jembatan Otomatis"),
+                e("module.AUTO_BRIDGE.description", "Memasang blok dari hotbar di bawah pemain saat bergerak."),
+                e("module.INFINITE_JUMP.title", "Lompat Tanpa Batas"),
+                e("module.INFINITE_JUMP.description", "Tekan tombol lompat kembali saat berada di udara."),
+                e("module.JUMP_BOOST.title", "Lompatan Tinggi"),
+                e("module.JUMP_BOOST.description", "Mengatur pengali dorongan lompatan lokal."),
                 e("module.AUTO_SPRINT.title", "Sprint Otomatis"),
                 e("module.AUTO_SPRINT.description", "Melakukan sprint saat pemain bergerak maju."),
                 e("module.SPEED.title", "Kecepatan"),
@@ -635,7 +659,15 @@ public final class SkyOPLanguage {
                 e("module.SPIDER.title", "Memanjat Dinding"),
                 e("module.SPIDER.description", "Memanjat dinding saat bergerak ke arahnya."),
                 e("module.ENTITY_ESP.title", "ESP Entitas"),
-                e("module.ENTITY_ESP.description", "Menyorot entitas hidup di sekitar yang sudah dimuat."),
+                e("module.ENTITY_ESP.description", "Menyorot entitas hidup dan item jatuh yang sudah dimuat."),
+                e("module.ITEM_ESP.title", "ESP Item"),
+                e("module.ITEM_ESP.description", "Menambahkan item yang jatuh ke sorotan ESP."),
+                e("module.WAYPOINTS.title", "Titik Koordinat"),
+                e("module.WAYPOINTS.description", "Menampilkan koordinat dan jarak; tekan V untuk menyimpan lokasi."),
+                e("module.MINIMAP.title", "Peta Mini"),
+                e("module.MINIMAP.description", "Menampilkan entitas terdekat yang sudah dimuat client."),
+                e("module.NIGHT_VISION.title", "Penglihatan Malam"),
+                e("module.NIGHT_VISION.description", "Meningkatkan visibilitas lokal melalui pengaturan gamma client."),
                 e("module.GAMMA_BOOST.title", "Gamma Maksimal"),
                 e("module.GAMMA_BOOST.description", "Mengatur gamma vanilla ke nilai normal maksimum."),
                 e("module.HUD.title", "HUD"),
