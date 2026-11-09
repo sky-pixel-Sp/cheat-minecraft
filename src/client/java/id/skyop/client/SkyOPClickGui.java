@@ -402,6 +402,20 @@ public final class SkyOPClickGui extends Screen {
             case AUTO_CLICKER -> List.of(
                     slider(SkyOPLanguage.text("setting.clicks_per_second"), SkyOPLanguage.text("setting.vanilla_cooldown"), SkyOPClient.autoClickerCps, 4, 20, "%.0f CPS")
             );
+            case AUTO_HUNT -> List.of(
+                    slider("Hunt range", "Maximum target distance", SkyOPClient.autoHuntRange, 2.5, 6.0, "%.1f blocks"),
+                    info("Target filter", "Hostile mobs only; no camera rotation")
+            );
+            case AUTO_BRIDGE -> List.of(
+                    slider("Placement delay", "Ticks between block placements", SkyOPClient.bridgeDelayTicks, 1, 10, "%.0f ticks"),
+                    info("Block selection", "Uses the first placeable block in your hotbar")
+            );
+            case INFINITE_JUMP -> List.of(
+                    info("Jump input", "Press jump again while airborne to jump a second time")
+            );
+            case JUMP_BOOST -> List.of(
+                    slider("Jump multiplier", "Local vertical jump impulse", SkyOPClient.jumpBoostMultiplier, 1.0, 3.0, "%.2fx")
+            );
             case SPEED -> List.of(
                     slider(SkyOPLanguage.text("setting.movement_multiplier"), SkyOPLanguage.text("setting.horizontal_multiplier"), SkyOPClient.speedMultiplier, 1.0, 2.8, "%.2fx")
             );
@@ -417,7 +431,22 @@ public final class SkyOPClickGui extends Screen {
             case ENTITY_ESP -> List.of(
                     toggle(SkyOPLanguage.text("setting.show_players"), SkyOPLanguage.text("setting.highlight_players"), SkyOPClient.espPlayers),
                     toggle(SkyOPLanguage.text("setting.show_mobs"), SkyOPLanguage.text("setting.highlight_mobs"), SkyOPClient.espMobs),
+                    toggle("Dropped items", "Include item entities in ESP", SkyOPClient.espItems),
                     slider(SkyOPLanguage.text("setting.esp_range"), SkyOPLanguage.text("setting.scan_radius"), SkyOPClient.espRange, 8, 96, "%.0f blocks")
+            );
+            case ITEM_ESP -> List.of(
+                    toggle("Dropped items", "Highlight dropped item entities", SkyOPClient.espItems),
+                    slider(SkyOPLanguage.text("setting.esp_range"), SkyOPLanguage.text("setting.scan_radius"), SkyOPClient.espRange, 8, 96, "%.0f blocks")
+            );
+            case WAYPOINTS -> List.of(
+                    info("Save waypoint", "Press V in a world to save your current coordinates"),
+                    info("Waypoint limit", "Up to 32 saved locations, persisted locally")
+            );
+            case MINIMAP -> List.of(
+                    info("Entity radar", "Shows nearby players, hostile mobs and dropped items already loaded by the client")
+            );
+            case NIGHT_VISION -> List.of(
+                    info("Visibility", "Uses the local gamma control; no potion is granted")
             );
             case GAMMA_BOOST -> List.of(info(SkyOPLanguage.text("setting.vanilla_gamma"), SkyOPLanguage.text("setting.max_gamma")));
             case TARGET_HUD -> List.of(info(SkyOPLanguage.text("setting.target_card"), SkyOPLanguage.text("setting.crosshair_target")));
@@ -444,6 +473,7 @@ public final class SkyOPClickGui extends Screen {
             case PROFILE_MANAGER -> List.of(info(SkyOPLanguage.text("gui.json_profiles"), SkyOPLanguage.text("gui.profile_slots_backup_restore")));
             case AUTO_SPRINT, STEP_ASSIST, NO_FALL, HUD ->
                     List.of(info(SkyOPLanguage.text("setting.module_status"), SkyOPLanguage.text("setting.toggle_module_list")));
+            default -> List.of(info("Module settings", "This module uses its default configuration"));
         };
     }
 
@@ -495,7 +525,9 @@ public final class SkyOPClickGui extends Screen {
             case ENTITY_ESP -> {
                 if (index == 0) SkyOPClient.espPlayers = !SkyOPClient.espPlayers;
                 if (index == 1) SkyOPClient.espMobs = !SkyOPClient.espMobs;
+                if (index == 2) SkyOPClient.espItems = !SkyOPClient.espItems;
             }
+            case ITEM_ESP -> SkyOPClient.espItems = !SkyOPClient.espItems;
             default -> { }
         }
     }
@@ -516,8 +548,14 @@ public final class SkyOPClickGui extends Screen {
             case AUTO_JUMP -> SkyOPClient.autoJumpDelayTicks = SkyOPClient.clamp((int) Math.round(value), 2, 12);
             case SPIDER -> SkyOPClient.spiderClimbSpeed = round(value, 2);
             case ENTITY_ESP -> {
-                if (index == 2) SkyOPClient.espRange = Math.round(value);
+                if (index == 3) SkyOPClient.espRange = Math.round(value);
             }
+            case ITEM_ESP -> {
+                if (index == 1) SkyOPClient.espRange = Math.round(value);
+            }
+            case AUTO_HUNT -> SkyOPClient.autoHuntRange = round(value, 1);
+            case AUTO_BRIDGE -> SkyOPClient.bridgeDelayTicks = SkyOPClient.clamp((int) Math.round(value), 1, 10);
+            case JUMP_BOOST -> SkyOPClient.jumpBoostMultiplier = round(value, 2);
             case AUTO_EAT -> SkyOPClient.autoEatThreshold = SkyOPClient.clamp((int) Math.round(value), 2, 18);
             case AUTO_REFILL -> SkyOPClient.autoRefillThreshold = SkyOPClient.clamp((int) Math.round(value), 1, 16);
             default -> { }
