@@ -199,8 +199,8 @@ public final class SkyOPModuleManager {
         List<SkyOPSetting<?>> settings = new ArrayList<>();
         settings.add(new KeybindSetting(
                 "keybind." + module.name(),
-                "Keybind",
-                "Keyboard shortcut for this module.",
+                "lang:gui.keybind",
+                "lang:setting.keybind_description",
                 SkyOPCore.moduleKeyCode(module),
                 () -> SkyOPCore.moduleKeyCode(module),
                 value -> SkyOPCore.setModuleKeybind(module, value)
@@ -280,7 +280,7 @@ public final class SkyOPModuleManager {
 
     private static BooleanSetting bool(String id, String titleKey, String descriptionKey,
                                        Supplier<Boolean> getter, Consumer<Boolean> setter) {
-        return new BooleanSetting(id, SkyOPLanguage.text(titleKey), SkyOPLanguage.text(descriptionKey),
+        return new BooleanSetting(id, "lang:" + titleKey, "lang:" + descriptionKey,
                 getter.get(), getter, setter);
     }
 
@@ -288,7 +288,7 @@ public final class SkyOPModuleManager {
                                         Supplier<Double> getter, Consumer<Double> setter) {
         SkyOPSettingsSchema.NumberRule rule = SkyOPSettingsSchema.rule(id);
         if (rule == null) throw new IllegalStateException("Missing numeric schema rule: " + id);
-        return new NumberSetting(id, SkyOPLanguage.text(titleKey), SkyOPLanguage.text(descriptionKey),
+        return new NumberSetting(id, "lang:" + titleKey, "lang:" + descriptionKey,
                 rule, getter, setter);
     }
 }
