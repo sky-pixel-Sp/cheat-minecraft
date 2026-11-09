@@ -35,5 +35,14 @@
   "key.skyop.module.auto_fish": "Auto Fish",
   "key.skyop.module.inventory_cleaner": "Inventory Cleaner",
   "key.skyop.module.hotbar_presets": "Hotbar Presets",
-  "key.skyop.module.profile_manager": "Profile Manager"
+  "key.skyop.module.profile_manager": "Profile Manager",
+  "key.skyop.add_waypoint": "Save SkyOP Waypoint",
+  "key.skyop.module.auto_hunt": "Auto Hunt",
+  "key.skyop.module.auto_bridge": "Auto Bridge",
+  "key.skyop.module.infinite_jump": "Infinite Jump",
+  "key.skyop.module.jump_boost": "Jump Boost",
+  "key.skyop.module.item_esp": "Item ESP",
+  "key.skyop.module.waypoints": "Waypoints",
+  "key.skyop.module.minimap": "Mini Map",
+  "key.skyop.module.night_vision": "Night Vision"
 }
