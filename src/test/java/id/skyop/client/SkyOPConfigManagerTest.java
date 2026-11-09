@@ -65,7 +65,7 @@ class SkyOPConfigManagerTest {
     void refusesToOverwriteAConfigFromANewerVersion() throws Exception {
         Path config = temporaryDirectory.resolve("config/skyop-client.properties");
         Files.createDirectories(config.getParent());
-        String content = "configVersion=99\\nlanguage=en\\n";
+        String content = "configVersion=99" + System.lineSeparator() + "language=en" + System.lineSeparator();
         Files.writeString(config, content);
 
         assertThrows(IOException.class,
