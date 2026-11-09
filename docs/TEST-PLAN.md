@@ -122,6 +122,24 @@ Run these checks in a disposable single-player world before using a private serv
 10. Password EXE: confirm the Windows workflow runs py_compile, builds SkyOP-Password-Generator.exe, and uploads the artifact. Test generation with each character group enabled/disabled, copy, save, and ambiguous-character exclusion.
 11. Disable All: enable all new modules, press F12, and confirm temporary glow/gamma state is restored and movement automation stops.
 
+
+## GUI scale and compact layout acceptance
+
+Run these checks in Minecraft 26.3 at GUI Scale **1, 2, 3 and 4**. Repeat after resizing the game window while ClickGUI remains open.
+
+1. At GUI Scale 4 on a 1920x1080 display (approximately 480x270 GUI units), verify the panel stays fully inside the screen and never forces a 680x450 minimum.
+2. Verify the compact category rail uses six icon buttons (Combat, Movement, Visual, Player, Inventory and Favorites); every icon is clickable and changes the module category.
+3. Verify the module browser uses the available width, two columns when at least 320 GUI units are available, and a single column below that threshold.
+4. Left-click a module to toggle it. Right-click a module to open the inspector overlay; close the overlay with its X control and confirm the module browser remains at the same scroll position.
+5. Open the inspector overlay and test Boolean, Number, Mode, Multi, Color and Keybind settings. Verify each edit updates the live registered setting and persists after restart.
+6. Scroll the module browser and inspector independently. Confirm neither scroll region clips the footer or the category rail.
+7. Verify the compact header exposes the collapsed color swatch and HUD-edit controls. Open the color picker, choose a swatch, enter a custom RGB value, and close it without drawing outside the panel.
+8. Verify compact footer controls for PVE, OP, VISUAL, language switching and Disable All are clickable and do not overlap.
+9. At 854x480 GUI units, verify the regular two-panel layout remains intact, all four panel edges stay on-screen, and the inspector does not overlap the module browser.
+10. At GUI Scale 1 and 2, verify the regular inspector remains visible and its setting rows, special Profile Manager/Hotbar Presets controls, HUD editor and color picker retain their actions.
+11. Resize continuously across the compact/wide breakpoint and verify the layout reflows without a stuck inspector overlay, lost selected module, or negative scroll position.
+12. Capture screenshots for 480x270 and 854x480, and attach the latest.log file to the manual test report.
+
 A green CI build does not replace these in-game checks.
 
 The feature branch CI also runs on branch pushes so every incremental fix is compiled and the unobfuscated distributable is checked.
@@ -145,7 +163,7 @@ The feature branch CI also runs on branch pushes so every incremental fix is com
 14. Verify Profile Manager, Hotbar Presets and Custom HUD pages keep their keybind row visible and retain their existing actions.
 15. Verify all module categories and module titles/descriptions are translated in both dictionaries, with no unresolved translation keys.
 16. Import a profile with invalid numeric values; verify validated values are applied, the pre-import config backup exists, and the client remains responsive.
-14. Switch worlds while the GUI is open, close it, and verify the client retains mouse capture only during active gameplay.
+17. Switch worlds while the GUI is open, close it, and verify the client retains mouse capture only during active gameplay.
 
 CI coverage for Phase 1 includes ConfigManager migration/corruption tests and typed-setting serialization tests. Manual Minecraft checks remain required for lifecycle and in-game behavior.
 

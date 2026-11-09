@@ -221,8 +221,6 @@ public final class SkyOPLanguage {
         put("dependency.inventory_required", "Open the normal player inventory context first.");
         put("dependency.fishing_rod_required", "Hold a fishing rod in your main hand.");
         put("dependency.block_target_required", "Aim at a block first.");
-        put("gui.client_ready", "CLIENT READY");
-        put("gui.favorites", "FAVORITES");
         put("category.inventory", "Inventory");
         put("category.favorites", "Favorites");
         put("module.POTION_HUD.title", "Potion HUD");

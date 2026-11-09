@@ -29,6 +29,8 @@ public final class SkyOPClickGui extends Screen {
     private SkyOPCategory selectedCategory = SkyOPCategory.COMBAT;
     private SkyOPModuleId selectedModule = SkyOPModuleId.KILL_AURA;
     private int panelX, panelY, panelWidth, panelHeight;
+    private SkyOPGuiLayout layout;
+    private boolean inspectorOpen;
     private String searchQuery = "";
     private boolean searchFocused, waitingForKeybind, hudEditMode, draggingHud, colorPickerOpen, editingHudText;
     private boolean editingHudColor;
@@ -51,10 +53,11 @@ public final class SkyOPClickGui extends Screen {
     }
 
     private void calculateLayout() {
-        panelWidth = Math.min(960, Math.max(680, width - 24));
-        panelHeight = Math.min(590, Math.max(450, height - 20));
-        panelX = (width - panelWidth) / 2;
-        panelY = (height - panelHeight) / 2;
+        layout = SkyOPGuiLayout.calculate(width, height);
+        panelX = layout.panelX();
+        panelY = layout.panelY();
+        panelWidth = layout.panelWidth();
+        panelHeight = layout.panelHeight();
     }
 
     private void selectFirstModule() {
@@ -78,7 +81,9 @@ public final class SkyOPClickGui extends Screen {
         drawHeader(graphics, mouseX, mouseY);
         drawSidebar(graphics, mouseX, mouseY);
         drawModuleList(graphics, mouseX, mouseY);
-        drawInspector(graphics, mouseX, mouseY);
+        if (!layout.inspectorOverlay() || inspectorOpen) {
+            drawInspector(graphics, mouseX, mouseY);
+        }
         drawFooter(graphics, mouseX, mouseY);
         drawColorPicker(graphics, mouseX, mouseY);
         drawHudEditorPreview(graphics, mouseX, mouseY);
@@ -92,39 +97,92 @@ public final class SkyOPClickGui extends Screen {
     }
 
     private void drawHeader(GuiGraphicsExtractor g, int mouseX, int mouseY) {
-        g.text(font, Component.literal(SkyOPLanguage.text("gui.brand")), panelX + 20, panelY + 14, ACCENT, true);
-        g.text(font, Component.literal(SkyOPLanguage.text("gui.client")), panelX + 112, panelY + 14, MUTED, true);
-        g.text(font, Component.literal(SkyOPLanguage.text("gui.control_center")), panelX + 20, panelY + 34, TEXT, true);
-        g.text(font, Component.literal(SkyOPLanguage.text("gui.subtitle")), panelX + 210, panelY + 34, MUTED, true);
+        if (layout.compact()) {
+            g.text(font, Component.literal(SkyOPLanguage.text("gui.brand")),
+                    panelX + 10, panelY + 13, ACCENT, true);
+            g.text(font, Component.literal("26.3"),
+                    panelX + 66, panelY + 13, MUTED, true);
 
-        if (panelWidth >= 800) {
-            int colorX = panelX + panelWidth - 378;
-            int hudEditX = panelX + panelWidth - 320;
-            boolean colorHovered = inside(mouseX, mouseY, colorX, panelY + 12, 48, 24);
-            g.fill(colorX, panelY + 12, colorX + 48, panelY + 36, colorHovered ? PANEL_HOVER : PANEL_LIGHT);
-            g.fill(colorX + 16, panelY + 20, colorX + 32, panelY + 28, SkyOPCore.hudAccentColor());
-            boolean editHovered = inside(mouseX, mouseY, hudEditX, panelY + 12, 72, 24);
-            g.fill(hudEditX, panelY + 12, hudEditX + 72, panelY + 36, editHovered || hudEditMode ? 0xFF263D53 : PANEL_LIGHT);
-            g.text(font, Component.literal(SkyOPLanguage.text(hudEditMode ? "gui.hud_edit_on" : "gui.hud_edit")),
-                    hudEditX + 7, panelY + 20, hudEditMode ? GREEN : ACCENT, true);
+            int colorX = layout.colorButtonX();
+            int hudX = layout.hudButtonX();
+            int closeX = layout.closeButtonX();
+            boolean colorHovered = inside(mouseX, mouseY, colorX, panelY + 8, 20, 22);
+            g.fill(colorX, panelY + 8, colorX + 20, panelY + 30,
+                    colorHovered ? PANEL_HOVER : PANEL_LIGHT);
+            g.fill(colorX + 6, panelY + 14, colorX + 14, panelY + 22, SkyOPCore.hudAccentColor());
+
+            boolean hudHovered = inside(mouseX, mouseY, hudX, panelY + 8, 22, 22);
+            g.fill(hudX, panelY + 8, hudX + 22, panelY + 30,
+                    hudHovered || hudEditMode ? 0xFF263D53 : PANEL_LIGHT);
+            g.text(font, Component.literal("H"), hudX + 7, panelY + 15,
+                    hudEditMode ? GREEN : ACCENT, true);
+
+            g.fill(closeX, panelY + 8, closeX + 22, panelY + 30, PANEL_LIGHT);
+            g.text(font, Component.literal("×"), closeX + 8, panelY + 12, TEXT, true);
+            return;
         }
+
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.brand")),
+                panelX + 20, panelY + 14, ACCENT, true);
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.client")),
+                panelX + 112, panelY + 14, MUTED, true);
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.control_center")),
+                panelX + 20, panelY + 34, TEXT, true);
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.subtitle")),
+                panelX + 210, panelY + 34, MUTED, true);
+
+        int colorX = layout.colorButtonX();
+        int hudEditX = layout.hudButtonX();
+        boolean colorHovered = inside(mouseX, mouseY, colorX, panelY + 12, 48, 24);
+        g.fill(colorX, panelY + 12, colorX + 48, panelY + 36,
+                colorHovered ? PANEL_HOVER : PANEL_LIGHT);
+        g.fill(colorX + 16, panelY + 20, colorX + 32, panelY + 28, SkyOPCore.hudAccentColor());
+        boolean editHovered = inside(mouseX, mouseY, hudEditX, panelY + 12, 72, 24);
+        g.fill(hudEditX, panelY + 12, hudEditX + 72, panelY + 36,
+                editHovered || hudEditMode ? 0xFF263D53 : PANEL_LIGHT);
+        g.text(font, Component.literal(SkyOPLanguage.text(hudEditMode ? "gui.hud_edit_on" : "gui.hud_edit")),
+                hudEditX + 7, panelY + 20, hudEditMode ? GREEN : ACCENT, true);
 
         int statusX = panelX + panelWidth - 172;
         g.fill(statusX, panelY + 13, statusX + 104, panelY + 35, PANEL_LIGHT);
         g.fill(statusX + 9, panelY + 21, statusX + 15, panelY + 27, GREEN);
-        g.text(font, Component.literal(SkyOPLanguage.text("gui.ready")), statusX + 21, panelY + 20, TEXT, true);
-        int closeX = panelX + panelWidth - 48;
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.ready")),
+                statusX + 21, panelY + 20, TEXT, true);
+        int closeX = layout.closeButtonX();
         g.fill(closeX, panelY + 12, closeX + 30, panelY + 35, PANEL_LIGHT);
         g.text(font, Component.literal("×"), closeX + 11, panelY + 16, TEXT, true);
     }
 
     private void drawSidebar(GuiGraphicsExtractor g, int mouseX, int mouseY) {
-        int x = panelX + 12, y = panelY + 62, w = 126;
-        g.fill(x, y, x + w, panelY + panelHeight - 48, 0xFF111A27);
-        g.text(font, Component.literal(SkyOPLanguage.text("gui.categories")), x + 10, y + 10, MUTED, true);
+        int x = layout.sidebarX();
+        int y = layout.sidebarY();
+        if (layout.iconSidebar()) {
+            for (int index = 0; index < SkyOPCategory.values().length; index++) {
+                SkyOPCategory category = SkyOPCategory.values()[index];
+                int rowY = layout.categoryRowY(index);
+                int buttonWidth = layout.categoryButtonWidth();
+                int buttonHeight = layout.categoryButtonHeight();
+                boolean selected = category == selectedCategory;
+                boolean hovered = inside(mouseX, mouseY, x, rowY, buttonWidth, buttonHeight);
+                g.fill(x, rowY, x + buttonWidth, rowY + buttonHeight,
+                        selected ? 0xFF263B50 : (hovered ? PANEL_HOVER : 0xFF111A27));
+                if (selected) g.fill(x, rowY, x + 3, rowY + buttonHeight, ACCENT);
+                String icon = category == SkyOPCategory.FAVORITES ? "★"
+                        : category.name().substring(0, 1);
+                int textX = x + (buttonWidth - font.width(icon)) / 2;
+                g.text(font, Component.literal(icon), textX, rowY + 8,
+                        selected ? TEXT : MUTED, true);
+            }
+            return;
+        }
+
+        int w = layout.sidebarWidth();
+        g.fill(x, panelY + 62, x + w, panelY + panelHeight - 48, 0xFF111A27);
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.categories")),
+                x + 10, panelY + 72, MUTED, true);
         int index = 0;
         for (SkyOPCategory category : SkyOPCategory.values()) {
-            int rowY = y + 31 + index * 36;
+            int rowY = layout.categoryRowY(index);
             boolean selected = category == selectedCategory;
             boolean hovered = inside(mouseX, mouseY, x + 5, rowY, w - 10, 30);
             int background = selected ? 0xFF263B50 : (hovered ? PANEL_HOVER : 0xFF111A27);
@@ -139,88 +197,125 @@ public final class SkyOPClickGui extends Screen {
 
         int activeY = panelY + panelHeight - 98;
         g.fill(x + 5, activeY, x + w - 5, activeY + 1, 0xFF2B394A);
-        g.text(font, Component.literal(SkyOPLanguage.text("gui.active_modules")), x + 10, activeY + 12, MUTED, true);
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.active_modules")),
+                x + 10, activeY + 12, MUTED, true);
         g.text(font, Component.literal(Integer.toString(SkyOPCore.enabledModuleCount())),
                 x + 10, activeY + 30, ACCENT, true);
     }
 
     private void drawModuleList(GuiGraphicsExtractor g, int mouseX, int mouseY) {
-        int x = panelX + 151, y = panelY + 63, w = panelWidth - 430;
-        g.text(font, Component.literal(selectedCategory.title().toUpperCase() + " " + SkyOPLanguage.text("gui.modules")),
-                x, y + 8, TEXT, true);
-        int searchY = y + 27;
-        g.fill(x, searchY, x + w, searchY + 22, searchFocused ? 0xFF263D53 : PANEL_LIGHT);
+        int x = layout.contentX();
+        int y = layout.contentY();
+        int w = layout.contentWidth();
+        g.text(font, Component.literal(selectedCategory.title().toUpperCase()
+                        + " " + SkyOPLanguage.text("gui.modules")),
+                x, y + (layout.compact() ? 1 : 8), TEXT, true);
+
+        int searchY = y + (layout.compact() ? 20 : 27);
+        int searchHeight = layout.compact() ? 20 : 22;
+        g.fill(x, searchY, x + w, searchY + searchHeight,
+                searchFocused ? 0xFF263D53 : PANEL_LIGHT);
         g.text(font, Component.literal(searchQuery.isEmpty()
                         ? SkyOPLanguage.text("gui.search") + "  (" + SkyOPLanguage.text("gui.type_to_filter") + ")"
                         : SkyOPLanguage.text("gui.search_prefix") + ": " + searchQuery + (searchFocused ? "|" : "")),
-                x + 8, searchY + 7, searchFocused ? TEXT : MUTED, true);
-        g.text(font, Component.literal(SkyOPLanguage.text("gui.left_toggle_right_inspect")),
-                x, y + 54, MUTED, true);
+                x + 8, searchY + 6, searchFocused ? TEXT : MUTED, true);
+        if (!layout.compact()) {
+            g.text(font, Component.literal(SkyOPLanguage.text("gui.left_toggle_right_inspect")),
+                    x, y + 54, MUTED, true);
+        }
 
         List<SkyOPModuleId> modules = modulesForCategory();
-        int cardWidth = (w - 8) / 2;
-        int listTop = y + 76;
-        int listBottom = panelY + panelHeight - 58;
-        int visibleHeight = Math.max(80, listBottom - listTop);
-        int rowCount = (modules.size() + 1) / 2;
-        int maxScroll = Math.max(0, rowCount * 60 - visibleHeight + 10);
+        int columns = layout.moduleColumns();
+        int cardWidth = layout.moduleCardWidth();
+        int cardHeight = layout.moduleCardHeight();
+        int rowStep = layout.moduleRowStep();
+        int listTop = layout.listTop();
+        int listBottom = Math.max(listTop + 1, layout.listBottom());
+        int visibleHeight = Math.max(1, listBottom - listTop);
+        int rowCount = (modules.size() + columns - 1) / columns;
+        int maxScroll = Math.max(0, rowCount * rowStep - visibleHeight + 8);
         moduleScroll = Math.min(moduleScroll, maxScroll);
         g.enableScissor(x, listTop, x + w, listBottom);
         int index = 0;
         SkyOPModuleId hoveredModule = null;
         for (SkyOPModuleId module : modules) {
-            int col = index % 2;
-            int row = index / 2;
+            int col = index % columns;
+            int row = index / columns;
             int cardX = x + col * (cardWidth + 8);
-            int cardY = listTop + row * 60 - moduleScroll;
+            int cardY = listTop + row * rowStep - moduleScroll;
             boolean enabled = SkyOPCore.isEnabled(module);
             boolean selected = module == selectedModule;
-            boolean hovered = inside(mouseX, mouseY, cardX, cardY, cardWidth, 52);
-            g.fill(cardX, cardY, cardX + cardWidth, cardY + 52,
+            boolean hovered = inside(mouseX, mouseY, cardX, cardY, cardWidth, cardHeight);
+            g.fill(cardX, cardY, cardX + cardWidth, cardY + cardHeight,
                     selected ? 0xFF263D53 : (hovered ? PANEL_HOVER : PANEL_LIGHT));
-            if (selected) g.fill(cardX, cardY, cardX + 3, cardY + 52, ACCENT);
-            g.text(font, Component.literal(trim(module.title(), 19)),
-                    cardX + 10, cardY + 8, TEXT, true);
-            g.text(font, Component.literal(trim(module.description(), 24)),
-                    cardX + 10, cardY + 25, MUTED, true);
+            if (selected) g.fill(cardX, cardY, cardX + 3, cardY + cardHeight, ACCENT);
 
-            int favoriteX = cardX + cardWidth - 74;
+            int favoriteX = cardX + cardWidth - (layout.compact() ? 58 : 74);
+            int pillX = cardX + cardWidth - 46;
+            int titleMax = Math.max(8, (cardWidth - (layout.compact() ? 76 : 96)) / 6);
+            int descriptionMax = Math.max(8, (cardWidth - 24) / 5);
+            g.text(font, Component.literal(trim(module.title(), titleMax)),
+                    cardX + 9, cardY + 6, TEXT, true);
+            g.text(font, Component.literal(trim(module.description(), descriptionMax)),
+                    cardX + 9, cardY + (layout.compact() ? 21 : 25), MUTED, true);
             g.text(font, Component.literal(SkyOPCore.isFavorite(module) ? "★" : "☆"),
-                    favoriteX, cardY + 8, SkyOPCore.isFavorite(module) ? 0xFFFFC85A : MUTED, true);
-            int pillX = cardX + cardWidth - 48;
-            g.fill(pillX, cardY + 15, pillX + 40, cardY + 36,
+                    favoriteX, cardY + 6, SkyOPCore.isFavorite(module) ? 0xFFFFC85A : MUTED, true);
+            g.fill(pillX, cardY + 13, pillX + 38, cardY + 32,
                     enabled ? 0xFF174633 : 0xFF3B2631);
             g.text(font, Component.literal(enabled ? SkyOPLanguage.text("gui.on") : SkyOPLanguage.text("gui.off")),
-                    pillX + 10, cardY + 22, enabled ? GREEN : RED, true);
+                    pillX + 7, cardY + 19, enabled ? GREEN : RED, true);
+
             if (hovered) hoveredModule = module;
             index++;
         }
         g.disableScissor();
         if (modules.isEmpty()) {
-            g.text(font, Component.literal(SkyOPLanguage.text("gui.no_matching_modules")), x + 8, listTop + 12, MUTED, true);
+            g.text(font, Component.literal(SkyOPLanguage.text("gui.no_matching_modules")),
+                    x + 8, listTop + 12, MUTED, true);
         }
-        if (hoveredModule != null) {
+        if (hoveredModule != null && !layout.compact()) {
             int alpha = 190 + (int) (40 * Math.sin(animationTicks * 0.18));
             int tooltipColor = (Math.min(255, alpha) << 24) | 0x00101726;
             g.fill(x, listBottom + 2, x + w, listBottom + 28, tooltipColor);
-            g.text(font, Component.literal(hoveredModule.description()), x + 7, listBottom + 10, TEXT, true);
+            g.text(font, Component.literal(hoveredModule.description()),
+                    x + 7, listBottom + 10, TEXT, true);
         }
     }
 
     private void drawInspector(GuiGraphicsExtractor g, int mouseX, int mouseY) {
-        int x = panelX + panelWidth - 263, y = panelY + 63, w = 248, h = panelHeight - 121;
+        int x = layout.inspectorX();
+        int y = layout.inspectorY();
+        int w = layout.inspectorWidth();
+        int h = layout.inspectorHeight();
         g.fill(x, y, x + w, y + h, 0xFF111A27);
-        g.text(font, Component.literal(SkyOPLanguage.text("gui.inspector")), x + 12, y + 10, MUTED, true);
+
+        if (layout.compact()) {
+            g.fill(x, y, x + w, y + 25, 0xFF182538);
+            g.text(font, Component.literal(SkyOPLanguage.text("gui.inspector")),
+                    x + 8, y + 8, MUTED, true);
+            int closeX = x + w - 23;
+            g.fill(closeX, y + 3, closeX + 19, y + 22, PANEL_LIGHT);
+            g.text(font, Component.literal("×"), closeX + 7, y + 7, TEXT, true);
+        } else {
+            g.text(font, Component.literal(SkyOPLanguage.text("gui.inspector")),
+                    x + 12, y + 10, MUTED, true);
+        }
+
         if (selectedModule == null) {
-            g.text(font, Component.literal(SkyOPLanguage.text("gui.select_module")), x + 12, y + 42, TEXT, true);
+            g.text(font, Component.literal(SkyOPLanguage.text("gui.select_module")),
+                    x + 12, y + 42, TEXT, true);
             return;
         }
 
         boolean enabled = SkyOPCore.isEnabled(selectedModule);
-        g.text(font, Component.literal(selectedModule.title()), x + 12, y + 31, TEXT, true);
-        g.text(font, Component.literal(enabled ? "● " + SkyOPLanguage.text("gui.enabled") : "○ " + SkyOPLanguage.text("gui.disabled")),
-                x + 12, y + 47, enabled ? GREEN : MUTED, true);
-        g.fill(x + 12, y + 66, x + w - 12, y + 67, 0xFF2B394A);
+        int titleY = layout.compact() ? y + 31 : y + 31;
+        g.text(font, Component.literal(trim(selectedModule.title(), Math.max(8, (w - 110) / 6))),
+                x + 12, titleY, TEXT, true);
+        g.text(font, Component.literal(enabled ? "● " + SkyOPLanguage.text("gui.enabled")
+                        : "○ " + SkyOPLanguage.text("gui.disabled")),
+                x + 12, titleY + 16, enabled ? GREEN : MUTED, true);
+        int separatorY = layout.compact() ? y + 59 : y + 66;
+        g.fill(x + 12, separatorY, x + w - 12, separatorY + 1, 0xFF2B394A);
 
         if (selectedModule == SkyOPModuleId.PROFILE_MANAGER) {
             drawKeybindSetting(g, x, y);
@@ -234,61 +329,71 @@ public final class SkyOPClickGui extends Screen {
         }
         if (selectedModule == SkyOPModuleId.TEXT_GUI) {
             drawKeybindSetting(g, x, y);
-            g.text(font, Component.literal(editingHudText ? SkyOPLanguage.text("gui.edit_text") + ": " + SkyOPState.customHudText + "|" : SkyOPLanguage.text("gui.custom_hud_text")),
-                    x + 12, y + 125, editingHudText ? 0xFFFFC85A : TEXT, true);
+            int textY = layout.compact() ? y + 104 : y + 125;
+            g.text(font, Component.literal(editingHudText
+                            ? SkyOPLanguage.text("gui.edit_text") + ": " + SkyOPState.customHudText + "|"
+                            : SkyOPLanguage.text("gui.custom_hud_text")),
+                    x + 12, textY, editingHudText ? 0xFFFFC85A : TEXT, true);
             g.text(font, Component.literal(SkyOPLanguage.text("gui.edit_text_help")),
-                    x + 12, y + 145, MUTED, true);
+                    x + 12, textY + 18, MUTED, true);
             return;
         }
 
         List<SkyOPSetting<?>> settings = visibleSettings(selectedModule);
-        int rowY = y + 72 - settingsScroll * 42;
-        int settingsBottom = y + h - 8;
-        g.enableScissor(x + 8, y + 70, x + w - 8, settingsBottom);
+        int rowStep = layout.settingRowStep();
+        int settingsTop = layout.settingsTopOffset();
+        int rowY = y + settingsTop - settingsScroll * rowStep;
+        int settingsBottom = Math.max(y + settingsTop + 1, y + h - 7);
+        g.enableScissor(x + 8, y + settingsTop, x + w - 8, settingsBottom);
         for (SkyOPSetting<?> setting : settings) {
-            int rowH = 39;
+            int rowH = layout.compact() ? 33 : 39;
             boolean hovered = inside(mouseX, mouseY, x + 8, rowY, w - 16, rowH);
             g.fill(x + 8, rowY, x + w - 8, rowY + rowH - 2,
                     hovered ? PANEL_HOVER : PANEL_LIGHT);
-            g.text(font, Component.literal(trim(setting.title(), 20)),
-                    x + 15, rowY + 5, TEXT, true);
+            g.text(font, Component.literal(trim(setting.title(), Math.max(8, (w - 106) / 6))),
+                    x + 15, rowY + 4, TEXT, true);
             g.text(font, Component.literal(trim(settingValue(setting), 15)),
-                    x + w - 80, rowY + 5, settingValueColor(setting), true);
-            g.text(font, Component.literal(trim(setting.description(), 31)),
-                    x + 15, rowY + 19, MUTED, true);
+                    x + w - 80, rowY + 4, settingValueColor(setting), true);
+            g.text(font, Component.literal(trim(setting.description(), Math.max(8, (w - 24) / 5))),
+                    x + 15, rowY + 17, MUTED, true);
 
             if (setting instanceof NumberSetting number) {
-                int trackX = x + 15, trackY = rowY + 32, trackW = w - 30;
+                int trackX = x + 15;
+                int trackY = rowY + (layout.compact() ? 28 : 32);
+                int trackW = Math.max(20, w - 30);
                 g.fill(trackX, trackY, trackX + trackW, trackY + 3, 0xFF36465A);
-                double fraction = (number.value() - number.minimum()) /
-                        (number.maximum() - number.minimum());
+                double range = number.maximum() - number.minimum();
+                double fraction = range == 0.0 ? 0.0 : (number.value() - number.minimum()) / range;
                 int fillW = (int) (trackW * Math.max(0.0, Math.min(1.0, fraction)));
                 g.fill(trackX, trackY, trackX + fillW, trackY + 3, ACCENT);
             } else if (setting instanceof MultiSetting multi) {
                 int chipX = x + 15;
                 for (String option : multi.options().stream().sorted().toList()) {
-                    boolean selected = multi.value().contains(option);
-                    int chipWidth = 64;
-                    g.fill(chipX, rowY + 29, chipX + chipWidth - 3, rowY + 38,
-                            selected ? 0xFF285B70 : 0xFF36465A);
-                    g.text(font, Component.literal(trim(option, 8)), chipX + 3, rowY + 29,
-                            selected ? TEXT : MUTED, false);
+                    boolean chosen = multi.value().contains(option);
+                    int chipWidth = layout.compact() ? 54 : 64;
+                    int chipY = rowY + (layout.compact() ? 25 : 29);
+                    g.fill(chipX, chipY, chipX + chipWidth - 3, chipY + 8,
+                            chosen ? 0xFF285B70 : 0xFF36465A);
+                    g.text(font, Component.literal(trim(option, 7)), chipX + 3, chipY,
+                            chosen ? TEXT : MUTED, false);
                     chipX += chipWidth;
                     if (chipX > x + w - 60) break;
                 }
             } else if (setting instanceof ColorSetting color) {
-                g.fill(x + w - 22, rowY + 20, x + w - 12, rowY + 30, color.value());
+                g.fill(x + w - 22, rowY + 19, x + w - 12, rowY + 29, color.value());
             }
-            rowY += 42;
+            rowY += rowStep;
         }
         g.disableScissor();
 
         if (settings.isEmpty()) {
-            g.text(font, Component.literal(SkyOPLanguage.text("gui.no_extra_settings")), x + 12, y + 130, MUTED, true);
-            g.text(font, Component.literal(selectedModule.description()), x + 12, y + 148, TEXT, true);
+            g.text(font, Component.literal(SkyOPLanguage.text("gui.no_extra_settings")),
+                    x + 12, y + settingsTop + 12, MUTED, true);
+            g.text(font, Component.literal(selectedModule.description()),
+                    x + 12, y + settingsTop + 30, TEXT, true);
         }
         String missing = SkyOPModuleDependencies.missingRequirement(Minecraft.getInstance(), selectedModule);
-        if (!missing.isEmpty()) {
+        if (!missing.isEmpty() && !layout.compact()) {
             g.text(font, Component.literal(trim(SkyOPLanguage.text("gui.requires") + ": " + missing, 32)),
                     x + 12, y + h - 18, 0xFFFFC85A, true);
         }
@@ -298,15 +403,37 @@ public final class SkyOPClickGui extends Screen {
         SkyOPSetting<?> setting = visibleSettings(selectedModule).stream()
                 .filter(KeybindSetting.class::isInstance).findFirst().orElse(null);
         if (setting == null) return;
-        int keyY = y + 72;
-        g.fill(x + 8, keyY, x + 240, keyY + 23, waitingForKeybind ? 0xFF263D53 : PANEL_LIGHT);
+        int keyY = y + (layout.compact() ? 65 : 72);
+        int right = x + layout.inspectorWidth() - 8;
+        g.fill(x + 8, keyY, right, keyY + 22,
+                waitingForKeybind ? 0xFF263D53 : PANEL_LIGHT);
         g.text(font, Component.literal(SkyOPLanguage.text("gui.keybind") + "  "
                         + trim(settingValue(setting), 20)),
-                x + 15, keyY + 8, waitingForKeybind ? 0xFFFFC85A : ACCENT, true);
+                x + 15, keyY + 7, waitingForKeybind ? 0xFFFFC85A : ACCENT, true);
     }
 
     private void drawProfileControls(GuiGraphicsExtractor g, int mouseX, int mouseY, int x, int y) {
-        g.text(font, Component.literal(SkyOPLanguage.text("gui.configuration_profiles")), x + 12, y + 112, TEXT, true);
+        if (layout.compact()) {
+            int left = x + 8;
+            int gap = 3;
+            int half = Math.max(1, (layout.inspectorWidth() - 27) / 2);
+            int top = y + 94;
+            for (int slot = 1; slot <= 3; slot++) {
+                int rowY = top + (slot - 1) * 19;
+                drawCompactControl(g, mouseX, mouseY, left, rowY, half,
+                        SkyOPLanguage.text("gui.save") + slot);
+                drawCompactControl(g, mouseX, mouseY, left + half + gap, rowY, half,
+                        SkyOPLanguage.text("gui.load") + slot);
+            }
+            int third = Math.max(1, (layout.inspectorWidth() - 34) / 3);
+            int rowY = top + 57;
+            drawCompactControl(g, mouseX, mouseY, left, rowY, third, "Export");
+            drawCompactControl(g, mouseX, mouseY, left + third + gap, rowY, third, "Import");
+            drawCompactControl(g, mouseX, mouseY, left + (third + gap) * 2, rowY, third, "Backup");
+            return;
+        }
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.configuration_profiles")),
+                x + 12, y + 112, TEXT, true);
         drawControl(g, mouseX, mouseY, x + 12, y + 138, 66, SkyOPLanguage.text("gui.save") + " 1");
         drawControl(g, mouseX, mouseY, x + 84, y + 138, 66, SkyOPLanguage.text("gui.load") + " 1");
         drawControl(g, mouseX, mouseY, x + 12, y + 168, 66, SkyOPLanguage.text("gui.save") + " 2");
@@ -319,12 +446,34 @@ public final class SkyOPClickGui extends Screen {
     }
 
     private void drawHotbarControls(GuiGraphicsExtractor g, int mouseX, int mouseY, int x, int y) {
-        g.text(font, Component.literal(SkyOPLanguage.text("gui.hotbar_layout_slots")), x + 12, y + 112, TEXT, true);
+        if (layout.compact()) {
+            int left = x + 8;
+            int gap = 4;
+            int half = Math.max(1, (layout.inspectorWidth() - 28) / 2);
+            for (int slot = 1; slot <= 3; slot++) {
+                int rowY = y + 94 + (slot - 1) * 21;
+                drawCompactControl(g, mouseX, mouseY, left, rowY, half,
+                        SkyOPLanguage.text("gui.save_hotbar") + " " + slot);
+                drawCompactControl(g, mouseX, mouseY, left + half + gap, rowY, half,
+                        SkyOPLanguage.text("gui.load_hotbar") + " " + slot);
+            }
+            return;
+        }
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.hotbar_layout_slots")),
+                x + 12, y + 112, TEXT, true);
         for (int slot = 1; slot <= 3; slot++) {
             int rowY = y + 140 + (slot - 1) * 34;
             drawControl(g, mouseX, mouseY, x + 12, rowY, 100, SkyOPLanguage.text("gui.save_hotbar") + " " + slot);
             drawControl(g, mouseX, mouseY, x + 118, rowY, 100, SkyOPLanguage.text("gui.load_hotbar") + " " + slot);
         }
+    }
+
+    private void drawCompactControl(GuiGraphicsExtractor g, int mouseX, int mouseY,
+                                    int x, int y, int w, String label) {
+        boolean hovered = inside(mouseX, mouseY, x, y, w, 17);
+        g.fill(x, y, x + w, y + 17, hovered ? 0xFF314C65 : PANEL_LIGHT);
+        g.text(font, Component.literal(trim(label, Math.max(4, w / 6))),
+                x + 4, y + 5, hovered ? TEXT : ACCENT, true);
     }
 
     private void drawControl(GuiGraphicsExtractor g, int mouseX, int mouseY,
@@ -335,28 +484,54 @@ public final class SkyOPClickGui extends Screen {
     }
 
     private void drawFooter(GuiGraphicsExtractor g, int mouseX, int mouseY) {
-        int y = panelY + panelHeight - 38;
-        g.fill(panelX + 12, y, panelX + panelWidth - 12, y + 1, 0xFF2B394A);
-        g.text(font, Component.literal(SkyOPLanguage.text("gui.quick_profiles")), panelX + 20, y + 15, MUTED, true);
+        int y = layout.footerY();
+        g.fill(panelX + 8, y, panelX + panelWidth - 8, y + 1, 0xFF2B394A);
 
+        if (layout.compact()) {
+            drawProfileButton(g, mouseX, mouseY, panelX + 10, y + 6, 27, "PVE");
+            drawProfileButton(g, mouseX, mouseY, panelX + 41, y + 6, 27, "OP");
+            drawProfileButton(g, mouseX, mouseY, panelX + 72, y + 6, 39, "VIS");
+            int languageX = panelX + 122;
+            boolean languageHovered = inside(mouseX, mouseY, languageX, y + 6, 82, 20);
+            g.fill(languageX, y + 6, languageX + 82, y + 26,
+                    languageHovered ? 0xFF314C65 : PANEL_LIGHT);
+            String languageCode = SkyOPLanguage.current().code().toUpperCase(java.util.Locale.ROOT);
+            g.text(font, Component.literal(languageCode), languageX + 34, y + 12,
+                    languageHovered ? TEXT : ACCENT, true);
+
+            int disableX = panelX + panelWidth - 98;
+            boolean hovered = inside(mouseX, mouseY, disableX, y + 6, 90, 20);
+            g.fill(disableX, y + 6, disableX + 90, y + 26,
+                    hovered ? 0xFF693542 : 0xFF482B35);
+            g.text(font, Component.literal(trim(SkyOPLanguage.text("gui.disable_all"), 12)),
+                    disableX + 7, y + 12, 0xFFFFB8C0, true);
+            return;
+        }
+
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.quick_profiles")),
+                panelX + 20, y + 15, MUTED, true);
         drawProfileButton(g, mouseX, mouseY, panelX + 130, y + 7, 48, "PVE");
         drawProfileButton(g, mouseX, mouseY, panelX + 184, y + 7, 48, "OP");
         drawProfileButton(g, mouseX, mouseY, panelX + 238, y + 7, 66, "VISUAL");
 
         int languageX = panelX + 320;
         boolean languageHovered = inside(mouseX, mouseY, languageX, y + 7, 150, 24);
-        g.fill(languageX, y + 7, languageX + 150, y + 31, languageHovered ? 0xFF314C65 : PANEL_LIGHT);
+        g.fill(languageX, y + 7, languageX + 150, y + 31,
+                languageHovered ? 0xFF314C65 : PANEL_LIGHT);
         String languageLabel = SkyOPLanguage.text("gui.language") + ": " + SkyOPLanguage.current().displayName();
-        g.text(font, Component.literal(trim(languageLabel, 24)), languageX + 9, y + 15, languageHovered ? TEXT : ACCENT, true);
+        g.text(font, Component.literal(trim(languageLabel, 24)),
+                languageX + 9, y + 15, languageHovered ? TEXT : ACCENT, true);
 
         int bx = panelX + panelWidth - 144;
         boolean hovered = inside(mouseX, mouseY, bx, y + 7, 124, 24);
         g.fill(bx, y + 7, bx + 124, y + 31, hovered ? 0xFF693542 : 0xFF482B35);
-        g.text(font, Component.literal(SkyOPLanguage.text("gui.disable_all")), bx + 18, y + 15, 0xFFFFB8C0, true);
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.disable_all")),
+                bx + 18, y + 15, 0xFFFFB8C0, true);
         if (!profileStatus.isEmpty() && profileStatusTicks > 0) {
             int alpha = 190 + (int) (35 * Math.sin(animationTicks * 0.25));
             int color = (Math.min(255, alpha) << 24) | 0x00FFFFFF;
-            g.text(font, Component.literal(trim(profileStatus, 30)), panelX + 410, y + 15, color, true);
+            g.text(font, Component.literal(trim(profileStatus, 30)),
+                    panelX + 410, y + 15, color, true);
         }
     }
 
@@ -464,141 +639,210 @@ public final class SkyOPClickGui extends Screen {
         double mouseX = event.x();
         double mouseY = event.y();
         int button = event.input();
-        int mx = (int) mouseX, my = (int) mouseY;
+        int mx = (int) mouseX;
+        int my = (int) mouseY;
 
-        int closeX = panelX + panelWidth - 48;
-        if (button == InputConstants.MOUSE_BUTTON_LEFT && inside(mx, my, closeX, panelY + 12, 30, 23)) {
+        int closeX = layout.closeButtonX();
+        int closeY = panelY + (layout.compact() ? 8 : 12);
+        if (button == InputConstants.MOUSE_BUTTON_LEFT
+                && inside(mx, my, closeX, closeY, layout.compact() ? 22 : 30, layout.compact() ? 22 : 23)) {
             onClose();
             return true;
         }
 
-        int footerY = panelY + panelHeight - 38;
         if (button == InputConstants.MOUSE_BUTTON_LEFT) {
-            if (panelWidth >= 800) {
-                int colorX = panelX + panelWidth - 378;
-                int editX = panelX + panelWidth - 320;
-                if (inside(mx, my, colorX, panelY + 12, 48, 24)) {
-                    colorPickerOpen = !colorPickerOpen;
-                    editingHudColor = false;
-                    hexColorInput = SkyOPColorCodec.formatRgb(SkyOPCore.hudAccentColor());
-                    return true;
-                }
-                if (inside(mx, my, editX, panelY + 12, 72, 24)) {
-                    hudEditMode = !hudEditMode;
-                    draggingHud = false;
-                    draggingHudModule = null;
-                    return true;
-                }
-            }
-            if (colorPickerOpen && handleColorPickerClick(mx, my)) return true;
-            if (hudEditMode) {
-                HudPreview preview = hudPreviewAt(mx, my);
-                if (preview != null) {
-                    draggingHud = true;
-                    draggingHudModule = preview.module();
-                    hudDragOffsetX = mx - preview.x();
-                    hudDragOffsetY = my - preview.y();
-                    return true;
-                }
-            }
-            int languageX = panelX + 320;
-            if (inside(mx, my, languageX, footerY + 7, 150, 24)) {
-                SkyOPCore.cycleLanguage();
+            int colorX = layout.colorButtonX();
+            int hudX = layout.hudButtonX();
+            int headerY = panelY + (layout.compact() ? 8 : 12);
+            if (inside(mx, my, colorX, headerY, layout.compact() ? 20 : 48, layout.compact() ? 22 : 24)) {
+                colorPickerOpen = !colorPickerOpen;
+                editingHudColor = false;
+                hexColorInput = SkyOPColorCodec.formatRgb(SkyOPCore.hudAccentColor());
                 return true;
             }
-            int presetY = footerY + 7;
-            if (inside(mx, my, panelX + 130, presetY, 48, 24)) {
-                SkyOPCore.applyPreset(Minecraft.getInstance(), SkyOPPreset.PVE);
-                return true;
-            }
-            if (inside(mx, my, panelX + 184, presetY, 48, 24)) {
-                SkyOPCore.applyPreset(Minecraft.getInstance(), SkyOPPreset.OP);
-                return true;
-            }
-            if (inside(mx, my, panelX + 238, presetY, 66, 24)) {
-                SkyOPCore.applyPreset(Minecraft.getInstance(), SkyOPPreset.VISUAL);
-                return true;
-            }
-
-            int disableX = panelX + panelWidth - 144;
-            if (inside(mx, my, disableX, footerY + 7, 124, 24)) {
-                SkyOPCore.disableAll(Minecraft.getInstance());
+            if (inside(mx, my, hudX, headerY, layout.compact() ? 22 : 72, layout.compact() ? 22 : 24)) {
+                hudEditMode = !hudEditMode;
+                draggingHud = false;
+                draggingHudModule = null;
                 return true;
             }
         }
 
-        int moduleX = panelX + 151;
-        int moduleTop = panelY + 139;
-        int moduleWidth = panelWidth - 430;
-        int cardWidth = (moduleWidth - 8) / 2;
-        int searchX = moduleX, searchY = panelY + 90;
-        if (button == InputConstants.MOUSE_BUTTON_LEFT && inside(mx, my, searchX, searchY, moduleWidth, 22)) {
+        if (colorPickerOpen && handleColorPickerClick(mx, my)) return true;
+        if (hudEditMode) {
+            HudPreview preview = hudPreviewAt(mx, my);
+            if (preview != null) {
+                draggingHud = true;
+                draggingHudModule = preview.module();
+                hudDragOffsetX = mx - preview.x();
+                hudDragOffsetY = my - preview.y();
+                return true;
+            }
+        }
+
+        int footerY = layout.footerY();
+        if (button == InputConstants.MOUSE_BUTTON_LEFT) {
+            if (layout.compact()) {
+                if (inside(mx, my, panelX + 10, footerY + 6, 27, 20)) {
+                    SkyOPCore.applyPreset(Minecraft.getInstance(), SkyOPPreset.PVE);
+                    return true;
+                }
+                if (inside(mx, my, panelX + 41, footerY + 6, 27, 20)) {
+                    SkyOPCore.applyPreset(Minecraft.getInstance(), SkyOPPreset.OP);
+                    return true;
+                }
+                if (inside(mx, my, panelX + 72, footerY + 6, 39, 20)) {
+                    SkyOPCore.applyPreset(Minecraft.getInstance(), SkyOPPreset.VISUAL);
+                    return true;
+                }
+                if (inside(mx, my, panelX + 122, footerY + 6, 82, 20)) {
+                    SkyOPCore.cycleLanguage();
+                    return true;
+                }
+                int disableX = panelX + panelWidth - 98;
+                if (inside(mx, my, disableX, footerY + 6, 90, 20)) {
+                    SkyOPCore.disableAll(Minecraft.getInstance());
+                    return true;
+                }
+            } else {
+                int languageX = panelX + 320;
+                if (inside(mx, my, languageX, footerY + 7, 150, 24)) {
+                    SkyOPCore.cycleLanguage();
+                    return true;
+                }
+                if (inside(mx, my, panelX + 130, footerY + 7, 48, 24)) {
+                    SkyOPCore.applyPreset(Minecraft.getInstance(), SkyOPPreset.PVE);
+                    return true;
+                }
+                if (inside(mx, my, panelX + 184, footerY + 7, 48, 24)) {
+                    SkyOPCore.applyPreset(Minecraft.getInstance(), SkyOPPreset.OP);
+                    return true;
+                }
+                if (inside(mx, my, panelX + 238, footerY + 7, 66, 24)) {
+                    SkyOPCore.applyPreset(Minecraft.getInstance(), SkyOPPreset.VISUAL);
+                    return true;
+                }
+                int disableX = panelX + panelWidth - 144;
+                if (inside(mx, my, disableX, footerY + 7, 124, 24)) {
+                    SkyOPCore.disableAll(Minecraft.getInstance());
+                    return true;
+                }
+            }
+        }
+
+        if (layout.inspectorOverlay() && inspectorOpen && button == InputConstants.MOUSE_BUTTON_LEFT) {
+            int inspectorCloseX = layout.inspectorX() + layout.inspectorWidth() - 23;
+            if (inside(mx, my, inspectorCloseX, layout.inspectorY() + 3, 19, 19)) {
+                inspectorOpen = false;
+                editingHudText = false;
+                waitingForKeybind = false;
+                return true;
+            }
+        }
+
+        if (button == InputConstants.MOUSE_BUTTON_LEFT) {
+            for (int index = 0; index < SkyOPCategory.values().length; index++) {
+                int categoryX = layout.sidebarX();
+                int categoryY = layout.categoryRowY(index);
+                if (inside(mx, my, categoryX, categoryY,
+                        layout.categoryButtonWidth(), layout.categoryButtonHeight())) {
+                    selectedCategory = SkyOPCategory.values()[index];
+                    selectFirstModule();
+                    moduleScroll = 0;
+                    settingsScroll = 0;
+                    inspectorOpen = false;
+                    return true;
+                }
+            }
+        }
+
+        int moduleX = layout.contentX();
+        int searchY = layout.contentY() + (layout.compact() ? 20 : 27);
+        int moduleWidth = layout.contentWidth();
+        if (button == InputConstants.MOUSE_BUTTON_LEFT
+                && inside(mx, my, moduleX, searchY, moduleWidth, layout.compact() ? 20 : 22)) {
             searchFocused = true;
             return true;
         }
         searchFocused = false;
 
-        int navX = panelX + 17, navY = panelY + 93, navIndex = 0;
-        for (SkyOPCategory category : SkyOPCategory.values()) {
-            int rowY = navY + navIndex * 36;
-            if (button == InputConstants.MOUSE_BUTTON_LEFT && inside(mx, my, navX, rowY, 116, 30)) {
-                selectedCategory = category;
-                selectFirstModule();
-                return true;
-            }
-            navIndex++;
-        }
-
+        int columns = layout.moduleColumns();
+        int cardWidth = layout.moduleCardWidth();
+        int cardHeight = layout.moduleCardHeight();
+        int rowStep = layout.moduleRowStep();
+        int moduleTop = layout.listTop();
         int moduleIndex = 0;
         for (SkyOPModuleId module : modulesForCategory()) {
-            int col = moduleIndex % 2;
-            int row = moduleIndex / 2;
+            int col = moduleIndex % columns;
+            int row = moduleIndex / columns;
             int cardX = moduleX + col * (cardWidth + 8);
-            int cardY = moduleTop + row * 60 - moduleScroll;
-            int favoriteX = cardX + cardWidth - 74;
+            int cardY = moduleTop + row * rowStep - moduleScroll;
+            int favoriteX = cardX + cardWidth - (layout.compact() ? 58 : 74);
             if (button == InputConstants.MOUSE_BUTTON_LEFT
                     && inside(mx, my, favoriteX, cardY + 3, 18, 18)) {
                 SkyOPCore.toggleFavorite(module);
                 return true;
             }
-            if (inside(mx, my, cardX, cardY, cardWidth, 52)) {
+            if (inside(mx, my, cardX, cardY, cardWidth, cardHeight)) {
                 selectedModule = module;
                 settingsScroll = 0;
+                if (button == InputConstants.MOUSE_BUTTON_RIGHT) {
+                    inspectorOpen = true;
+                    return true;
+                }
                 if (button == InputConstants.MOUSE_BUTTON_LEFT) {
                     SkyOPCore.toggle(Minecraft.getInstance(), module);
-                } else if (button != InputConstants.MOUSE_BUTTON_RIGHT) {
-                    return super.mouseClicked(event, doubleClick);
+                    return true;
                 }
-                return true;
             }
             moduleIndex++;
         }
 
-        if (selectedModule != null && button == InputConstants.MOUSE_BUTTON_LEFT) {
-            int inspectorX = panelX + panelWidth - 263;
-            int inspectorY = panelY + 63;
+        if ((layout.inspectorOverlay() && inspectorOpen || !layout.inspectorOverlay())
+                && selectedModule != null && button == InputConstants.MOUSE_BUTTON_LEFT) {
+            int inspectorX = layout.inspectorX();
+            int inspectorY = layout.inspectorY();
+            int inspectorW = layout.inspectorWidth();
 
             if (selectedModule == SkyOPModuleId.TEXT_GUI
-                    && inside(mx, my, inspectorX + 8, inspectorY + 115, 232, 40)) {
+                    && inside(mx, my, inspectorX + 8, inspectorY + (layout.compact() ? 100 : 115),
+                    inspectorW - 16, 30)) {
                 editingHudText = true;
                 return true;
             }
 
             if (selectedModule == SkyOPModuleId.PROFILE_MANAGER) {
-                int localX = mx - (inspectorX + 12);
-                int localY = my - (inspectorY + 138);
-                int row = localY >= 0 ? localY / 30 : -1;
+                int localX = mx - (inspectorX + 8);
+                int localY = my - (inspectorY + (layout.compact() ? 94 : 138));
                 try {
-                    if (row == 0 && localX >= 0 && localX < 66) SkyOPProfileManager.saveSlot(1);
-                    else if (row == 0 && localX >= 72 && localX < 150) SkyOPProfileManager.loadSlot(1);
-                    else if (row == 1 && localX >= 0 && localX < 66) SkyOPProfileManager.saveSlot(2);
-                    else if (row == 1 && localX >= 72 && localX < 150) SkyOPProfileManager.loadSlot(2);
-                    else if (row == 2 && localX >= 0 && localX < 66) SkyOPProfileManager.saveSlot(3);
-                    else if (row == 2 && localX >= 72 && localX < 150) SkyOPProfileManager.loadSlot(3);
-                    else if (inside(mx, my, inspectorX + 12, inspectorY + 234, 100, 23)) SkyOPProfileManager.exportCurrent();
-                    else if (inside(mx, my, inspectorX + 118, inspectorY + 234, 100, 23)) SkyOPProfileManager.importProfile();
-                    else if (inside(mx, my, inspectorX + 12, inspectorY + 264, 100, 23)) SkyOPProfileManager.backupCurrent();
-                    else return super.mouseClicked(event, doubleClick);
+                    if (layout.compact()) {
+                        int half = Math.max(1, (inspectorW - 27) / 2);
+                        int row = localY >= 0 ? localY / 19 : -1;
+                        if (row >= 0 && row < 3) {
+                            if (localX >= 0 && localX < half) SkyOPProfileManager.saveSlot(row + 1);
+                            else if (localX >= half + 3 && localX < half * 2 + 3) SkyOPProfileManager.loadSlot(row + 1);
+                            else return super.mouseClicked(event, doubleClick);
+                        } else if (row == 3) {
+                            int third = Math.max(1, (inspectorW - 34) / 3);
+                            if (localX >= 0 && localX < third) SkyOPProfileManager.exportCurrent();
+                            else if (localX >= third + 3 && localX < (third + 3) * 2) SkyOPProfileManager.importProfile();
+                            else if (localX >= (third + 3) * 2) SkyOPProfileManager.backupCurrent();
+                            else return super.mouseClicked(event, doubleClick);
+                        } else return super.mouseClicked(event, doubleClick);
+                    } else {
+                        int localYWide = my - (inspectorY + 138);
+                        int row = localYWide >= 0 ? localYWide / 30 : -1;
+                        if (row == 0 && localX >= 0 && localX < 66) SkyOPProfileManager.saveSlot(1);
+                        else if (row == 0 && localX >= 72 && localX < 150) SkyOPProfileManager.loadSlot(1);
+                        else if (row == 1 && localX >= 0 && localX < 66) SkyOPProfileManager.saveSlot(2);
+                        else if (row == 1 && localX >= 72 && localX < 150) SkyOPProfileManager.loadSlot(2);
+                        else if (row == 2 && localX >= 0 && localX < 66) SkyOPProfileManager.saveSlot(3);
+                        else if (row == 2 && localX >= 72 && localX < 150) SkyOPProfileManager.loadSlot(3);
+                        else if (inside(mx, my, inspectorX + 12, inspectorY + 234, 100, 23)) SkyOPProfileManager.exportCurrent();
+                        else if (inside(mx, my, inspectorX + 118, inspectorY + 234, 100, 23)) SkyOPProfileManager.importProfile();
+                        else if (inside(mx, my, inspectorX + 12, inspectorY + 264, 100, 23)) SkyOPProfileManager.backupCurrent();
+                        else return super.mouseClicked(event, doubleClick);
+                    }
                     setProfileStatus(SkyOPLanguage.text("gui.profile_action_completed"));
                 } catch (Exception exception) {
                     setProfileStatus(SkyOPLanguage.text("gui.profile_error") + ": " + exception.getMessage());
@@ -607,16 +851,19 @@ public final class SkyOPClickGui extends Screen {
             }
 
             if (selectedModule == SkyOPModuleId.HOTBAR_PRESETS) {
-                int row = (my - (inspectorY + 140)) / 34;
-                int localX = mx - (inspectorX + 12);
+                int startY = inspectorY + (layout.compact() ? 94 : 140);
+                int row = (my - startY) / (layout.compact() ? 21 : 34);
+                int localX = mx - (inspectorX + 8);
+                int half = layout.compact() ? Math.max(1, (inspectorW - 28) / 2) : 100;
                 int slot = row + 1;
                 try {
-                    if (row >= 0 && row < 3 && localX >= 0 && localX < 100) {
+                    if (row >= 0 && row < 3 && localX >= 0 && localX < half) {
                         SkyOPProfileManager.saveHotbarPreset(slot);
                         setProfileStatus(SkyOPLanguage.text("gui.saved_hotbar") + " " + slot);
                         return true;
                     }
-                    if (row >= 0 && row < 3 && localX >= 106 && localX < 212) {
+                    int loadStart = half + (layout.compact() ? 4 : 106);
+                    if (row >= 0 && row < 3 && localX >= loadStart && localX < loadStart + half) {
                         SkyOPProfileManager.loadHotbarPreset(slot);
                         setProfileStatus(SkyOPLanguage.text("gui.loaded_hotbar") + " " + slot);
                         return true;
@@ -628,14 +875,14 @@ public final class SkyOPClickGui extends Screen {
             }
 
             int settingsX = inspectorX + 8;
-            int settingsY = inspectorY + 70;
-            int visibleRow = (my - settingsY) / 42;
+            int settingsY = inspectorY + layout.settingsTopOffset();
+            int visibleRow = (my - settingsY) / layout.settingRowStep();
             int rowIndex = visibleRow + settingsScroll;
             List<SkyOPSetting<?>> settings = visibleSettings(selectedModule);
-            if (mx >= settingsX && mx <= inspectorX + 240
+            if (mx >= settingsX && mx <= inspectorX + inspectorW - 8
                     && my >= settingsY && visibleRow >= 0 && rowIndex < settings.size()) {
                 applySettingClick(settings.get(rowIndex), mouseX, inspectorX + 8,
-                        settingsY + visibleRow * 42);
+                        settingsY + visibleRow * layout.settingRowStep());
                 return true;
             }
         }
@@ -648,7 +895,7 @@ public final class SkyOPClickGui extends Screen {
     }
 
     private boolean handleColorPickerClick(int mx, int my) {
-        int x = panelX + panelWidth - 230, y = panelY + 42;
+        int x = layout.colorPickerX(), y = layout.colorPickerY();
         int[][] colors = {{0xFF61C7F2, 0xFF8B7CFF, 0xFFFFB45B},
                 {0xFF57D69A, 0xFFFF7885, 0xFFF1F6FB}};
         for (int row = 0; row < 2; row++) for (int col = 0; col < 3; col++) {
@@ -688,7 +935,7 @@ public final class SkyOPClickGui extends Screen {
 
     private void drawColorPicker(GuiGraphicsExtractor g, int mouseX, int mouseY) {
         if (!colorPickerOpen) return;
-        int x = panelX + panelWidth - 230, y = panelY + 42;
+        int x = layout.colorPickerX(), y = layout.colorPickerY();
         int[][] colors = {{0xFF61C7F2, 0xFF8B7CFF, 0xFFFFB45B},
                 {0xFF57D69A, 0xFFFF7885, 0xFFF1F6FB}};
         g.fill(x, y, x + 166, y + 104, 0xF0101726);
@@ -900,14 +1147,27 @@ public final class SkyOPClickGui extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-        int moduleX = panelX + 151, moduleY = panelY + 63, moduleW = panelWidth - 430;
-        int inspectorX = panelX + panelWidth - 263, inspectorY = panelY + 63;
-        if (inside((int) mouseX, (int) mouseY, moduleX, moduleY + 76, moduleW, panelHeight - 135)) {
-            moduleScroll = Math.max(0, Math.min(1200, moduleScroll - (int) Math.signum(verticalAmount) * 60));
+        calculateLayout();
+        int mx = (int) mouseX;
+        int my = (int) mouseY;
+        if (layout.inspectorOverlay() && inspectorOpen
+                && inside(mx, my, layout.inspectorX(), layout.inspectorY(),
+                layout.inspectorWidth(), layout.inspectorHeight())) {
+            settingsScroll = Math.max(0, Math.min(120,
+                    settingsScroll - (int) Math.signum(verticalAmount)));
             return true;
         }
-        if (inside((int) mouseX, (int) mouseY, inspectorX, inspectorY + 100, 248, panelHeight - 140)) {
-            settingsScroll = Math.max(0, Math.min(20, settingsScroll - (int) Math.signum(verticalAmount)));
+        if (inside(mx, my, layout.contentX(), layout.listTop(),
+                layout.contentWidth(), Math.max(1, layout.listBottom() - layout.listTop()))) {
+            moduleScroll = Math.max(0, Math.min(1200,
+                    moduleScroll - (int) Math.signum(verticalAmount) * 60));
+            return true;
+        }
+        if (!layout.inspectorOverlay()
+                && inside(mx, my, layout.inspectorX(), layout.inspectorY(),
+                layout.inspectorWidth(), layout.inspectorHeight())) {
+            settingsScroll = Math.max(0, Math.min(120,
+                    settingsScroll - (int) Math.signum(verticalAmount)));
             return true;
         }
         return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
