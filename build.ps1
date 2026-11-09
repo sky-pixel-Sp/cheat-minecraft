@@ -29,7 +29,7 @@ if (-not (Test-Path $GradleExe)) {
     Remove-Item $zipPath -Force
 }
 
-Write-Host 'Building SkyOP Client 1.1.0 for Minecraft 26.3...' -ForegroundColor Cyan
+Write-Host 'Building SkyOP Client 2.3.0-dev for Minecraft 26.3...' -ForegroundColor Cyan
 Push-Location $PSScriptRoot
 try {
     & $GradleExe --no-daemon clean build
