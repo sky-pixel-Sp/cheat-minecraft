@@ -55,7 +55,11 @@ public final class SkyOPConfigManager {
 
         if (version < 0) {
             backup(configFile, backupDirectory, "invalid-version");
-            throw new IOException("SkyOP configVersion cannot be negative.");
+            Properties defaults = new Properties();
+            defaults.setProperty("configVersion", Integer.toString(CURRENT_CONFIG_VERSION));
+            defaults.setProperty("language", "en");
+            save(configFile, defaults);
+            return defaults;
         }
         if (version > CURRENT_CONFIG_VERSION) {
             throw new IOException("SkyOP config was created by a newer version ("
@@ -126,7 +130,8 @@ public final class SkyOPConfigManager {
         if (!Files.exists(source)) return;
         Files.createDirectories(backupDirectory);
         String timestamp = Instant.now().toString().replace(':', '-');
-        Path backup = backupDirectory.resolve("skyop-" + reason + "-" + timestamp + ".properties");
-        Files.copy(source, backup);
+        Path backup = Files.createTempFile(backupDirectory,
+                "skyop-" + reason + "-" + timestamp + "-", ".properties");
+        Files.copy(source, backup, StandardCopyOption.REPLACE_EXISTING);
     }
 }
