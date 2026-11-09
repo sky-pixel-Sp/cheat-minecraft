@@ -6,13 +6,15 @@ import java.util.function.Supplier;
 /** Stores an SDL keyboard scancode; -1 is SkyOP's explicit Unbound sentinel. */
 public final class KeybindSetting extends SkyOPSetting<Integer> {
     public static final int UNBOUND = -1;
+    private final int defaultValue;
 
-    public KeybindSetting(String id, String title, String description,
+    public KeybindSetting(String id, String title, String description, int defaultValue,
                           Supplier<Integer> getter, Consumer<Integer> setter) {
         super(id, title, description, getter, setter);
+        this.defaultValue = validate(defaultValue);
     }
 
-    @Override protected Integer defaultValue() { return UNBOUND; }
+    @Override protected Integer defaultValue() { return defaultValue; }
 
     @Override
     protected Integer validate(Integer value) {
