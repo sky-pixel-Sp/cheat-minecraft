@@ -2,7 +2,7 @@
 
 <p align="center">
   <strong>Premium-style Minecraft Java 26.3 Fabric client</strong><br>
-  Combat · Movement · Visual · Inventory · Profiles · HUD Studio · Multi-language
+  Combat · Movement · Visual · Inventory · Profiles · HUD Studio · Typed Settings
 </p>
 
 <p align="center">
@@ -36,9 +36,9 @@ The new features remain client-side. They do not grant server permissions, guara
 
 ## What is new in 2.2.1
 
-SkyOP 2.2.1 fixes a Minecraft 26.3 SDL keyboard-state crash that could interrupt world loading and mouse capture. A small Mixin bounds-checks keyboard-state lookups so negative or out-of-range indexes are treated as not pressed, while unbound module keys retain Minecraft's normal Unbound semantics. Newly captured and saved keybinds are validated; invalid config values are safely reset to Unbound. The release retains the Indonesian/English language work and mouse-capture recovery.
+SkyOP 2.2.1 fixes a Minecraft 26.3 SDL keyboard-state crash that could interrupt world loading and mouse capture. A small Mixin bounds-checks keyboard-state lookups so negative or out-of-range indexes are treated as not pressed, while unbound module keys retain Minecraft's normal Unbound semantics. Newly captured and saved keybinds are validated; invalid config values are safely reset to Unbound. The release includes the English-only client interface and mouse-capture recovery.
 
-- **Language:** Bahasa Indonesia is the default, with English available from the in-client selector. The selected language is saved independently from Minecraft's global language.
+- **Language:** English is the only supported client language. Existing Indonesian configuration files are backed up and migrated to English automatically.
 - **Module browser:** search, category filtering, Favorites, two-column module cards and per-panel scrolling.
 - **Input and HUD editor:** per-module keybind capture, independently draggable HUD panels, six quick color swatches, and a custom RGB hex field (#RRGGBB).
 - **Inventory utilities:** Auto Eat, Auto Armor, Auto Tool, Auto Refill, Auto Fish and safe stack consolidation.
@@ -88,7 +88,7 @@ Press **Right Shift** in-game.
 | Press Escape while capturing a key | Cancel key capture |
 | Click the color swatch in the header | Open the six quick colors or enter a custom #RRGGBB value |
 | Click HUD Edit, then drag any visible HUD panel | Move that HUD panel independently; release to save |
-| Click a language button in the footer | Cycle the in-client language |
+| Language indicator in the footer | English-only client language |
 | PVE / OP / VISUAL | Load the built-in quick preset |
 | Disable All | Disable modules and restore temporary client state |
 
@@ -165,13 +165,9 @@ Select **Hotbar Presets** under Inventory to save or load one of three layouts. 
 
 The central settings schema declares numeric defaults and valid ranges. Settings loaded from disk are clamped to their documented limits.
 
-## Language selection
+## Language
 
-Bahasa Indonesia is the default on a clean installation. Use the language control in the ClickGUI footer to switch between:
-- Bahasa Indonesia (default)
-- English
-
-The selected language is saved to .minecraft/config/skyop-client.properties.
+SkyOP is English-only. Existing configurations that contain `language=id` are backed up before migration to `language=en`. The Minecraft global language setting is not changed.
 
 ## Configuration locations
 
