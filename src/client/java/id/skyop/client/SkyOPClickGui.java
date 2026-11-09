@@ -755,8 +755,8 @@ public final class SkyOPClickGui extends Screen {
     private HudPreview hudPreview(SkyOPModuleId module, int defaultX, int defaultY,
                                   int previewWidth, int previewHeight, String label,
                                   int screenWidth, int screenHeight) {
-        int x = SkyOPState.hudXFor(module, defaultX, screenWidth, previewWidth);
-        int y = SkyOPState.hudYFor(module, defaultY, screenHeight, previewHeight);
+        int x = SkyOPCore.hudXFor(module, defaultX, screenWidth, previewWidth);
+        int y = SkyOPCore.hudYFor(module, defaultY, screenHeight, previewHeight);
         return new HudPreview(module, x, y, previewWidth, previewHeight,
                 label == null ? module.title() : label);
     }
