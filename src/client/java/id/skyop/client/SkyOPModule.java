@@ -5,22 +5,27 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 import java.util.List;
 
-/**
- * Runtime lifecycle contract for a SkyOP module.
- * Hooks that do not apply to a module use the documented default no-op implementation.
- */
-public interface SkyOPModule {
-    SkyOPClient.Module type();
-    List<SkyOPSetting<?>> settings();
+/** Base class for every independently registered SkyOP module. */
+public abstract class SkyOPModule {
+    private final SkyOPModuleId type;
+    private final List<SkyOPSetting<?>> settings;
 
-    default boolean isReady(Minecraft client) {
-        return SkyOPModuleDependencies.isAvailable(client, type());
+    protected SkyOPModule(SkyOPModuleId type, List<SkyOPSetting<?>> settings) {
+        this.type = type;
+        this.settings = List.copyOf(settings);
     }
 
-    default void onEnable(Minecraft client) { }
-    default void onDisable(Minecraft client) { }
-    default void onTick(Minecraft client) { }
-    default void onRender2D(Minecraft client, GuiGraphicsExtractor graphics) { }
-    default void onRender3D(Minecraft client, Object renderContext) { }
-    default void onWorldChange(Minecraft client) { }
+    public final SkyOPModuleId type() { return type; }
+    public final List<SkyOPSetting<?>> settings() { return settings; }
+
+    public boolean isReady(Minecraft client) {
+        return SkyOPModuleDependencies.isAvailable(client, type);
+    }
+
+    public void onEnable(Minecraft client) { }
+    public void onDisable(Minecraft client) { }
+    public void onTick(Minecraft client) { }
+    public void onRender2D(Minecraft client, GuiGraphicsExtractor graphics) { }
+    public void onRender3D(Minecraft client, Object renderContext) { }
+    public void onWorldChange(Minecraft client) { }
 }
