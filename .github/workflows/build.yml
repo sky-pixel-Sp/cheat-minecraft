@@ -51,7 +51,13 @@ jobs:
           # SDL keyboard-state buffers are indexed by 0..SDL_SCANCODE_COUNT-1.
           # Keep vanilla UNKNOWN semantics, but guard every lookup before ByteBuffer access.
           grep -Fq 'SDL_SCANCODE_COUNT = 512' src/main/java/id/skyop/client/SkyOPSdlKeyboardIndex.java
+          grep -Fq 'method = "isKeyDown(I)Z"' src/client/java/id/skyop/mixin/InputConstantsMixin.java
+          grep -Fq 'int key' src/client/java/id/skyop/mixin/InputConstantsMixin.java
           grep -Fq 'SkyOPSdlKeyboardIndex.isValidStateIndex(key)' src/client/java/id/skyop/mixin/InputConstantsMixin.java
+          if grep -Fq 'isKeyDown(JI)Z' src/client/java/id/skyop/mixin/InputConstantsMixin.java; then
+            echo 'Minecraft 26.3 uses InputConstants.isKeyDown(int), not the old window-handle signature.' >&2
+            exit 1
+          fi
           grep -Fq '"InputConstantsMixin"' src/main/resources/skyop.mixins.json
           grep -Fq 'InputConstants.UNKNOWN.getValue()' src/client/java/id/skyop/client/SkyOPClient.java
           grep -Fq 'InputConstants.UNKNOWN' src/client/java/id/skyop/client/SkyOPClient.java
