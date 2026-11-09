@@ -30,9 +30,6 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.EnumSet;
 import java.util.EnumMap;
@@ -1158,20 +1155,18 @@ public final class SkyOPClient implements ClientModInitializer {
         }
 
         try {
-            Files.createDirectories(CONFIG_FILE.getParent());
-            try (Writer writer = Files.newBufferedWriter(CONFIG_FILE)) {
-                p.store(writer, "SkyOP Client configuration");
-            }
+            SkyOPConfigManager.save(CONFIG_FILE, p);
         } catch (IOException exception) {
             System.err.println("[SkyOP] Could not save config: " + exception.getMessage());
         }
     }
 
     private static void loadConfig() {
-        if (!Files.exists(CONFIG_FILE)) return;
-        Properties p = new Properties();
-        try (Reader reader = Files.newBufferedReader(CONFIG_FILE)) {
-            p.load(reader);
+        Properties p;
+        try {
+            Path backupDirectory = FabricLoader.getInstance().getConfigDir()
+                    .resolve("skyop-client").resolve("backups");
+            p = SkyOPConfigManager.load(CONFIG_FILE, backupDirectory);
             SkyOPLanguage.set(p.getProperty("language", "en"));
             for (Module module : Module.values()) {
                 String value = p.getProperty("module." + module.name());
@@ -1258,7 +1253,10 @@ public final class SkyOPClient implements ClientModInitializer {
 
     private static boolean bool(Properties p, String key, boolean fallback) {
         String value = p.getProperty(key);
-        return value == null ? fallback : Boolean.parseBoolean(value);
+        if (value == null) return fallback;
+        if ("true".equalsIgnoreCase(value)) return true;
+        if ("false".equalsIgnoreCase(value)) return false;
+        return fallback;
     }
 
     private static int integer(Properties p, String key, int fallback, int min, int max) {
@@ -1271,7 +1269,8 @@ public final class SkyOPClient implements ClientModInitializer {
 
     private static double number(Properties p, String key, double fallback, double min, double max) {
         try {
-            return clamp(Double.parseDouble(p.getProperty(key, Double.toString(fallback))), min, max);
+            double parsed = Double.parseDouble(p.getProperty(key, Double.toString(fallback)));
+            return Double.isFinite(parsed) ? clamp(parsed, min, max) : fallback;
         } catch (NumberFormatException exception) {
             return fallback;
         }
