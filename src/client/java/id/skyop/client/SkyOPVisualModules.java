@@ -51,15 +51,15 @@ public final class SkyOPVisualModules {
         for (Entity entity : entities) {
             UUID id = entity.getUUID();
             seen.add(id);
-            ORIGINAL_GLOW.putIfAbsent(id, new GlowState(entity, entity.isCurrentlyGlowing()));
+            SkyOPState.ORIGINAL_GLOW.putIfAbsent(id, new SkyOPState.GlowState(entity, entity.isCurrentlyGlowing()));
             entity.setGlowingTag(true);
         }
 
-        Iterator<Map.Entry<UUID, GlowState>> iterator = ORIGINAL_GLOW.entrySet().iterator();
+        Iterator<Map.Entry<UUID, SkyOPState.GlowState>> iterator = SkyOPState.ORIGINAL_GLOW.entrySet().iterator();
         while (iterator.hasNext()) {
-            Map.Entry<UUID, GlowState> entry = iterator.next();
+            Map.Entry<UUID, SkyOPState.GlowState> entry = iterator.next();
             if (!seen.contains(entry.getKey())) {
-                GlowState state = entry.getValue();
+                SkyOPState.GlowState state = entry.getValue();
                 state.entity().setGlowingTag(state.wasGlowing());
                 iterator.remove();
             }
@@ -75,10 +75,10 @@ private static boolean shouldEsp(Entity entity) {
 
 
     static void restoreGlow() {
-        for (GlowState state : ORIGINAL_GLOW.values()) {
+        for (SkyOPState.GlowState state : SkyOPState.ORIGINAL_GLOW.values()) {
             state.entity().setGlowingTag(state.wasGlowing());
         }
-        ORIGINAL_GLOW.clear();
+        SkyOPState.ORIGINAL_GLOW.clear();
     }
 
     static void tickShared(Minecraft client) {
