@@ -75,7 +75,7 @@ public final class SkyOPModuleManager {
     public static void saveSettings(Properties properties) {
         for (SkyOPModule module : MODULES.values()) {
             for (SkyOPSetting<?> setting : module.settings()) {
-                if (setting instanceof KeybindSetting) continue;
+                if (setting instanceof KeybindSetting || setting instanceof ActionSetting) continue;
                 properties.setProperty(settingKey(module.type(), setting), setting.serialize());
             }
         }
@@ -84,7 +84,7 @@ public final class SkyOPModuleManager {
     public static void loadSettings(Properties properties) {
         for (SkyOPModule module : MODULES.values()) {
             for (SkyOPSetting<?> setting : module.settings()) {
-                if (setting instanceof KeybindSetting) continue;
+                if (setting instanceof KeybindSetting || setting instanceof ActionSetting) continue;
                 String value = properties.getProperty(settingKey(module.type(), setting));
                 if (value != null) setting.deserialize(value);
             }
@@ -282,9 +282,42 @@ public final class SkyOPModuleManager {
                     () -> (double) SkyOPState.autoRefillThreshold, value -> SkyOPState.autoRefillThreshold = value.intValue()));
             case HUD -> settings.add(new ColorSetting("hudAccentColor", "lang:setting.hud_accent", "lang:setting.hud_accent_desc",
                     0xFF61C7F2, SkyOPCore::hudAccentColor, SkyOPCore::setHudAccentColor));
+            case TEXT_GUI -> settings.add(new StringSetting(
+                    "customHudText", "lang:gui.custom_hud_text", "lang:gui.edit_text_help",
+                    80, () -> SkyOPState.customHudText, SkyOPCore::setCustomHudText
+            ));
+            case PROFILE_MANAGER -> {
+                for (int slot = 1; slot <= 3; slot++) {
+                    int profileSlot = slot;
+                    settings.add(action("saveProfile" + slot, "gui.save", "gui.configuration_profiles",
+                            Integer.toString(slot), () -> SkyOPProfileManager.saveSlot(profileSlot)));
+                    settings.add(action("loadProfile" + slot, "gui.load", "gui.configuration_profiles",
+                            Integer.toString(slot), () -> SkyOPProfileManager.loadSlot(profileSlot)));
+                }
+                settings.add(action("exportProfile", "gui.export_json", "gui.configuration_profiles",
+                        "", SkyOPProfileManager::exportCurrent));
+                settings.add(action("importProfile", "gui.import_json", "gui.configuration_profiles",
+                        "", SkyOPProfileManager::importProfile));
+                settings.add(action("backupProfile", "gui.backup_now", "gui.configuration_profiles",
+                        "", SkyOPProfileManager::backupCurrent));
+            }
+            case HOTBAR_PRESETS -> {
+                for (int slot = 1; slot <= 3; slot++) {
+                    int hotbarSlot = slot;
+                    settings.add(action("saveHotbar" + slot, "gui.save_hotbar", "gui.hotbar_layout_slots",
+                            Integer.toString(slot), () -> SkyOPProfileManager.saveHotbarPreset(hotbarSlot)));
+                    settings.add(action("loadHotbar" + slot, "gui.load_hotbar", "gui.hotbar_layout_slots",
+                            Integer.toString(slot), () -> SkyOPProfileManager.loadHotbarPreset(hotbarSlot)));
+                }
+            }
             default -> { }
         }
         return List.copyOf(settings);
+    }
+
+    private static ActionSetting action(String id, String titleKey, String descriptionKey,
+                                        String suffix, ActionSetting.Operation operation) {
+        return new ActionSetting(id, "lang:" + titleKey, "lang:" + descriptionKey, suffix, operation);
     }
 
     private static BooleanSetting bool(String id, String titleKey, String descriptionKey,

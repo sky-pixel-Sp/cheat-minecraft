@@ -163,7 +163,8 @@ The feature branch CI also runs on branch pushes so every incremental fix is com
 14. Verify Profile Manager, Hotbar Presets and Custom HUD pages keep their keybind row visible and retain their existing actions.
 15. Verify all module categories and module titles/descriptions are translated in both dictionaries, with no unresolved translation keys.
 16. Import a profile with invalid numeric values; verify validated values are applied, the pre-import config backup exists, and the client remains responsive.
-17. Switch worlds while the GUI is open, close it, and verify the client retains mouse capture only during active gameplay.
+18. Switch worlds while the GUI is open
+19. Verify Profile Manager, Hotbar Presets and Custom Text HUD use the same generic registry inspector as every other module: actions and text input must appear as registered setting rows, with no module-specific inspector rendering branch., close it, and verify the client retains mouse capture only during active gameplay.
 
 CI coverage for Phase 1 includes ConfigManager migration/corruption tests and typed-setting serialization tests. Manual Minecraft checks remain required for lifecycle and in-game behavior.
 
