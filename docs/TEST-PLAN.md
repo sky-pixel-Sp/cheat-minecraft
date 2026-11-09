@@ -2,7 +2,7 @@
 
 ## Automated CI checks
 
-GitHub Actions builds with Java 25 and Gradle 9.7.1 using Fabric Loom 1.18.4. It runs clean build (including JUnit tests for RGB hex parsing, formatting and SDL keyboard-state index boundaries), verifies the remapped JAR contains the client entrypoint, both client mixins and Fabric metadata, and uploads the installable JAR.
+GitHub Actions builds with Java 25 and Gradle 9.7.1 using the non-remapping Fabric Loom 1.18.4 plugin required for unobfuscated Minecraft 26.1+. It runs clean build (including JUnit tests for RGB hex parsing, formatting and SDL keyboard-state index boundaries), verifies the installable JAR contains the client entrypoint, both client mixins and Fabric metadata, and uploads the JAR.
 
 A green CI result proves compilation and packaging. It does not prove an in-game launch or multiplayer acceptance.
 
@@ -10,7 +10,7 @@ A green CI result proves compilation and packaging. It does not prove an in-game
 
 1. Create a separate Minecraft Java 26.3 Fabric instance.
 2. Install Fabric Loader 0.20.1 and Fabric API 0.165.2+26.3.
-3. Add skyop-client-2.2.1.jar to that instance's mods folder.
+3. Add skyop-client-2.3.0-dev.jar to that instance's mods folder.
 4. Launch to the title screen and confirm no mixin or resource errors appear.
 5. Join a local single-player world and wait for the loading screen to close; verify no IndexOutOfBoundsException occurs when Minecraft restores all key states.
 6. Repeat with SkyOP module keybinds left unassigned; verify unbound keys do not crash world loading or mouse capture.
@@ -123,4 +123,4 @@ Run these checks in a disposable single-player world before using a private serv
 
 A green CI build does not replace these in-game checks.
 
-The feature branch CI also runs on branch pushes so every incremental fix is compiled and the remapped distributable is checked.
+The feature branch CI also runs on branch pushes so every incremental fix is compiled and the unobfuscated distributable is checked.
