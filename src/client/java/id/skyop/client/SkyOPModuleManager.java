@@ -200,7 +200,8 @@ public final class SkyOPModuleManager {
 
     private static BooleanSetting bool(String id, String title, String description,
                                        Supplier<Boolean> getter, Consumer<Boolean> setter) {
-        return new BooleanSetting(id, title, description, false, getter, setter);
+        // Capture the declared code default before the config file is applied.
+        return new BooleanSetting(id, title, description, getter.get(), getter, setter);
     }
 
     private static NumberSetting number(String id, String title, String description,
