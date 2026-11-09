@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -50,16 +50,45 @@ public final class SkyOPModuleManager {
         }
     }
 
+    public static void saveSettings(Properties properties) {
+        if (!initialized) return;
+        for (SkyOPModule module : MODULES.values()) {
+            for (SkyOPSetting<?> setting : module.settings()) {
+                if (setting instanceof KeybindSetting) continue; // Stored in the legacy-compatible keybind.<MODULE> property.
+                properties.setProperty(settingKey(module.type(), setting), setting.serialize());
+            }
+        }
+    }
+
+    public static void loadSettings(Properties properties) {
+        if (!initialized) return;
+        for (SkyOPModule module : MODULES.values()) {
+            for (SkyOPSetting<?> setting : module.settings()) {
+                if (setting instanceof KeybindSetting) continue;
+                String value = properties.getProperty(settingKey(module.type(), setting));
+                if (value != null) setting.deserialize(value);
+            }
+        }
+    }
+
+    private static String settingKey(SkyOPClient.Module module, SkyOPSetting<?> setting) {
+        return "setting." + module.name() + "." + setting.id();
+    }
+
     public static void tick(Minecraft client) {
         if (!initialized || client == null || client.player == null || client.level == null) return;
         syncAllStates(client);
+        SkyOPClient.trackDisabledJumpInputs(client);
 
-        for (SkyOPModule module : MODULES.values()) {
-            if (!SkyOPClient.isEnabled(module.type()) || !module.isReady(client)) continue;
-            module.onTick(client);
-        }
+        // Preserve the original phase order: movement, NoFall, visuals, combat, inventory.
+        tickModules(client, List.of(
+                SkyOPClient.Module.AUTO_SPRINT, SkyOPClient.Module.SPEED, SkyOPClient.Module.FLIGHT,
+                SkyOPClient.Module.AUTO_JUMP, SkyOPClient.Module.STEP_ASSIST, SkyOPClient.Module.SPIDER,
+                SkyOPClient.Module.AUTO_BRIDGE, SkyOPClient.Module.JUMP_BOOST, SkyOPClient.Module.INFINITE_JUMP
+        ));
+        tickModules(client, List.of(SkyOPClient.Module.NO_FALL));
 
-        // These systems are shared by multiple toggles and must run exactly once per tick.
+        // ESP and gamma are shared by paired modules and are evaluated once per tick.
         if (SkyOPClient.isEnabled(SkyOPClient.Module.ENTITY_ESP)
                 || SkyOPClient.isEnabled(SkyOPClient.Module.ITEM_ESP)) {
             SkyOPClient.tickEsp(client);
@@ -74,7 +103,20 @@ public final class SkyOPModuleManager {
             SkyOPClient.restoreGamma(client);
         }
 
+        tickModules(client, List.of(
+                SkyOPClient.Module.KILL_AURA, SkyOPClient.Module.AUTO_HUNT,
+                SkyOPClient.Module.TRIGGER_BOT, SkyOPClient.Module.AUTO_CLICKER
+        ));
         SkyOPInventoryManager.tick(client);
+    }
+
+    private static void tickModules(Minecraft client, List<SkyOPClient.Module> order) {
+        for (SkyOPClient.Module type : order) {
+            SkyOPModule module = MODULES.get(type);
+            if (module != null && SkyOPClient.isEnabled(type) && module.isReady(client)) {
+                module.onTick(client);
+            }
+        }
     }
 
     public static void render2D(Minecraft client, GuiGraphicsExtractor graphics) {
