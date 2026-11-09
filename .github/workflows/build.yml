@@ -72,9 +72,17 @@ jobs:
           grep -Fq 'client.mouseHandler.grabMouse();' src/client/java/id/skyop/client/SkyOPClient.java
           grep -Fq 'client.gui.screen() != null' src/client/java/id/skyop/client/SkyOPClient.java
           # Indonesian is the first-run default and must have module translations.
-          grep -Fq 'SkyOPLanguage.set(p.getProperty("language", "id"));' src/client/java/id/skyop/client/SkyOPClient.java
-          grep -Fq 'new Language("id", "Bahasa Indonesia")' src/client/java/id/skyop/client/SkyOPLanguage.java
-          grep -Fq 'e("module.KILL_AURA.title", "Aura Serang")' src/client/java/id/skyop/client/SkyOPLanguage.java
+          grep -Fq 'SkyOPLanguage.set(p.getProperty("language", "en"));' src/client/java/id/skyop/client/SkyOPClient.java
+          grep -Fq 'new Language("en", "English")' src/client/java/id/skyop/client/SkyOPLanguage.java
+          grep -Fq 'CURRENT_CONFIG_VERSION = 2' src/client/java/id/skyop/client/SkyOPConfigManager.java
+          grep -Fq 'SkyOPModuleManager.initialize();' src/client/java/id/skyop/client/SkyOPClient.java
+          grep -Fq 'SkyOPModuleManager.saveSettings(p);' src/client/java/id/skyop/client/SkyOPClient.java
+          grep -Fq 'SkyOPModuleManager.loadSettings(p);' src/client/java/id/skyop/client/SkyOPClient.java
+          if grep -Fq 'new Language("id", "Bahasa Indonesia")' src/client/java/id/skyop/client/SkyOPLanguage.java; then
+            echo 'SkyOP is English-only; do not reintroduce the Indonesian selector.' >&2
+            exit 1
+          fi
+          test ! -e src/main/resources/assets/skyop/lang/id_id.json
           if grep -Fq 'InputConstants.Type.KEYBOARD, -1' src/client/java/id/skyop/client/SkyOPClient.java; then
             echo 'Unbound key mappings must not pass raw -1 to the SDL keyboard backend.' >&2
             exit 1
