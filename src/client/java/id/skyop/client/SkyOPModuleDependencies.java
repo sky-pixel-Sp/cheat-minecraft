@@ -40,11 +40,11 @@ public final class SkyOPModuleDependencies {
         if (isAvailable(client, module)) return "";
         return switch (requirement(module)) {
             case CLIENT -> "";
-            case WORLD -> "Join a world first.";
-            case PLAYER -> "A player entity is required.";
-            case INVENTORY -> "Open the normal player inventory context first.";
-            case FISHING_ROD -> "Hold a fishing rod in your main hand.";
-            case BLOCK_TARGET -> "Aim at a block first.";
+            case WORLD -> SkyOPLanguage.text("dependency.join_world");
+            case PLAYER -> SkyOPLanguage.text("dependency.player_required");
+            case INVENTORY -> SkyOPLanguage.text("dependency.inventory_required");
+            case FISHING_ROD -> SkyOPLanguage.text("dependency.fishing_rod_required");
+            case BLOCK_TARGET -> SkyOPLanguage.text("dependency.block_target_required");
         };
     }
 }
