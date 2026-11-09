@@ -26,7 +26,7 @@ class SkyOPConfigManagerTest {
         Properties migrated = SkyOPConfigManager.load(config, backups);
 
         assertEquals("2", migrated.getProperty("configVersion"));
-        assertEquals("en", migrated.getProperty("language"));
+        assertEquals("id", migrated.getProperty("language"));
         assertEquals("true", migrated.getProperty("module.HUD"));
         assertEquals("5.0", migrated.getProperty("auraRange"));
         assertEquals(1, countFiles(backups));
@@ -40,7 +40,7 @@ class SkyOPConfigManagerTest {
         Properties loaded = SkyOPConfigManager.load(config, temporaryDirectory.resolve("backups"));
 
         assertEquals("2", loaded.getProperty("configVersion"));
-        assertEquals("en", loaded.getProperty("language"));
+        assertEquals("id", loaded.getProperty("language"));
         assertFalse(Files.exists(config));
     }
 
@@ -55,7 +55,7 @@ class SkyOPConfigManagerTest {
         Properties loaded = SkyOPConfigManager.load(config, backups);
 
         assertEquals("2", loaded.getProperty("configVersion"));
-        assertEquals("en", loaded.getProperty("language"));
+        assertEquals("id", loaded.getProperty("language"));
         assertEquals(1, countFiles(backups));
         assertEquals(malformed, Files.readString(firstFile(backups)));
         assertEquals("2", readConfig(config).getProperty("configVersion"));
@@ -77,14 +77,14 @@ class SkyOPConfigManagerTest {
     void saveWritesVersionedEnglishConfigAndRoundTripsValues() throws Exception {
         Path config = temporaryDirectory.resolve("config/skyop-client.properties");
         Properties values = new Properties();
-        values.setProperty("language", "id");
+        values.setProperty("language", "en");
         values.setProperty("auraRange", "4.5");
 
         SkyOPConfigManager.save(config, values);
 
         Properties loaded = readConfig(config);
         assertEquals("2", loaded.getProperty("configVersion"));
-        assertEquals("en", loaded.getProperty("language"));
+        assertEquals("id", loaded.getProperty("language"));
         assertEquals("4.5", loaded.getProperty("auraRange"));
         try (Stream<Path> files = Files.list(config.getParent())) {
             assertEquals(1, files.count(), "temporary files must be removed after atomic save");
