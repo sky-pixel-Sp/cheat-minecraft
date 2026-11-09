@@ -25,11 +25,10 @@ public final class StringSetting extends SkyOPSetting<String> {
     @Override
     protected String validate(String value) {
         if (value == null) throw new IllegalArgumentException("Text setting cannot be null.");
-        String safe = value.strip();
-        if (safe.length() > maximumLength) {
+        if (value.length() > maximumLength) {
             throw new IllegalArgumentException("Text setting exceeds " + maximumLength + " characters.");
         }
-        return safe;
+        return value;
     }
 
     @Override
