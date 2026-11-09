@@ -390,6 +390,62 @@ public final class SkyOPClickGui extends Screen {
         }
     }
 
+    private void drawFooter(GuiGraphicsExtractor g, int mouseX, int mouseY) {
+        int y = layout.footerY();
+        g.fill(panelX + 8, y, panelX + panelWidth - 8, y + 1, 0xFF2B394A);
+
+        if (layout.compact()) {
+            drawProfileButton(g, mouseX, mouseY, panelX + 10, y + 6, 27, "PVE");
+            drawProfileButton(g, mouseX, mouseY, panelX + 41, y + 6, 27, "OP");
+            drawProfileButton(g, mouseX, mouseY, panelX + 72, y + 6, 39, "VIS");
+
+            int languageX = panelX + 122;
+            boolean languageHovered = inside(mouseX, mouseY, languageX, y + 6, 82, 20);
+            g.fill(languageX, y + 6, languageX + 82, y + 26,
+                    languageHovered ? 0xFF314C65 : PANEL_LIGHT);
+            String languageCode = SkyOPLanguage.current().code().toUpperCase(java.util.Locale.ROOT);
+            g.text(font, Component.literal(languageCode), languageX + 34, y + 12,
+                    languageHovered ? TEXT : ACCENT, true);
+
+            int disableX = panelX + panelWidth - 98;
+            boolean disableHovered = inside(mouseX, mouseY, disableX, y + 6, 90, 20);
+            g.fill(disableX, y + 6, disableX + 90, y + 26,
+                    disableHovered ? 0xFF693542 : 0xFF482B35);
+            g.text(font, Component.literal(trim(SkyOPLanguage.text("gui.disable_all"), 12)),
+                    disableX + 7, y + 12, 0xFFFFB8C0, true);
+            return;
+        }
+
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.quick_profiles")),
+                panelX + 20, y + 15, MUTED, true);
+        drawProfileButton(g, mouseX, mouseY, panelX + 130, y + 7, 48, "PVE");
+        drawProfileButton(g, mouseX, mouseY, panelX + 184, y + 7, 48, "OP");
+        drawProfileButton(g, mouseX, mouseY, panelX + 238, y + 7, 66, "VISUAL");
+
+        int languageX = panelX + 320;
+        boolean languageHovered = inside(mouseX, mouseY, languageX, y + 7, 150, 24);
+        g.fill(languageX, y + 7, languageX + 150, y + 31,
+                languageHovered ? 0xFF314C65 : PANEL_LIGHT);
+        String languageLabel = SkyOPLanguage.text("gui.language") + ": "
+                + SkyOPLanguage.current().displayName();
+        g.text(font, Component.literal(trim(languageLabel, 24)),
+                languageX + 9, y + 15, languageHovered ? TEXT : ACCENT, true);
+
+        int disableX = panelX + panelWidth - 144;
+        boolean disableHovered = inside(mouseX, mouseY, disableX, y + 7, 124, 24);
+        g.fill(disableX, y + 7, disableX + 124, y + 31,
+                disableHovered ? 0xFF693542 : 0xFF482B35);
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.disable_all")),
+                disableX + 18, y + 15, 0xFFFFB8C0, true);
+
+        if (!profileStatus.isEmpty() && profileStatusTicks > 0) {
+            int alpha = 190 + (int) (35 * Math.sin(animationTicks * 0.25));
+            int color = (Math.min(255, alpha) << 24) | 0x00FFFFFF;
+            g.text(font, Component.literal(trim(profileStatus, 30)),
+                    panelX + 410, y + 15, color, true);
+        }
+    }
+
     private void drawProfileButton(GuiGraphicsExtractor g, int mouseX, int mouseY,
                                    int x, int y, int w, String label) {
         boolean hovered = inside(mouseX, mouseY, x, y, w, 24);
