@@ -104,3 +104,21 @@ Only use a private server you control and are allowed to test. Server-side corre
 ## Evidence to record
 
 Record game, Loader, API and Java versions; module states/settings; video or screenshots for GUI; logs/latest.log; crash report; profile JSON and backup files; and the GitHub Actions run URL.
+
+## SkyOP 2.3 development additions
+
+Run these checks in a disposable single-player world before using a private server:
+
+1. Auto Hunt: spawn several hostile mobs within the configured range; verify it selects the nearest visible mob, does not rotate the camera and respects attack cooldown.
+2. Auto Bridge: place a supported gap in front of the player, keep placeable blocks in the hotbar, walk toward the gap and verify blocks are placed beneath the player. Check that no block is placed when there is no valid support or no hotbar BlockItem.
+3. Infinite Jump: jump, release the jump key, then press it again in midair; verify one additional upward impulse per fresh press rather than continuous flight.
+4. Jump Boost: compare the jump impulse at 1.0x and 3.0x, then verify the value persists after restart.
+5. Item ESP: drop items in range and verify their glow is enabled only when Entity ESP or Item ESP is active; verify original glow state is restored after disabling both.
+6. Waypoints: press V in a world; verify a coordinate entry appears in the Waypoints HUD and is persisted in config/skyop-client/waypoints.properties. Restart and verify it reloads. Test the 32-waypoint limit.
+7. Mini Map: spawn a player, hostile mob and dropped item within 48 blocks; verify the HUD dots update as entities move and disappear when no longer client-loaded.
+8. Night Vision: enable in a dark local area, then disable and verify the original gamma value is restored. Test toggling Gamma Boost and Night Vision in both orders.
+9. New settings: write out-of-range values for autoHuntRange, jumpBoostMultiplier and bridgeDelayTicks; verify values are clamped or reset to safe defaults.
+10. Password EXE: confirm the Windows workflow runs py_compile, builds SkyOP-Password-Generator.exe, and uploads the artifact. Test generation with each character group enabled/disabled, copy, save, and ambiguous-character exclusion.
+11. Disable All: enable all new modules, press F12, and confirm temporary glow/gamma state is restored and movement automation stops.
+
+A green CI build does not replace these in-game checks.
