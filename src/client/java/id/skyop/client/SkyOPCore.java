@@ -1,7 +1,6 @@
 package id.skyop.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
@@ -74,7 +73,7 @@ public static boolean isModuleKeybindUnbound(SkyOPModuleId module) {
 
 public static int favoriteCount() { return SkyOPState.FAVORITES.size(); }
 
-public static int SkyOPState.hudAccentColor() { return SkyOPState.hudAccentColor; }
+public static int hudAccentColor() { return SkyOPState.hudAccentColor; }
 
 public static KeyMapping keybindFor(SkyOPModuleId module) { return SkyOPState.MODULE_KEYBINDS.get(module); }
 
@@ -131,10 +130,10 @@ public static void setModuleKeybind(SkyOPModuleId module, int scancode) {
 
 public static void cycleHudColor() {
         int index = 0;
-        for (int i = 0; i < HUD_PALETTE.length; i++) {
-            if (HUD_PALETTE[i] == SkyOPState.hudAccentColor) index = i;
+        for (int i = 0; i < SkyOPState.HUD_PALETTE.length; i++) {
+            if (SkyOPState.HUD_PALETTE[i] == SkyOPState.hudAccentColor) index = i;
         }
-        SkyOPState.hudAccentColor = HUD_PALETTE[(index + 1) % HUD_PALETTE.length];
+        SkyOPState.hudAccentColor = SkyOPState.HUD_PALETTE[(index + 1) % SkyOPState.HUD_PALETTE.length];
         saveConfig();
     }
 
@@ -272,18 +271,10 @@ public static void applyPreset(Minecraft client, SkyOPPreset preset) {
 public static void disableAll(Minecraft client) {
         SkyOPState.ENABLED.clear();
         SkyOPModuleManager.syncAllStates(client);
-        auraCooldown = 0;
-        triggerCooldown = 0;
-        clickerCooldown = 0;
-        autoJumpCooldown = 0;
-        stepAssistCooldown = 0;
-        autoHuntCooldown = 0;
-        bridgeCooldown = 0;
-        jumpKeyWasDown = false;
-        jumpBoostKeyWasDown = false;
-        SkyOPVisualModules.restoreGlow();
-        SkyOPVisualModules.restoreGamma(client);
-        SkyOPMovementModules.restoreFlight(client);
+        SkyOPMovementModules.cleanup(client);
+        SkyOPCombatModules.cleanup();
+        SkyOPVisualModules.cleanup(client);
+        SkyOPTelemetry.reset();
         SkyOPInventoryManager.stop(client);
         saveConfig();
         if (client.player != null) {
