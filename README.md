@@ -36,9 +36,9 @@ The new features remain client-side. They do not grant server permissions, guara
 
 ## What is new in 2.2.1
 
-SkyOP 2.2.1 fixes a Minecraft 26.3 SDL keyboard-state crash that could interrupt world loading and mouse capture. A small Mixin bounds-checks keyboard-state lookups so negative or out-of-range indexes are treated as not pressed, while unbound module keys retain Minecraft's normal Unbound semantics. Newly captured and saved keybinds are validated; invalid config values are safely reset to Unbound. The release includes the English-only client interface and mouse-capture recovery.
+SkyOP 2.2.1 fixes a Minecraft 26.3 SDL keyboard-state crash that could interrupt world loading and mouse capture. A small Mixin bounds-checks keyboard-state lookups so negative or out-of-range indexes are treated as not pressed, while unbound module keys retain Minecraft's normal Unbound semantics. Newly captured and saved keybinds are validated; invalid config values are safely reset to Unbound. The client ships a complete Indonesian/English interface and mouse-capture recovery.
 
-- **Language:** English is the only supported client language. Existing Indonesian configuration files are backed up and migrated to English automatically.
+- **Language:** Bahasa Indonesia is the default and English is available from the in-client selector. The selected language is stored in `config/skyop-client.properties`.
 - **Module browser:** search, category filtering, Favorites, two-column module cards and per-panel scrolling.
 - **Input and HUD editor:** per-module keybind capture, independently draggable HUD panels, six quick color swatches, and a custom RGB hex field (#RRGGBB).
 - **Inventory utilities:** Auto Eat, Auto Armor, Auto Tool, Auto Refill, Auto Fish and safe stack consolidation.
@@ -88,7 +88,7 @@ Press **Right Shift** in-game.
 | Press Escape while capturing a key | Cancel key capture |
 | Click the color swatch in the header | Open the six quick colors or enter a custom #RRGGBB value |
 | Click HUD Edit, then drag any visible HUD panel | Move that HUD panel independently; release to save |
-| Language indicator in the footer | English-only client language |
+| Language control in the footer | Switch between Bahasa Indonesia and English |
 | PVE / OP / VISUAL | Load the built-in quick preset |
 | Disable All | Disable modules and restore temporary client state |
 
@@ -167,7 +167,7 @@ The central settings schema declares numeric defaults and valid ranges. Settings
 
 ## Language
 
-SkyOP is English-only. Existing configurations that contain `language=id` are backed up before migration to `language=en`. The Minecraft global language setting is not changed.
+SkyOP supports Bahasa Indonesia (default) and English. Existing configurations that contain `language=id` remain Indonesian; invalid or missing values fall back to Indonesian. Switching languages does not change Minecraft's global language setting.
 
 ## Configuration locations
 
@@ -213,3 +213,12 @@ Bug reports should include Minecraft, Fabric Loader, Fabric API and Java version
 ## License
 
 Released under the **MIT License**. See LICENSE.
+
+
+## Phase 1 module architecture
+
+`SkyOPClient` is now a bootstrap-only Fabric entrypoint. It delegates startup to `SkyOPCore`. Runtime modules are registered as concrete subclasses of `SkyOPModule` through `SkyOPModuleManager`, split into movement, combat, visual/HUD and inventory module classes. `SkyOPState` owns shared persisted values and `SkyOPTelemetry` owns speed/CPS sampling.
+
+The ClickGUI inspector obtains its rows from `SkyOPModuleManager.settings(module)`. Boolean, numeric, mode, multi-select, color and keybind settings render and edit through their typed `SkyOPSetting` instances; the inspector does not contain a per-module settings switch. Setting labels resolve their translation keys at render time so a language switch also updates an already-open GUI.
+
+Bahasa Indonesia is the default. The English and Indonesian in-client dictionaries currently contain the same 227 keys. The Minecraft language resources `id_id.json` and `en_us.json` contain keybinding translations.

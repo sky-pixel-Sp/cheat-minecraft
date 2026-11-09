@@ -11,7 +11,7 @@ public final class SkyOPModuleDependencies {
 
     private SkyOPModuleDependencies() { }
 
-    public static Requirement requirement(SkyOPClient.Module module) {
+    public static Requirement requirement(SkyOPModuleId module) {
         return switch (module) {
             case AUTO_ARMOR, AUTO_TOOL, AUTO_REFILL, AUTO_EAT, INVENTORY_CLEANER, HOTBAR_PRESETS ->
                     Requirement.INVENTORY;
@@ -23,7 +23,7 @@ public final class SkyOPModuleDependencies {
         };
     }
 
-    public static boolean isAvailable(Minecraft client, SkyOPClient.Module module) {
+    public static boolean isAvailable(Minecraft client, SkyOPModuleId module) {
         Requirement requirement = requirement(module);
         if (requirement == Requirement.CLIENT) return true;
         if (client == null || client.player == null || client.level == null) return false;
@@ -36,15 +36,15 @@ public final class SkyOPModuleDependencies {
         return true;
     }
 
-    public static String missingRequirement(Minecraft client, SkyOPClient.Module module) {
+    public static String missingRequirement(Minecraft client, SkyOPModuleId module) {
         if (isAvailable(client, module)) return "";
         return switch (requirement(module)) {
             case CLIENT -> "";
-            case WORLD -> "Join a world first.";
-            case PLAYER -> "A player entity is required.";
-            case INVENTORY -> "Open the normal player inventory context first.";
-            case FISHING_ROD -> "Hold a fishing rod in your main hand.";
-            case BLOCK_TARGET -> "Aim at a block first.";
+            case WORLD -> SkyOPLanguage.text("dependency.join_world");
+            case PLAYER -> SkyOPLanguage.text("dependency.player_required");
+            case INVENTORY -> SkyOPLanguage.text("dependency.inventory_required");
+            case FISHING_ROD -> SkyOPLanguage.text("dependency.fishing_rod_required");
+            case BLOCK_TARGET -> SkyOPLanguage.text("dependency.block_target_required");
         };
     }
 }

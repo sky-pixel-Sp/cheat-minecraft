@@ -45,34 +45,6 @@ public final class SkyOPInventoryManager {
 
     private SkyOPInventoryManager() { }
 
-    public static void tick(Minecraft client) {
-        if (client.player == null || client.level == null || client.gameMode == null) {
-            resetWithoutPlayer();
-            return;
-        }
-
-        if (SkyOPClient.isEnabled(SkyOPClient.Module.AUTO_EAT)) tickAutoEat(client);
-        else stopEating(client);
-
-        if (client.gui.screen() != null || client.player.isSpectator()
-                || client.player.containerMenu != client.player.inventoryMenu) return;
-
-        if (SkyOPClient.isEnabled(SkyOPClient.Module.AUTO_ARMOR)) tickAutoArmor(client);
-        else armorDelay = 0;
-
-        if (SkyOPClient.isEnabled(SkyOPClient.Module.AUTO_TOOL)) tickAutoTool(client);
-        else restoreAutoTool(client);
-
-        if (SkyOPClient.isEnabled(SkyOPClient.Module.AUTO_REFILL)) tickAutoRefill(client);
-        else refillDelay = 0;
-
-        if (SkyOPClient.isEnabled(SkyOPClient.Module.INVENTORY_CLEANER)) tickInventoryCleaner(client);
-        else cleanDelay = 0;
-
-        if (SkyOPClient.isEnabled(SkyOPClient.Module.AUTO_FISH)) tickAutoFish(client);
-        else fishDelay = 0;
-    }
-
     public static void stop(Minecraft client) {
         stopEating(client);
         restoreAutoTool(client);
@@ -80,9 +52,22 @@ public final class SkyOPInventoryManager {
         refillDelay = 0;
         cleanDelay = 0;
         fishDelay = 0;
+        eatRetry = 0;
     }
 
-    private static void tickAutoEat(Minecraft client) {
+    static void onModuleDisabled(Minecraft client, SkyOPModuleId module) {
+        switch (module) {
+            case AUTO_EAT -> stopEating(client);
+            case AUTO_ARMOR -> armorDelay = 0;
+            case AUTO_TOOL -> restoreAutoTool(client);
+            case AUTO_REFILL -> refillDelay = 0;
+            case INVENTORY_CLEANER -> cleanDelay = 0;
+            case AUTO_FISH -> fishDelay = 0;
+            default -> { }
+        }
+    }
+
+    static void tickAutoEat(Minecraft client) {
         var player = client.player;
         if (eatRetry > 0) eatRetry--;
         if (eatDelay > 0) {
@@ -93,7 +78,7 @@ public final class SkyOPInventoryManager {
 
         int foodLevel = player.getFoodData().getFoodLevel();
         if (!eating) {
-            if (foodLevel >= SkyOPClient.autoEatThreshold || player.isUsingItem()
+            if (foodLevel >= SkyOPState.autoEatThreshold || player.isUsingItem()
                     || (client.options.keyUse.isDown() && !ownsUseKey) || eatRetry > 0) return;
 
             int slot = findFoodHotbar(player.getInventory(), 20 - foodLevel);
@@ -170,7 +155,7 @@ public final class SkyOPInventoryManager {
         client.options.keyUse.setDown(false);
     }
 
-    private static void stopEating(Minecraft client) {
+    static void stopEating(Minecraft client) {
         if (client.player != null) {
             releaseUse(client);
             if (eating && client.player.isUsingItem() && client.gameMode != null) {
@@ -190,7 +175,7 @@ public final class SkyOPInventoryManager {
         eatDelay = 0;
     }
 
-    private static void tickAutoArmor(Minecraft client) {
+    static void tickAutoArmor(Minecraft client) {
         if (armorDelay > 0) { armorDelay--; return; }
         var player = client.player;
         var inventory = player.getInventory();
@@ -210,7 +195,7 @@ public final class SkyOPInventoryManager {
         }
     }
 
-    private static void tickAutoTool(Minecraft client) {
+    static void tickAutoTool(Minecraft client) {
         if (!client.options.keyAttack.isDown()
                 || !(client.hitResult instanceof BlockHitResult blockHit)) {
             restoreAutoTool(client);
@@ -240,7 +225,7 @@ public final class SkyOPInventoryManager {
         }
     }
 
-    private static void restoreAutoTool(Minecraft client) {
+    static void restoreAutoTool(Minecraft client) {
         if (client.player != null && autoToolSlot >= 0 && previousToolSlot >= 0
                 && client.player.getInventory().getSelectedSlot() == autoToolSlot) {
             client.player.getInventory().setSelectedSlot(previousToolSlot);
@@ -249,13 +234,13 @@ public final class SkyOPInventoryManager {
         previousToolSlot = -1;
     }
 
-    private static void tickAutoRefill(Minecraft client) {
+    static void tickAutoRefill(Minecraft client) {
         if (refillDelay > 0) { refillDelay--; return; }
         var player = client.player;
         var inventory = player.getInventory();
         int selected = inventory.getSelectedSlot();
         ItemStack current = inventory.getItem(selected);
-        if (current.isEmpty() || current.getCount() > SkyOPClient.autoRefillThreshold) return;
+        if (current.isEmpty() || current.getCount() > SkyOPState.autoRefillThreshold) return;
 
         for (int slot = 9; slot < Math.min(36, inventory.getContainerSize()); slot++) {
             ItemStack candidate = inventory.getItem(slot);
@@ -271,7 +256,7 @@ public final class SkyOPInventoryManager {
     /**
      * Consolidates matching stacks into already-existing hotbar stacks. It never drops items.
      */
-    private static void tickInventoryCleaner(Minecraft client) {
+    static void tickInventoryCleaner(Minecraft client) {
         if (cleanDelay > 0) { cleanDelay--; return; }
         var player = client.player;
         var inventory = player.getInventory();
@@ -304,7 +289,7 @@ public final class SkyOPInventoryManager {
      * Retrieves a bite only when the 26.3 fishing-hook accessor reports it. Then recasts after
      * a short delay. It uses the ordinary fishing-rod action and server-side catch calculation.
      */
-    private static void tickAutoFish(Minecraft client) {
+    static void tickAutoFish(Minecraft client) {
         if (fishDelay > 0) { fishDelay--; return; }
         var player = client.player;
         ItemStack rod = player.getMainHandItem();
