@@ -221,4 +221,4 @@ Released under the **MIT License**. See LICENSE.
 
 The ClickGUI inspector obtains its rows from `SkyOPModuleManager.settings(module)`. Boolean, numeric, mode, multi-select, color and keybind settings render and edit through their typed `SkyOPSetting` instances; the inspector does not contain a per-module settings switch. Setting labels resolve their translation keys at render time so a language switch also updates an already-open GUI.
 
-Bahasa Indonesia is the default. The English and Indonesian in-client dictionaries currently contain the same 227 keys. The Minecraft language resources `id_id.json` and `en_us.json` contain keybinding translations.
+Bahasa Indonesia is the default. The English and Indonesian in-client dictionaries currently contain the same 232 keys. The Minecraft language resources `id_id.json` and `en_us.json` contain keybinding translations.
