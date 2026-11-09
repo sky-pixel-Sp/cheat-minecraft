@@ -203,6 +203,19 @@ public final class SkyOPLanguage {
         put("setting.successful_attacks", "Successful attack actions per second");
         put("setting.module_status", "Module status");
         put("setting.toggle_module_list", "Toggle this module from the module list");
+        put("setting.attack_delay", "Attack delay");
+        put("setting.attack_delay_desc", "Ticks between successful attack attempts.");
+        put("setting.hunt_range", "Hunt range");
+        put("setting.hunt_range_desc", "Maximum loaded hostile-mob distance in blocks.");
+        put("setting.placement_delay", "Placement delay");
+        put("setting.placement_delay_desc", "Ticks between block placement attempts.");
+        put("setting.jump_multiplier", "Jump multiplier");
+        put("setting.jump_multiplier_desc", "Multiplier applied to the local jump impulse.");
+        put("setting.show_items", "Show dropped items");
+        put("setting.highlight_items", "Highlight item entities already loaded by the client.");
+        put("setting.hud_accent", "HUD accent color");
+        put("setting.hud_accent_desc", "Accent color used by SkyOP HUD panels.");
+        put("setting.keybind_description", "Keyboard shortcut used to toggle this module.");
         put("gui.client_ready", "CLIENT READY");
         put("gui.favorites", "FAVORITES");
         put("category.inventory", "Inventory");
@@ -716,6 +729,21 @@ public final class SkyOPLanguage {
         translate("id", Map.ofEntries(
                 e("gui.client_ready", "KLIEN SIAP"),
                 e("gui.favorites", "FAVORIT")
+        ));
+        translate("id", Map.ofEntries(
+                e("setting.attack_delay", "Jeda Serangan"),
+                e("setting.attack_delay_desc", "Jumlah tick di antara percobaan serangan yang berhasil."),
+                e("setting.hunt_range", "Jarak Berburu"),
+                e("setting.hunt_range_desc", "Jarak maksimum mob agresif yang sudah dimuat."),
+                e("setting.placement_delay", "Jeda Pemasangan"),
+                e("setting.placement_delay_desc", "Jumlah tick di antara percobaan pemasangan blok."),
+                e("setting.jump_multiplier", "Pengali Lompatan"),
+                e("setting.jump_multiplier_desc", "Pengali yang diterapkan pada dorongan lompatan lokal."),
+                e("setting.show_items", "Tampilkan Item Jatuh"),
+                e("setting.highlight_items", "Sorot entitas item yang sudah dimuat oleh client."),
+                e("setting.hud_accent", "Warna Aksen HUD"),
+                e("setting.hud_accent_desc", "Warna aksen yang digunakan panel HUD SkyOP."),
+                e("setting.keybind_description", "Tombol pintasan untuk mengaktifkan atau menonaktifkan modul.")
         ));
     }
 
