@@ -203,7 +203,7 @@ public final class SkyOPMovementModules {
         jumpKeyWasDown = jumpDown;
     }
 
-private static void restoreFlight(Minecraft client) {
+static void restoreFlight(Minecraft client) {
         Player target = flightPlayer != null ? flightPlayer : client.player;
         if (target != null && originalNoGravity != null) {
             target.setNoGravity(originalNoGravity);
