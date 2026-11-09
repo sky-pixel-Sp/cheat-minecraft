@@ -153,6 +153,13 @@ private static boolean attack(Minecraft client, LivingEntity target) {
         return true;
     }
 
+    static void cleanup() {
+        auraCooldown = 0;
+        triggerCooldown = 0;
+        clickerCooldown = 0;
+        autoHuntCooldown = 0;
+    }
+
     public static final class KillAura extends SkyOPModule {
         public KillAura(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.KILL_AURA, settings); }
         @Override public void onTick(Minecraft client) { tickKillAura(client); }
