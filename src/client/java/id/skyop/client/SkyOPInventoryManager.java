@@ -52,6 +52,7 @@ public final class SkyOPInventoryManager {
         refillDelay = 0;
         cleanDelay = 0;
         fishDelay = 0;
+        eatRetry = 0;
     }
 
     static void onModuleDisabled(Minecraft client, SkyOPModuleId module) {
