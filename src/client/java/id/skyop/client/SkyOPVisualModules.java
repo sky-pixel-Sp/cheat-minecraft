@@ -119,4 +119,68 @@ private static boolean shouldEsp(Entity entity) {
         public NightVision(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.NIGHT_VISION, settings); }
         @Override public void onDisable(Minecraft client) { disable(client, type()); }
     }
+
+    public static final class Waypoints extends SkyOPModule {
+        public Waypoints(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.WAYPOINTS, settings); }
+    }
+
+    public static final class MiniMap extends SkyOPModule {
+        public MiniMap(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.MINIMAP, settings); }
+    }
+
+    public static final class Hud extends SkyOPModule {
+        public Hud(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.HUD, settings); }
+    }
+
+    public static final class TargetHud extends SkyOPModule {
+        public TargetHud(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.TARGET_HUD, settings); }
+    }
+
+    public static final class KeystrokesHud extends SkyOPModule {
+        public KeystrokesHud(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.KEYSTROKES_HUD, settings); }
+    }
+
+    public static final class ArmorHud extends SkyOPModule {
+        public ArmorHud(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.ARMOR_HUD, settings); }
+    }
+
+    public static final class Speedometer extends SkyOPModule {
+        public Speedometer(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.SPEEDOMETER, settings); }
+    }
+
+    public static final class CpsHud extends SkyOPModule {
+        public CpsHud(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.CPS_HUD, settings); }
+    }
+
+    public static final class PotionHud extends SkyOPModule {
+        public PotionHud(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.POTION_HUD, settings); }
+    }
+
+    public static final class DurabilityHud extends SkyOPModule {
+        public DurabilityHud(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.DURABILITY_HUD, settings); }
+    }
+
+    public static final class CompassHud extends SkyOPModule {
+        public CompassHud(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.COMPASS_HUD, settings); }
+    }
+
+    public static final class DirectionHud extends SkyOPModule {
+        public DirectionHud(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.DIRECTION_HUD, settings); }
+    }
+
+    public static final class PingHud extends SkyOPModule {
+        public PingHud(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.PING_HUD, settings); }
+    }
+
+    public static final class FpsHud extends SkyOPModule {
+        public FpsHud(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.FPS_HUD, settings); }
+    }
+
+    public static final class RadarHud extends SkyOPModule {
+        public RadarHud(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.RADAR_HUD, settings); }
+    }
+
+    public static final class TextHud extends SkyOPModule {
+        public TextHud(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.TEXT_GUI, settings); }
+    }
 }
