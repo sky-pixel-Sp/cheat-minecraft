@@ -35,7 +35,7 @@ class SkyOPConfigManagerTest {
     }
 
     @Test
-    void missingConfigReturnsEnglishVersionedDefaultsWithoutCreatingAFile() throws Exception {
+    void missingConfigReturnsIndonesianVersionedDefaultsWithoutCreatingAFile() throws Exception {
         Path config = temporaryDirectory.resolve("config/skyop-client.properties");
         Properties loaded = SkyOPConfigManager.load(config, temporaryDirectory.resolve("backups"));
 
@@ -74,7 +74,7 @@ class SkyOPConfigManagerTest {
     }
 
     @Test
-    void saveWritesVersionedEnglishConfigAndRoundTripsValues() throws Exception {
+    void savePreservesSelectedLanguageAndRoundTripsValues() throws Exception {
         Path config = temporaryDirectory.resolve("config/skyop-client.properties");
         Properties values = new Properties();
         values.setProperty("language", "en");
@@ -84,7 +84,7 @@ class SkyOPConfigManagerTest {
 
         Properties loaded = readConfig(config);
         assertEquals("2", loaded.getProperty("configVersion"));
-        assertEquals("id", loaded.getProperty("language"));
+        assertEquals("en", loaded.getProperty("language"));
         assertEquals("4.5", loaded.getProperty("auraRange"));
         try (Stream<Path> files = Files.list(config.getParent())) {
             assertEquals(1, files.count(), "temporary files must be removed after atomic save");
