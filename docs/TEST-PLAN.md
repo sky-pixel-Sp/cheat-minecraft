@@ -12,8 +12,8 @@ A green CI result proves compilation and packaging. It does not prove an in-game
 2. Install Fabric Loader 0.20.1 and Fabric API 0.165.2+26.3.
 3. Add skyop-client-2.3.0-dev.jar to that instance's mods folder.
 4. Launch to the title screen and confirm no mixin or resource errors appear.
-5. Join a local single-player world and wait for the loading screen to close; verify no IndexOutOfBoundsException occurs when Minecraft restores all key states.
-6. Repeat with SkyOP module keybinds left unassigned; verify unbound keys do not crash world loading or mouse capture.
+5. Join a local single-player world and wait for the loading screen to close; verify no IndexOutOfBoundsException occurs when Minecraft restores all key states. Confirm the InputConstantsMixin applies to the Minecraft 26.3 `isKeyDown(int)` method and does not report a missing injection target.
+6. Repeat with SkyOP module keybinds left unassigned; verify unbound keys do not crash world loading or mouse capture; the vanilla UNKNOWN key uses SDL scancode 0, and invalid negative indexes must be rejected before ByteBuffer access.
 7. Open ClickGUI with Right Shift, close it with Escape and verify the mouse is re-captured for camera movement without requiring another click.
 8. Open ClickGUI, assign a module keybind, restart the client and verify the saved scancode is restored; invalid negative/out-of-range values must safely become Unbound.
 7. Close ClickGUI while HUD editor drag mode is active; verify no stale drag state remains and mouse camera control resumes.
