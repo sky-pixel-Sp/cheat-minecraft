@@ -2,6 +2,13 @@ package id.skyop.client;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.network.chat.Component;
 
 import java.util.List;
@@ -67,7 +74,7 @@ public final class SkyOPHudRenderer {
                 int barWidth = 164;
                 graphics.fill(x + 10, y + 43, x + 10 + barWidth, y + 49, 0xFF36465A);
                 float ratio = target.getMaxHealth() <= 0 ? 0
-                        : Mth.SkyOPMath.clamp(target.getHealth() / target.getMaxHealth(), 0.0F, 1.0F);
+                        : Mth.clamp(target.getHealth() / target.getMaxHealth(), 0.0F, 1.0F);
                 graphics.fill(x + 10, y + 43, x + 10 + (int) (barWidth * ratio), y + 49, 0xFF57D69A);
             } else {
                 graphics.text(client.font, Component.literal(SkyOPLanguage.text("gui.no_target")), x + 10, y + 25, 0xFF9AAABD, true);
