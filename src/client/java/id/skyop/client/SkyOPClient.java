@@ -309,7 +309,7 @@ public final class SkyOPClient implements ClientModInitializer {
         FAVORITES.clear();
         loadConfig();
         if (!ENABLED.contains(Module.ENTITY_ESP)) restoreGlow();
-        if (!ENABLED.contains(Module.GAMMA_BOOST)) restoreGamma(Minecraft.getInstance());
+        if (!ENABLED.contains(Module.GAMMA_BOOST) && !ENABLED.contains(Module.NIGHT_VISION)) restoreGamma(Minecraft.getInstance());
         if (!ENABLED.contains(Module.FLIGHT)) restoreFlight(Minecraft.getInstance());
     }
 
@@ -351,7 +351,8 @@ public final class SkyOPClient implements ClientModInitializer {
         }
         if (enabled) ENABLED.add(module); else ENABLED.remove(module);
 
-        if (module == Module.ENTITY_ESP && !enabled) restoreGlow();
+        if ((module == Module.ENTITY_ESP || module == Module.ITEM_ESP) && !enabled
+                && !isEnabled(Module.ENTITY_ESP) && !isEnabled(Module.ITEM_ESP)) restoreGlow();
         if (module == Module.FLIGHT && !enabled) restoreFlight(client);
         if ((module == Module.GAMMA_BOOST || module == Module.NIGHT_VISION) && !enabled
                 && !isEnabled(Module.GAMMA_BOOST) && !isEnabled(Module.NIGHT_VISION)) restoreGamma(client);
@@ -405,7 +406,7 @@ public final class SkyOPClient implements ClientModInitializer {
             }
         }
 
-        if (!isEnabled(Module.ENTITY_ESP)) restoreGlow();
+        if (!isEnabled(Module.ENTITY_ESP) && !isEnabled(Module.ITEM_ESP)) restoreGlow();
         if (!isEnabled(Module.FLIGHT)) restoreFlight(client);
         if (!isEnabled(Module.GAMMA_BOOST)) restoreGamma(client);
         if (!isEnabled(Module.AUTO_FISH)) SkyOPInventoryManager.stop(client);
@@ -461,7 +462,7 @@ public final class SkyOPClient implements ClientModInitializer {
         if (isEnabled(Module.NO_FALL) && client.player.fallDistance > 1.0F) {
             client.player.fallDistance = 0.0F;
         }
-        if (isEnabled(Module.ENTITY_ESP)) tickEsp(client);
+        if (isEnabled(Module.ENTITY_ESP) || isEnabled(Module.ITEM_ESP)) tickEsp(client);
         if (isEnabled(Module.GAMMA_BOOST) || isEnabled(Module.NIGHT_VISION)) tickGamma(client);
         else restoreGamma(client);
 
