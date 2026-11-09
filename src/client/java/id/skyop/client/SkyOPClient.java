@@ -1172,7 +1172,7 @@ public final class SkyOPClient implements ClientModInitializer {
         Properties p = new Properties();
         try (Reader reader = Files.newBufferedReader(CONFIG_FILE)) {
             p.load(reader);
-            SkyOPLanguage.set(p.getProperty("language", "id"));
+            SkyOPLanguage.set(p.getProperty("language", "en"));
             for (Module module : Module.values()) {
                 String value = p.getProperty("module." + module.name());
                 if (value != null) {
