@@ -35,5 +35,14 @@
   "key.skyop.module.auto_fish": "Mancing Otomatis",
   "key.skyop.module.inventory_cleaner": "Pembersih Inventaris",
   "key.skyop.module.hotbar_presets": "Preset Hotbar",
-  "key.skyop.module.profile_manager": "Pengelola Profil"
+  "key.skyop.module.profile_manager": "Pengelola Profil",
+  "key.skyop.add_waypoint": "Simpan titik koordinat SkyOP",
+  "key.skyop.module.auto_hunt": "Berburu Otomatis",
+  "key.skyop.module.auto_bridge": "Jembatan Otomatis",
+  "key.skyop.module.infinite_jump": "Lompat Tanpa Batas",
+  "key.skyop.module.jump_boost": "Lompatan Tinggi",
+  "key.skyop.module.item_esp": "ESP Item",
+  "key.skyop.module.waypoints": "Titik Koordinat",
+  "key.skyop.module.minimap": "Peta Mini",
+  "key.skyop.module.night_vision": "Penglihatan Malam"
 }
