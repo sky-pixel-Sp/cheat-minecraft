@@ -8,6 +8,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -590,7 +591,7 @@ public final class SkyOPClient implements ClientModInitializer {
     private static void tickAutoBridge(Minecraft client) {
         if (bridgeCooldown > 0) { bridgeCooldown--; return; }
         if (client.gameMode == null) return;
-        Player player = client.player;
+        LocalPlayer player = client.player;
         boolean moving = client.options.keyUp.isDown() || client.options.keyDown.isDown()
                 || client.options.keyLeft.isDown() || client.options.keyRight.isDown();
         if (!moving || !player.isAlive() || player.isPassenger() || player.isSpectator()) return;
@@ -609,7 +610,7 @@ public final class SkyOPClient implements ClientModInitializer {
         }
         if (support == null || placeFace == null) return;
 
-        int previousSlot = player.getInventory().selected;
+        int previousSlot = player.getInventory().getSelectedSlot();
         int blockSlot = -1;
         for (int slot = 0; slot < 9; slot++) {
             if (player.getInventory().getItem(slot).getItem() instanceof BlockItem) {
@@ -619,7 +620,7 @@ public final class SkyOPClient implements ClientModInitializer {
         }
         if (blockSlot < 0) return;
 
-        player.getInventory().selected = blockSlot;
+        player.getInventory().setSelectedSlot(blockSlot);
         Vec3 hitLocation = new Vec3(
                 support.getX() + 0.5 + placeFace.getStepX() * 0.5,
                 support.getY() + 0.5,
@@ -627,7 +628,7 @@ public final class SkyOPClient implements ClientModInitializer {
         BlockHitResult hit = new BlockHitResult(hitLocation, placeFace, support, false);
         client.gameMode.useItemOn(player, InteractionHand.MAIN_HAND, hit);
         player.swing(InteractionHand.MAIN_HAND, SwingAnimation.DEFAULT, true);
-        player.getInventory().selected = previousSlot;
+        player.getInventory().setSelectedSlot(previousSlot);
         bridgeCooldown = clamp(bridgeDelayTicks, 1, 10);
     }
 
@@ -662,7 +663,7 @@ public final class SkyOPClient implements ClientModInitializer {
         double range = clamp(autoHuntRange, 2.5, 6.0);
         List<Monster> candidates = client.level.getEntitiesOfClass(
                 Monster.class, player.getBoundingBox().inflate(range),
-                entity -> entity != player && entity.isAlive() && !entity.isInvisible()
+                entity -> entity.isAlive() && !entity.isInvisible()
         );
         Monster target = null;
         double bestDistance = range * range;
