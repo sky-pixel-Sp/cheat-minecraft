@@ -32,6 +32,9 @@ public final class SkyOPSettingsSchema {
         number("espRange", 48, 8, 96, false);
         number("autoEatThreshold", 14, 2, 18, true);
         number("autoRefillThreshold", 2, 1, 16, true);
+        number("autoHuntRange", 4.5, 2.5, 6.0, false);
+        number("jumpBoostMultiplier", 1.35, 1.0, 3.0, false);
+        number("bridgeDelayTicks", 2, 1, 10, true);
     }
 
     private SkyOPSettingsSchema() { }

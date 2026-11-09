@@ -2,7 +2,7 @@ name: Build SkyOP Client
 
 on:
   push:
-    branches: [main]
+    branches: [main, 'feature/**']
   pull_request:
   workflow_dispatch:
 
@@ -37,13 +37,13 @@ jobs:
       - name: Build and run verification tasks
         run: gradle --no-daemon clean build
 
-      - name: Verify remapped mod JAR
+      - name: Verify installable mod JAR
         shell: bash
         run: |
           set -euo pipefail
-          JAR_PATH="$(find build/libs -maxdepth 1 -type f -name 'skyop-client-*.jar' ! -name '*-dev.jar' ! -name '*-sources.jar' | sort | head -n 1)"
+          JAR_PATH="$(find build/libs -maxdepth 1 -type f -name 'skyop-client-*.jar' ! -name '*-sources.jar' | sort | head -n 1)"
           if [[ -z "$JAR_PATH" ]]; then
-            echo 'No remapped SkyOP JAR was produced.' >&2
+            echo 'No SkyOP mod JAR was produced.'
             find build/libs -maxdepth 1 -type f -print || true
             exit 1
           fi
@@ -51,7 +51,13 @@ jobs:
           # SDL keyboard-state buffers are indexed by 0..SDL_SCANCODE_COUNT-1.
           # Keep vanilla UNKNOWN semantics, but guard every lookup before ByteBuffer access.
           grep -Fq 'SDL_SCANCODE_COUNT = 512' src/main/java/id/skyop/client/SkyOPSdlKeyboardIndex.java
+          grep -Fq 'method = "isKeyDown(I)Z"' src/client/java/id/skyop/mixin/InputConstantsMixin.java
+          grep -Fq 'int key' src/client/java/id/skyop/mixin/InputConstantsMixin.java
           grep -Fq 'SkyOPSdlKeyboardIndex.isValidStateIndex(key)' src/client/java/id/skyop/mixin/InputConstantsMixin.java
+          if grep -Fq 'isKeyDown(JI)Z' src/client/java/id/skyop/mixin/InputConstantsMixin.java; then
+            echo 'Minecraft 26.3 uses InputConstants.isKeyDown(int), not the old window-handle signature.' >&2
+            exit 1
+          fi
           grep -Fq '"InputConstantsMixin"' src/main/resources/skyop.mixins.json
           grep -Fq 'InputConstants.UNKNOWN.getValue()' src/client/java/id/skyop/client/SkyOPClient.java
           grep -Fq 'InputConstants.UNKNOWN' src/client/java/id/skyop/client/SkyOPClient.java
@@ -66,9 +72,17 @@ jobs:
           grep -Fq 'client.mouseHandler.grabMouse();' src/client/java/id/skyop/client/SkyOPClient.java
           grep -Fq 'client.gui.screen() != null' src/client/java/id/skyop/client/SkyOPClient.java
           # Indonesian is the first-run default and must have module translations.
-          grep -Fq 'SkyOPLanguage.set(p.getProperty("language", "id"));' src/client/java/id/skyop/client/SkyOPClient.java
-          grep -Fq 'new Language("id", "Bahasa Indonesia")' src/client/java/id/skyop/client/SkyOPLanguage.java
-          grep -Fq 'e("module.KILL_AURA.title", "Aura Serang")' src/client/java/id/skyop/client/SkyOPLanguage.java
+          grep -Fq 'SkyOPLanguage.set(p.getProperty("language", "en"));' src/client/java/id/skyop/client/SkyOPClient.java
+          grep -Fq 'new Language("en", "English")' src/client/java/id/skyop/client/SkyOPLanguage.java
+          grep -Fq 'CURRENT_CONFIG_VERSION = 2' src/client/java/id/skyop/client/SkyOPConfigManager.java
+          grep -Fq 'SkyOPModuleManager.initialize();' src/client/java/id/skyop/client/SkyOPClient.java
+          grep -Fq 'SkyOPModuleManager.saveSettings(p);' src/client/java/id/skyop/client/SkyOPClient.java
+          grep -Fq 'SkyOPModuleManager.loadSettings(p);' src/client/java/id/skyop/client/SkyOPClient.java
+          if grep -Fq 'new Language("id", "Bahasa Indonesia")' src/client/java/id/skyop/client/SkyOPLanguage.java; then
+            echo 'SkyOP is English-only; do not reintroduce the Indonesian selector.' >&2
+            exit 1
+          fi
+          test ! -e src/main/resources/assets/skyop/lang/id_id.json
           if grep -Fq 'InputConstants.Type.KEYBOARD, -1' src/client/java/id/skyop/client/SkyOPClient.java; then
             echo 'Unbound key mappings must not pass raw -1 to the SDL keyboard backend.' >&2
             exit 1
@@ -85,7 +99,7 @@ jobs:
           fi
           unzip -p "$JAR_PATH" fabric.mod.json | grep -q '"id": "skyop"'
           unzip -p "$JAR_PATH" skyop.mixins.json | grep -q '"package": "id.skyop.mixin"'
-          echo "Verified JAR: $JAR_PATH"
+          echo "Verified installable JAR: $JAR_PATH"
           echo "SKYOP_JAR_PATH=$JAR_PATH" >> "$GITHUB_ENV"
 
       - name: Upload ready-to-install JAR

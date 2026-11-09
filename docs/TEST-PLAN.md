@@ -1,8 +1,8 @@
-# SkyOP Client 2.2.1 test plan
+# SkyOP Client 2.3.0 development test plan
 
 ## Automated CI checks
 
-GitHub Actions builds with Java 25 and Gradle 9.7.1 using Fabric Loom 1.18.4. It runs clean build (including JUnit tests for RGB hex parsing, formatting and SDL keyboard-state index boundaries), verifies the remapped JAR contains the client entrypoint, both client mixins and Fabric metadata, and uploads the installable JAR.
+GitHub Actions builds with Java 25 and Gradle 9.7.1 using the non-remapping Fabric Loom 1.18.4 plugin required for unobfuscated Minecraft 26.1+. It runs clean build (including JUnit tests for RGB hex parsing, formatting and SDL keyboard-state index boundaries), verifies the installable JAR contains the client entrypoint, both client mixins and Fabric metadata, and uploads the JAR.
 
 A green CI result proves compilation and packaging. It does not prove an in-game launch or multiplayer acceptance.
 
@@ -10,10 +10,10 @@ A green CI result proves compilation and packaging. It does not prove an in-game
 
 1. Create a separate Minecraft Java 26.3 Fabric instance.
 2. Install Fabric Loader 0.20.1 and Fabric API 0.165.2+26.3.
-3. Add skyop-client-2.2.1.jar to that instance's mods folder.
+3. Add skyop-client-2.3.0-dev.jar to that instance's mods folder.
 4. Launch to the title screen and confirm no mixin or resource errors appear.
-5. Join a local single-player world and wait for the loading screen to close; verify no IndexOutOfBoundsException occurs when Minecraft restores all key states.
-6. Repeat with SkyOP module keybinds left unassigned; verify unbound keys do not crash world loading or mouse capture.
+5. Join a local single-player world and wait for the loading screen to close; verify no IndexOutOfBoundsException occurs when Minecraft restores all key states. Confirm the InputConstantsMixin applies to the Minecraft 26.3 `isKeyDown(int)` method and does not report a missing injection target.
+6. Repeat with SkyOP module keybinds left unassigned; verify unbound keys do not crash world loading or mouse capture; the vanilla UNKNOWN key uses SDL scancode 0, and invalid negative indexes must be rejected before ByteBuffer access.
 7. Open ClickGUI with Right Shift, close it with Escape and verify the mouse is re-captured for camera movement without requiring another click.
 8. Open ClickGUI, assign a module keybind, restart the client and verify the saved scancode is restored; invalid negative/out-of-range values must safely become Unbound.
 7. Close ClickGUI while HUD editor drag mode is active; verify no stale drag state remains and mouse camera control resumes.
@@ -22,10 +22,11 @@ A green CI result proves compilation and packaging. It does not prove an in-game
 
 ## Language
 
-1. Start with no SkyOP config file; verify Bahasa Indonesia is selected by default.
-2. Click the language control and verify the interface changes completely to English; click again and verify Bahasa Indonesia returns.
-3. Verify all six categories, all module titles and descriptions, setting labels, keybind controls, profile/hotbar controls and HUD editor hints are translated.
-4. Close/reopen Minecraft and verify the selected language is persisted.
+1. Start with no SkyOP config file; verify the entire client interface is English.
+2. Load a legacy config containing `language=id`; verify it is backed up and migrated to `language=en`.
+3. Verify all six categories, module titles and descriptions, setting labels, keybind controls, profile/hotbar controls and HUD hints are English.
+4. Open ClickGUI, verify the English labels remain stable while the screen is resized, then close and reopen Minecraft.
+5. Verify the persisted config contains `language=en` and `configVersion=2`.
 
 ## ClickGUI and core
 
@@ -104,3 +105,43 @@ Only use a private server you control and are allowed to test. Server-side corre
 ## Evidence to record
 
 Record game, Loader, API and Java versions; module states/settings; video or screenshots for GUI; logs/latest.log; crash report; profile JSON and backup files; and the GitHub Actions run URL.
+
+## SkyOP 2.3 development additions
+
+Run these checks in a disposable single-player world before using a private server:
+
+1. Auto Hunt: spawn several hostile mobs within the configured range; verify it selects the nearest visible mob, does not rotate the camera and respects attack cooldown.
+2. Auto Bridge: place a supported gap in front of the player, keep placeable blocks in the hotbar, walk toward the gap and verify blocks are placed beneath the player. Check that no block is placed when there is no valid support or no hotbar BlockItem.
+3. Infinite Jump: jump, release the jump key, then press it again in midair; verify one additional upward impulse per fresh press rather than continuous flight.
+4. Jump Boost: compare the jump impulse at 1.0x and 3.0x, then verify the value persists after restart.
+5. Item ESP: drop items in range and verify their glow is enabled only when Entity ESP or Item ESP is active; verify original glow state is restored after disabling both.
+6. Waypoints: press V in a world; verify a coordinate entry appears in the Waypoints HUD and is persisted in config/skyop-client/waypoints.properties. Restart and verify it reloads. Test the 32-waypoint limit.
+7. Mini Map: spawn a player, hostile mob and dropped item within 48 blocks; verify the HUD dots update as entities move and disappear when no longer client-loaded.
+8. Night Vision: enable in a dark local area, then disable and verify the original gamma value is restored. Test toggling Gamma Boost and Night Vision in both orders.
+9. New settings: write out-of-range values for autoHuntRange, jumpBoostMultiplier and bridgeDelayTicks; verify values are clamped or reset to safe defaults.
+10. Password EXE: confirm the Windows workflow runs py_compile, builds SkyOP-Password-Generator.exe, and uploads the artifact. Test generation with each character group enabled/disabled, copy, save, and ambiguous-character exclusion.
+11. Disable All: enable all new modules, press F12, and confirm temporary glow/gamma state is restored and movement automation stops.
+
+A green CI build does not replace these in-game checks.
+
+The feature branch CI also runs on branch pushes so every incremental fix is compiled and the unobfuscated distributable is checked.
+
+
+## Phase 1 architecture and configuration regression checks
+
+1. Start with no SkyOP config; verify defaults load and the first save writes `configVersion=2` and `language=en`.
+2. Copy a legacy v0 config with existing module toggles, keybinds and numeric settings; start SkyOP and verify a backup is created before migration and all existing values are preserved.
+3. Start with a v1 config; verify it migrates to v2 and the backup contains the exact pre-migration file.
+4. Put an invalid Unicode escape in the Properties file; verify the original file is backed up, safe defaults are loaded, and the client does not crash.
+5. Put malformed booleans, invalid numbers, NaN and out-of-range numbers in the config; verify invalid values fall back and numeric values respect the central schema.
+6. Put a configVersion higher than the client version; verify SkyOP reports a load error and does not overwrite the newer file.
+7. Enable Flight, ESP, Gamma and Auto Eat; disconnect while active; verify temporary gravity, glow, gamma and use-key state are restored.
+8. Enable modules, change dimension, and respawn; verify no previous-world glow or flight state remains and active modules can initialize in the new context.
+9. Rebind several modules, save/restart, and verify all keybinds round-trip; invalid scancodes return to their module default or Unbound.
+10. Test all module categories and presets; verify the tick order remains Movement → NoFall → Visual → Combat → Inventory, and Disable All restores temporary state.
+11. Resize the window repeatedly while ClickGUI is open; repeat at GUI scale 1 and 4, and at 854x480; record clipping/overlap for the upcoming compact-UI phase.
+12. Open ClickGUI, verify all visible labels are English, and confirm legacy language config migration does not introduce an unsupported language option.
+13. Import a profile with invalid numeric values; verify validated values are applied, the pre-import config backup exists, and the client remains responsive.
+14. Switch worlds while the GUI is open, close it, and verify the client retains mouse capture only during active gameplay.
+
+CI coverage for Phase 1 includes ConfigManager migration/corruption tests and typed-setting serialization tests. Manual Minecraft checks remain required for lifecycle and in-game behavior.

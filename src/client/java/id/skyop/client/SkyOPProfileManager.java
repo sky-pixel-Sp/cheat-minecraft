@@ -140,10 +140,7 @@ public final class SkyOPProfileManager {
     private static void apply(Map<String, String> values) throws IOException {
         Properties p = new Properties();
         p.putAll(values);
-        Files.createDirectories(SkyOPClient.configPath().getParent());
-        try (var writer = Files.newBufferedWriter(SkyOPClient.configPath())) {
-            p.store(writer, "SkyOP Client profile");
-        }
+        SkyOPConfigManager.save(SkyOPClient.configPath(), p);
         SkyOPClient.reloadConfigFromDisk();
     }
 
