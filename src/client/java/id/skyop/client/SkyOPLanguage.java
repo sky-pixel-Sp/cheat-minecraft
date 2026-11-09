@@ -216,6 +216,11 @@ public final class SkyOPLanguage {
         put("setting.hud_accent", "HUD accent color");
         put("setting.hud_accent_desc", "Accent color used by SkyOP HUD panels.");
         put("setting.keybind_description", "Keyboard shortcut used to toggle this module.");
+        put("dependency.join_world", "Join a world first.");
+        put("dependency.player_required", "A player entity is required.");
+        put("dependency.inventory_required", "Open the normal player inventory context first.");
+        put("dependency.fishing_rod_required", "Hold a fishing rod in your main hand.");
+        put("dependency.block_target_required", "Aim at a block first.");
         put("gui.client_ready", "CLIENT READY");
         put("gui.favorites", "FAVORITES");
         put("category.inventory", "Inventory");
@@ -744,6 +749,13 @@ public final class SkyOPLanguage {
                 e("setting.hud_accent", "Warna Aksen HUD"),
                 e("setting.hud_accent_desc", "Warna aksen yang digunakan panel HUD SkyOP."),
                 e("setting.keybind_description", "Tombol pintasan untuk mengaktifkan atau menonaktifkan modul.")
+        ));
+        translate("id", Map.ofEntries(
+                e("dependency.join_world", "Masuk ke dunia terlebih dahulu."),
+                e("dependency.player_required", "Entitas pemain diperlukan."),
+                e("dependency.inventory_required", "Buka inventaris pemain terlebih dahulu."),
+                e("dependency.fishing_rod_required", "Pegang pancing di tangan utama."),
+                e("dependency.block_target_required", "Arahkan bidikan ke sebuah blok terlebih dahulu.")
         ));
     }
 
