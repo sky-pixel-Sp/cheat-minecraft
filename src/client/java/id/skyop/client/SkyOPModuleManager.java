@@ -75,7 +75,7 @@ public final class SkyOPModuleManager {
     public static void saveSettings(Properties properties) {
         for (SkyOPModule module : MODULES.values()) {
             for (SkyOPSetting<?> setting : module.settings()) {
-                if (setting instanceof KeybindSetting) continue;
+                if (setting instanceof KeybindSetting || setting instanceof ActionSetting || setting instanceof TextSetting) continue;
                 properties.setProperty(settingKey(module.type(), setting), setting.serialize());
             }
         }
@@ -282,6 +282,38 @@ public final class SkyOPModuleManager {
                     () -> (double) SkyOPState.autoRefillThreshold, value -> SkyOPState.autoRefillThreshold = value.intValue()));
             case HUD -> settings.add(new ColorSetting("hudAccentColor", "lang:setting.hud_accent", "lang:setting.hud_accent_desc",
                     0xFF61C7F2, SkyOPCore::hudAccentColor, SkyOPCore::setHudAccentColor));
+            case PROFILE_MANAGER -> {
+                for (int slot = 1; slot <= 3; slot++) {
+                    final int profileSlot = slot;
+                    settings.add(action("profile.save." + slot, "gui.save", "gui.profile_slots_backup_restore",
+                            () -> SkyOPLanguage.text("gui.save") + " " + profileSlot,
+                            () -> SkyOPProfileManager.saveSlot(profileSlot)));
+                    settings.add(action("profile.load." + slot, "gui.load", "gui.profile_slots_backup_restore",
+                            () -> SkyOPLanguage.text("gui.load") + " " + profileSlot,
+                            () -> SkyOPProfileManager.loadSlot(profileSlot)));
+                }
+                settings.add(action("profile.export", "gui.export_json", "gui.profile_slots_backup_restore",
+                        () -> SkyOPLanguage.text("gui.export_json"), SkyOPProfileManager::exportCurrent));
+                settings.add(action("profile.import", "gui.import_json", "gui.profile_slots_backup_restore",
+                        () -> SkyOPLanguage.text("gui.import_json"), SkyOPProfileManager::importProfile));
+                settings.add(action("profile.backup", "gui.backup_now", "gui.profile_slots_backup_restore",
+                        () -> SkyOPLanguage.text("gui.backup_now"), SkyOPProfileManager::backupCurrent));
+            }
+            case HOTBAR_PRESETS -> {
+                for (int slot = 1; slot <= 3; slot++) {
+                    final int hotbarSlot = slot;
+                    settings.add(action("hotbar.save." + slot, "gui.save_hotbar", "gui.save_restore_hotbar",
+                            () -> SkyOPLanguage.text("gui.save_hotbar") + " " + hotbarSlot,
+                            () -> SkyOPProfileManager.saveHotbarPreset(hotbarSlot)));
+                    settings.add(action("hotbar.load." + slot, "gui.load_hotbar", "gui.save_restore_hotbar",
+                            () -> SkyOPLanguage.text("gui.load_hotbar") + " " + hotbarSlot,
+                            () -> SkyOPProfileManager.loadHotbarPreset(hotbarSlot)));
+                }
+            }
+            case TEXT_GUI -> settings.add(new TextSetting("customHudText",
+                    "lang:gui.custom_hud_text", "lang:gui.edit_text_help",
+                    SkyOPState.customHudText, 80, () -> SkyOPState.customHudText,
+                    SkyOPCore::setCustomHudText));
             default -> { }
         }
         return List.copyOf(settings);
@@ -291,6 +323,11 @@ public final class SkyOPModuleManager {
                                        Supplier<Boolean> getter, Consumer<Boolean> setter) {
         return new BooleanSetting(id, "lang:" + titleKey, "lang:" + descriptionKey,
                 getter.get(), getter, setter);
+    }
+
+    private static ActionSetting action(String id, String titleKey, String descriptionKey,
+                                         Supplier<String> label, ActionSetting.Action action) {
+        return new ActionSetting(id, "lang:" + titleKey, "lang:" + descriptionKey, label, action);
     }
 
     private static NumberSetting number(String id, String titleKey, String descriptionKey,
