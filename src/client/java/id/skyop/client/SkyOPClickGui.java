@@ -566,10 +566,12 @@ public final class SkyOPClickGui extends Screen {
 
     private void applySettingClick(SkyOPSetting<?> setting, double mouseX,
                                    int inspectorX, int inspectorWidth, int rowY) {
+        int settingInset = layout.compact() ? 7 : 15;
         if (setting instanceof BooleanSetting bool) {
             bool.set(!bool.value());
         } else if (setting instanceof NumberSetting number) {
-            int sliderX = inspectorX + 15, sliderWidth = Math.max(1, inspectorWidth - 30);
+            int sliderX = inspectorX + settingInset;
+            int sliderWidth = Math.max(1, inspectorWidth - settingInset * 2);
             double fraction = Math.max(0.0, Math.min(1.0, (mouseX - sliderX) / sliderWidth));
             number.set(number.minimum() + fraction * (number.maximum() - number.minimum()));
         } else if (setting instanceof ModeSetting mode) {
@@ -580,7 +582,7 @@ public final class SkyOPClickGui extends Screen {
             }
         } else if (setting instanceof MultiSetting multi) {
             int chipWidth = layout.compact() ? 44 : 64;
-            int localX = (int) mouseX - (inspectorX + 15);
+            int localX = (int) mouseX - (inspectorX + settingInset);
             int index = Math.max(0, localX / chipWidth);
             List<String> options = multi.options().stream().sorted().toList();
             if (index < options.size()) {
@@ -779,6 +781,12 @@ public final class SkyOPClickGui extends Screen {
             int disableWidth=labels?54:19,disableX=panelX+panelWidth-disableWidth-7;
             if (inside(mx,my,disableX,btnY,disableWidth,20)) { SkyOPCore.disableAll(Minecraft.getInstance()); return true; }
         }
+        if (inspectorOpen && button == InputConstants.MOUSE_BUTTON_LEFT) {
+            SkyOPGuiLayout.Rect inspector = layout.inspector();
+            if (inspector.contains(mx, my)
+                    && handleInspectorClick(mx, my, inspector.x(), inspector.y(),
+                        inspector.width(), inspector.height(), true)) return true;
+        }
         SkyOPGuiLayout.Rect sidebar=layout.sidebar();
         int rowH=compactCategoryRowHeight(),navIndex=0;
         for (SkyOPCategory category:SkyOPCategory.values()) {
@@ -810,10 +818,6 @@ public final class SkyOPClickGui extends Screen {
                 if (button==InputConstants.MOUSE_BUTTON_LEFT) {SkyOPCore.toggle(Minecraft.getInstance(),module);return true;}
             }
             index++;
-        }
-        if (inspectorOpen&&button==InputConstants.MOUSE_BUTTON_LEFT) {
-            SkyOPGuiLayout.Rect inspector=layout.inspector();
-            if (handleInspectorClick(mx,my,inspector.x(),inspector.y(),inspector.width(),inspector.height(),true)) return true;
         }
         if (button==InputConstants.MOUSE_BUTTON_RIGHT) return true;
         return super.mouseClicked(event,doubleClick);
