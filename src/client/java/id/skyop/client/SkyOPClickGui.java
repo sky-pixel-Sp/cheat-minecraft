@@ -154,7 +154,10 @@ public final class SkyOPClickGui extends Screen {
         int px = Math.max(panelX, panelX + panelWidth - 116), py = panelY + layout.headerHeight() - 2;
         int pw = Math.min(108, panelWidth - (px - panelX));
         g.fill(px, py, px + pw, py + 48, 0xF5101726);
-        g.outline(px, py, pw, 48, 0xFF40546B);
+        g.fill(px, py, px + pw, py + 1, 0xFF40546B);
+        g.fill(px, py + 47, px + pw, py + 48, 0xFF40546B);
+        g.fill(px, py, px + 1, py + 48, 0xFF40546B);
+        g.fill(px + pw - 1, py, px + pw, py + 48, 0xFF40546B);
         g.text(font, Component.literal(SkyOPLanguage.text("gui.hud_edit")), px + 7, py + 8, hudEditMode ? GREEN : TEXT, true);
         g.text(font, Component.literal(SkyOPLanguage.text("gui.hud_color")), px + 7, py + 29, ACCENT, true);
     }
@@ -266,13 +269,13 @@ public final class SkyOPClickGui extends Screen {
         }
         int langWidth = labels ? 82 : 22, langX = cursor + 2;
         if (langX + langWidth > panelX + panelWidth - 24) langX = panelX + panelWidth - langWidth - 25;
-        boolean langHover = inside(mouseX, mouseY, langX, btnY, langWidth, 20);
+        boolean langHover = inside(mouseX, mouseY, langX, btnY, langWidth, buttonHeight);
         g.fill(langX, btnY, langX + langWidth, btnY + buttonHeight, langHover ? PANEL_HOVER : PANEL_LIGHT);
         String lang = labels ? SkyOPLanguage.current().code().toUpperCase(java.util.Locale.ROOT) : "L";
         g.text(font, Component.literal(lang), langX + Math.max(3, (langWidth - font.width(lang)) / 2),
                 btnY + Math.max(0,(buttonHeight - 8) / 2), langHover ? TEXT : ACCENT, true);
         int disableWidth = labels ? 54 : 19, disableX = panelX + panelWidth - disableWidth - 7;
-        boolean disableHover = inside(mouseX, mouseY, disableX, btnY, disableWidth, 20);
+        boolean disableHover = inside(mouseX, mouseY, disableX, btnY, disableWidth, buttonHeight);
         g.fill(disableX, btnY, disableX + disableWidth, btnY + buttonHeight, disableHover ? 0xFF693542 : 0xFF482B35);
         String disableLabel = labels ? "OFF" : "×";
         g.text(font, Component.literal(disableLabel), disableX + Math.max(3, (disableWidth - font.width(disableLabel)) / 2),
@@ -840,17 +843,24 @@ public final class SkyOPClickGui extends Screen {
             navIndex++;
         }
         SkyOPGuiLayout.Rect list=layout.moduleList();
-        int searchX=list.x(),searchY=list.y()+17;
-        if (button==InputConstants.MOUSE_BUTTON_LEFT&&inside(mx,my,searchX,searchY,list.width(),18)) {searchFocused=true;return true;}
+        if (list.height() <= 20 || list.width() <= 8) return super.mouseClicked(event, doubleClick);
+        int searchY=list.y()+Math.min(17,Math.max(2,list.height()/3));
+        int searchH=Math.min(18,Math.max(10,list.height()-(searchY-list.y())-1));
+        if (button==InputConstants.MOUSE_BUTTON_LEFT&&inside(mx,my,list.x(),searchY,list.width(),searchH)) {searchFocused=true;return true;}
         if (button==InputConstants.MOUSE_BUTTON_LEFT&&searchFocused) searchFocused=false;
+        int listTop=list.y()+(list.height()>=56?41:(searchY-list.y())+searchH+3);
+        int listBottom=list.bottom()-2;
+        if(listBottom<=listTop)return super.mouseClicked(event,doubleClick);
         List<SkyOPModuleId> modules=modulesForCategory();
         int columns=list.width()>=270?2:1,gap=5;
         int cardWidth=Math.max(1,(list.width()-(columns-1)*gap)/columns);
-        int cardHeight=38,rowStep=42,listTop=list.y()+41,index=0;
+        int cardHeight=list.height()>=80?38:Math.max(10,Math.min(24,listBottom-listTop-1));
+        int rowStep=cardHeight+4,index=0;
         for (SkyOPModuleId module:modules) {
             int col=index%columns,row=index/columns;
             int cardX=list.x()+col*(cardWidth+gap),cardY=listTop+row*rowStep-moduleScroll;
-            int pillW=Math.min(30,Math.max(20,cardWidth/4));
+            if(cardY+cardHeight<=listTop||cardY>=listBottom){index++;continue;}
+            int pillW=Math.min(30,Math.max(18,cardWidth/4));
             int favoriteX=cardX+cardWidth-pillW-21;
             if (button==InputConstants.MOUSE_BUTTON_LEFT&&inside(mx,my,favoriteX,cardY+1,17,18)) {
                 SkyOPCore.toggleFavorite(module);return true;
