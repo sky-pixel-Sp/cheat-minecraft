@@ -224,6 +224,6 @@ Released under the **MIT License**. See LICENSE.
 
 `SkyOPClient` is now a bootstrap-only Fabric entrypoint. It delegates startup to `SkyOPCore`. Runtime modules are registered as concrete subclasses of `SkyOPModule` through `SkyOPModuleManager`, split into movement, combat, visual/HUD and inventory module classes. `SkyOPState` owns shared persisted values and `SkyOPTelemetry` owns speed/CPS sampling.
 
-The ClickGUI inspector obtains its rows from `SkyOPModuleManager.settings(module)`. Boolean, numeric, mode, multi-select, color and keybind settings render and edit through their typed `SkyOPSetting` instances; the inspector does not contain a per-module settings switch. Setting labels resolve their translation keys at render time so a language switch also updates an already-open GUI.
+The ClickGUI inspector obtains its rows from `SkyOPModuleManager.settings(module)`. Boolean, numeric, mode, multi-select, color, keybind, text and action controls render through their typed `SkyOPSetting` instances; the inspector does not contain a per-module settings switch. Setting labels resolve their translation keys at render time so a language switch also updates an already-open GUI.
 
 Bahasa Indonesia is the default. The English and Indonesian in-client dictionaries currently contain the same 232 keys. The Minecraft language resources `id_id.json` and `en_us.json` contain keybinding translations.
