@@ -16,9 +16,9 @@ A green CI result proves compilation and packaging. It does not prove an in-game
 6. Repeat with SkyOP module keybinds left unassigned; verify unbound keys do not crash world loading or mouse capture; the vanilla UNKNOWN key uses SDL scancode 0, and invalid negative indexes must be rejected before ByteBuffer access.
 7. Open ClickGUI with Right Shift, close it with Escape and verify the mouse is re-captured for camera movement without requiring another click.
 8. Open ClickGUI, assign a module keybind, restart the client and verify the saved scancode is restored; invalid negative/out-of-range values must safely become Unbound.
-7. Close ClickGUI while HUD editor drag mode is active; verify no stale drag state remains and mouse camera control resumes.
-8. While chat or another screen is open, verify the mod does not force mouse capture.
-6. Confirm another mod using mixins does not conflict with skyop.mixins.json.
+9. Close ClickGUI while HUD editor drag mode is active; verify no stale drag state remains and mouse camera control resumes.
+10. While chat or another screen is open, verify the mod does not force mouse capture.
+11. Confirm another mod using mixins does not conflict with skyop.mixins.json.
 
 ## Language
 
@@ -41,8 +41,28 @@ A green CI result proves compilation and packaging. It does not prove an in-game
 9. Click the color swatch and choose each quick-palette color; verify HUD accent changes and persists.
 10. Enter a custom #RRGGBB value, apply it, and verify the HUD accent changes. Also check #RGB shorthand and invalid input.
 11. Enable several HUD panels, toggle HUD Edit, and drag each visible preview independently; release and reopen the GUI to verify positions persist.
-12. Edit the Text GUI label by clicking its text row, typing, and pressing Enter.
-12. Use Disable All; verify temporary ESP glow, gamma and flight state are restored.
+12. Edit the Text GUI label by clicking its registered text-setting row, typing, and pressing Enter.
+13. Use Disable All; verify temporary ESP glow, gamma and flight state are restored.
+
+
+## Responsive ClickGUI and GUI-scale acceptance
+
+Run this matrix in a disposable Minecraft 26.3 Fabric instance. Use both window sizes, and repeat each size at GUI scales **1, 2, 3 and 4** wherever Minecraft allows that scale. Record the actual scaled GUI-space dimensions shown by the client; do not assume framebuffer pixels equal GUI coordinates.
+
+| Window size | GUI scale | Expected layout | Result / evidence |
+|---|---:|---|---|
+| 480×270 | 1 | Compact panel fits the viewport; category rail is icon-only; module list remains usable; inspector opens as an overlay | Record screenshot and pass/fail |
+| 480×270 | 2 | Same compact behavior using scaled GUI coordinates; no clipped controls or negative offsets | Record screenshot and pass/fail |
+| 480×270 | 3 | Compact controls remain inside the viewport; category and settings lists scroll independently | Record screenshot and pass/fail |
+| 480×270 | 4 | Use the scale if available; verify clipping is bounded and all visible controls remain clickable | Record screenshot and pass/fail |
+| 854×480 | 1 | Full three-column layout; sidebar labels, module cards and inspector remain separate | Record screenshot and pass/fail |
+| 854×480 | 2 | Full layout when scaled GUI dimensions exceed the compact threshold; otherwise compact transition is clean | Record screenshot and pass/fail |
+| 854×480 | 3 | Same adaptive transition; no overlap between module cards and inspector | Record screenshot and pass/fail |
+| 854×480 | 4 | Use the scale if available; verify responsive transition, bounded panel and working input hitboxes | Record screenshot and pass/fail |
+
+For the 480×270 compact layout, verify: (1) all six category icons can be reached, including by sidebar scrolling when necessary; (2) search and module scrolling work; (3) right-clicking a module opens the inspector overlay and its close control dismisses it; (4) clicking inside the overlay never toggles a module behind it; (5) Boolean, Number, Mode, Multi, Color and Keybind settings remain editable; (6) Text GUI editing and Profile Manager / Hotbar Presets actions are available through their registered setting rows; (7) the header tools menu exposes HUD Edit and HUD Color; (8) the compact footer's presets, language selector and Disable All controls do not overlap and remain clickable; and (9) opening/closing the GUI while HUD drag mode is active leaves mouse capture correct.
+
+For 854×480, verify the standard sidebar, module list and inspector do not overlap. Resize between both window sizes while ClickGUI is open and confirm that every hitbox follows the newly calculated panel geometry. Repeat at GUI scales 1–4, then switch language while the GUI remains open and confirm all registered setting labels update.
 
 ## Inventory and survival
 
@@ -145,7 +165,7 @@ The feature branch CI also runs on branch pushes so every incremental fix is com
 14. Verify Profile Manager, Hotbar Presets and Custom HUD pages keep their keybind row visible and retain their existing actions.
 15. Verify all module categories and module titles/descriptions are translated in both dictionaries, with no unresolved translation keys.
 16. Import a profile with invalid numeric values; verify validated values are applied, the pre-import config backup exists, and the client remains responsive.
-14. Switch worlds while the GUI is open, close it, and verify the client retains mouse capture only during active gameplay.
+17. Switch worlds while the GUI is open, close it, and verify the client retains mouse capture only during active gameplay.
 
 CI coverage for Phase 1 includes ConfigManager migration/corruption tests and typed-setting serialization tests. Manual Minecraft checks remain required for lifecycle and in-game behavior.
 
