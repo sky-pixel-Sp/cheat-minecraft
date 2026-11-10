@@ -783,9 +783,11 @@ public final class SkyOPClickGui extends Screen {
         }
         if (inspectorOpen && button == InputConstants.MOUSE_BUTTON_LEFT) {
             SkyOPGuiLayout.Rect inspector = layout.inspector();
-            if (inspector.contains(mx, my)
-                    && handleInspectorClick(mx, my, inspector.x(), inspector.y(),
-                        inspector.width(), inspector.height(), true)) return true;
+            if (inspector.contains(mx, my)) {
+                handleInspectorClick(mx, my, inspector.x(), inspector.y(),
+                        inspector.width(), inspector.height(), true);
+                return true; // A modal overlay must not click through to module cards.
+            }
         }
         SkyOPGuiLayout.Rect sidebar=layout.sidebar();
         int rowH=compactCategoryRowHeight(),navIndex=0;
