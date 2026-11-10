@@ -1153,9 +1153,15 @@ public final class SkyOPClickGui extends Screen {
         int mx=(int)mouseX,my=(int)mouseY,direction=(int)Math.signum(verticalAmount);
         if(direction==0)return super.mouseScrolled(mouseX,mouseY,horizontalAmount,verticalAmount);
         if(layout.compact()) {
-            if(layout.sidebar().contains(mx,my)){sidebarScroll=Math.max(0,Math.min(SkyOPCategory.values().length-1,sidebarScroll-direction));return true;}
-            if(layout.moduleList().contains(mx,my)){moduleScroll=Math.max(0,Math.min(1200,moduleScroll-direction*36));return true;}
-            if(inspectorOpen&&layout.inspector().contains(mx,my)){settingsScroll=Math.max(0,Math.min(120,settingsScroll-direction));return true;}
+            if(inspectorOpen&&layout.inspector().contains(mx,my)){
+                settingsScroll=Math.max(0,Math.min(120,settingsScroll-direction));return true;
+            }
+            if(layout.sidebar().contains(mx,my)){
+                sidebarScroll=Math.max(0,Math.min(SkyOPCategory.values().length-1,sidebarScroll-direction));return true;
+            }
+            if(layout.moduleList().contains(mx,my)){
+                moduleScroll=Math.max(0,Math.min(1200,moduleScroll-direction*36));return true;
+            }
             return super.mouseScrolled(mouseX,mouseY,horizontalAmount,verticalAmount);
         }
         SkyOPGuiLayout.Rect modules=layout.moduleList(),inspector=layout.inspector();
