@@ -202,6 +202,11 @@ The first build needs an internet connection to download Gradle and dependencies
 - The HUD ping value is only available when the client has player-list latency information.
 - A successful CI build proves compilation and packaging, not that every module works in every world or on every server.
 
+
+## Responsive ClickGUI
+
+The ClickGUI adapts to the current Minecraft GUI-space viewport. Below the full-layout threshold it switches to an icon-only category rail, a compact module browser and a right-click inspector overlay. HUD editing and color controls are folded into the header tools menu; presets, language and Disable All remain available in the compact footer. All module inspector rows—including profile actions, hotbar actions and custom HUD text—are generated from the module's registered typed settings.
+
 ## Testing
 
 See [docs/TEST-PLAN.md](docs/TEST-PLAN.md) for the complete launch, GUI, inventory, HUD and profile checklist.
@@ -221,4 +226,4 @@ Released under the **MIT License**. See LICENSE.
 
 The ClickGUI inspector obtains its rows from `SkyOPModuleManager.settings(module)`. Boolean, numeric, mode, multi-select, color and keybind settings render and edit through their typed `SkyOPSetting` instances; the inspector does not contain a per-module settings switch. Setting labels resolve their translation keys at render time so a language switch also updates an already-open GUI.
 
-Bahasa Indonesia is the default. The English and Indonesian in-client dictionaries currently contain the same 227 keys. The Minecraft language resources `id_id.json` and `en_us.json` contain keybinding translations.
+Bahasa Indonesia is the default. The English and Indonesian in-client dictionaries currently contain the same 232 keys. The Minecraft language resources `id_id.json` and `en_us.json` contain keybinding translations.
