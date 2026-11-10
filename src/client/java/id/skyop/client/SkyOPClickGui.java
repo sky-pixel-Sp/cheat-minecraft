@@ -126,15 +126,27 @@ public final class SkyOPClickGui extends Screen {
         g.text(font, Component.literal("×"), closeX + 11, panelY + 16, TEXT, true);
     }
 
+    private int compactHeaderButtonWidth() {
+        return Math.min(20, Math.max(8, (panelWidth - 11) / 2));
+    }
+
+    private int compactCloseX() {
+        return panelX + panelWidth - compactHeaderButtonWidth() - 4;
+    }
+
+    private int compactToolsX() {
+        return compactCloseX() - compactHeaderButtonWidth() - 3;
+    }
+
     private void drawCompactHeader(GuiGraphicsExtractor g, int mouseX, int mouseY) {
-        int y = panelY + 7;
-        g.text(font, Component.literal(SkyOPLanguage.text("gui.brand")), panelX + 9, y, ACCENT, true);
+        int y = panelY + 7, buttonWidth = compactHeaderButtonWidth();
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.brand")), panelX + 3, y, ACCENT, true);
         if (panelWidth >= 250) g.text(font, Component.literal("SKYOP CLIENT"), panelX + 67, y, MUTED, true);
-        int moreX = panelX + panelWidth - 52, closeX = panelX + panelWidth - 27;
-        g.fill(moreX, panelY + 5, moreX + 20, panelY + 24, headerToolsOpen ? PANEL_HOVER : PANEL_LIGHT);
-        g.text(font, Component.literal("⋯"), moreX + 5, panelY + 8, ACCENT, true);
-        g.fill(closeX, panelY + 5, closeX + 20, panelY + 24, PANEL_LIGHT);
-        g.text(font, Component.literal("×"), closeX + 7, panelY + 8, TEXT, true);
+        int moreX = compactToolsX(), closeX = compactCloseX();
+        g.fill(moreX, panelY + 5, moreX + buttonWidth, panelY + 24, headerToolsOpen ? PANEL_HOVER : PANEL_LIGHT);
+        g.text(font, Component.literal("⋯"), moreX + Math.max(1,(buttonWidth-10)/2), panelY + 8, ACCENT, true);
+        g.fill(closeX, panelY + 5, closeX + buttonWidth, panelY + 24, PANEL_LIGHT);
+        g.text(font, Component.literal("×"), closeX + Math.max(1,(buttonWidth-8)/2), panelY + 8, TEXT, true);
     }
 
     private void drawCompactToolsOverlay(GuiGraphicsExtractor g) {
@@ -186,16 +198,22 @@ public final class SkyOPClickGui extends Screen {
         SkyOPGuiLayout.Rect rect = layout.moduleList();
         int x = rect.x(), y = rect.y(), w = rect.width();
         g.text(font, Component.literal(trim(selectedCategory.title().toUpperCase(), 18)), x + 2, y + 2, TEXT, true);
-        int searchY = y + 17;
-        g.fill(x, searchY, x + w, searchY + 18, searchFocused ? 0xFF263D53 : PANEL_LIGHT);
+        if (rect.height() <= 20 || w <= 8) return;
+        int searchY = y + Math.min(17, Math.max(2, rect.height() / 3));
+        int searchHeight = Math.min(18, Math.max(10, rect.height() - (searchY - y) - 1));
+        g.fill(x, searchY, x + w, searchY + searchHeight, searchFocused ? 0xFF263D53 : PANEL_LIGHT);
         String search = searchQuery.isEmpty() ? SkyOPLanguage.text("gui.search")
                 : SkyOPLanguage.text("gui.search_prefix") + ": " + searchQuery + (searchFocused ? "|" : "");
-        g.text(font, Component.literal(trim(search, Math.max(8, w / 6))), x + 5, searchY + 5, searchFocused ? TEXT : MUTED, true);
+        g.text(font, Component.literal(trim(search, Math.max(8, w / 6))), x + 5, searchY + Math.max(1, (searchHeight - 8) / 2), searchFocused ? TEXT : MUTED, true);
+        int listTop = y + (rect.height() >= 56 ? 41 : searchY - y + searchHeight + 3);
+        int listBottom = rect.bottom() - 2;
+        if (listBottom <= listTop || w <= 8) return;
         List<SkyOPModuleId> modules = modulesForCategory();
         int columns = w >= 270 ? 2 : 1, gap = 5;
         int cardWidth = Math.max(1, (w - (columns - 1) * gap) / columns);
-        int cardHeight = 38, rowStep = 42, listTop = y + 41, listBottom = rect.bottom() - 2;
-        int visibleHeight = Math.max(1, listBottom - listTop);
+        int cardHeight = rect.height() >= 80 ? 38 : Math.max(10, Math.min(24, listBottom - listTop - 1));
+        int rowStep = cardHeight + 4;
+        int visibleHeight = listBottom - listTop;
         int rows = (modules.size() + columns - 1) / columns;
         moduleScroll = Math.min(moduleScroll, Math.max(0, rows * rowStep - visibleHeight + 2));
         g.enableScissor(x, listTop, rect.right(), listBottom);
@@ -208,11 +226,12 @@ public final class SkyOPClickGui extends Screen {
             g.fill(cardX, cardY, cardX + cardWidth, cardY + cardHeight, selected ? 0xFF263D53 : (hovered ? PANEL_HOVER : PANEL_LIGHT));
             if (selected) g.fill(cardX, cardY, cardX + 2, cardY + cardHeight, ACCENT);
             g.text(font, Component.literal(trim(module.title(), Math.max(8, cardWidth / 6))), cardX + 5, cardY + 5, TEXT, true);
-            int pillW = Math.min(30, Math.max(20, cardWidth / 4)), pillX = cardX + cardWidth - pillW - 4;
-            g.fill(pillX, cardY + 20, pillX + pillW, cardY + 33, enabled ? 0xFF174633 : 0xFF3B2631);
-            g.text(font, Component.literal(enabled ? "ON" : "OFF"), pillX + 3, cardY + 23, enabled ? GREEN : RED, false);
+            int pillW = Math.min(30, Math.max(18, cardWidth / 4)), pillX = cardX + cardWidth - pillW - 4;
+            int pillY = cardY + Math.max(1, cardHeight - 15);
+            g.fill(pillX, pillY, pillX + pillW, Math.min(listBottom, pillY + 13), enabled ? 0xFF174633 : 0xFF3B2631);
+            g.text(font, Component.literal(enabled ? "ON" : "OFF"), pillX + 2, pillY + 3, enabled ? GREEN : RED, false);
             int favoriteX = cardX + cardWidth - pillW - 21;
-            g.text(font, Component.literal(SkyOPCore.isFavorite(module) ? "★" : "☆"), favoriteX, cardY + 5,
+            g.text(font, Component.literal(SkyOPCore.isFavorite(module) ? "★" : "☆"), favoriteX, cardY + 2,
                     SkyOPCore.isFavorite(module) ? 0xFFFFC85A : MUTED, true);
             index++;
         }
@@ -220,30 +239,44 @@ public final class SkyOPClickGui extends Screen {
         if (modules.isEmpty()) g.text(font, Component.literal(SkyOPLanguage.text("gui.no_matching_modules")), x + 4, listTop + 6, MUTED, true);
     }
 
+    private int compactFooterButtonHeight() {
+        return Math.max(1, Math.min(20, layout.footerHeight() - 4));
+    }
+
+    private void drawCompactPresetButton(GuiGraphicsExtractor g, int mouseX, int mouseY,
+                                         int x, int y, int w, int h, String label) {
+        boolean hovered = inside(mouseX, mouseY, x, y, w, h);
+        g.fill(x, y, x + w, y + h, hovered ? PANEL_HOVER : PANEL_LIGHT);
+        g.text(font, Component.literal(label), x + Math.max(1, (w - font.width(label)) / 2),
+                y + Math.max(0, (h - 8) / 2), hovered ? TEXT : ACCENT, true);
+    }
+
     private void drawCompactFooter(GuiGraphicsExtractor g, int mouseX, int mouseY) {
         int y = panelY + panelHeight - layout.footerHeight();
         g.fill(panelX + 5, y, panelX + panelWidth - 5, y + 1, 0xFF2B394A);
         boolean labels = panelWidth >= 280;
-        int start = panelX + 7, btnY = y + Math.max(2, (layout.footerHeight() - 21) / 2);
+        int buttonHeight = compactFooterButtonHeight();
+        int start = panelX + 7, btnY = y + Math.max(0, (layout.footerHeight() - buttonHeight) / 2);
         String[] names = labels ? new String[]{"PVE", "OP", "VIS"} : new String[]{"P", "O", "V"};
         int[] widths = labels ? new int[]{34, 30, 38} : new int[]{18, 18, 18};
         int cursor = start;
         for (int n = 0; n < 3; n++) {
-            drawProfileButton(g, mouseX, mouseY, cursor, btnY, widths[n], names[n]);
+            drawCompactPresetButton(g, mouseX, mouseY, cursor, btnY, widths[n], buttonHeight, names[n]);
             cursor += widths[n] + 3;
         }
         int langWidth = labels ? 82 : 22, langX = cursor + 2;
         if (langX + langWidth > panelX + panelWidth - 24) langX = panelX + panelWidth - langWidth - 25;
         boolean langHover = inside(mouseX, mouseY, langX, btnY, langWidth, 20);
-        g.fill(langX, btnY, langX + langWidth, btnY + 20, langHover ? PANEL_HOVER : PANEL_LIGHT);
+        g.fill(langX, btnY, langX + langWidth, btnY + buttonHeight, langHover ? PANEL_HOVER : PANEL_LIGHT);
         String lang = labels ? SkyOPLanguage.current().code().toUpperCase(java.util.Locale.ROOT) : "L";
-        g.text(font, Component.literal(lang), langX + Math.max(3, (langWidth - font.width(lang)) / 2), btnY + 6, langHover ? TEXT : ACCENT, true);
+        g.text(font, Component.literal(lang), langX + Math.max(3, (langWidth - font.width(lang)) / 2),
+                btnY + Math.max(0,(buttonHeight - 8) / 2), langHover ? TEXT : ACCENT, true);
         int disableWidth = labels ? 54 : 19, disableX = panelX + panelWidth - disableWidth - 7;
         boolean disableHover = inside(mouseX, mouseY, disableX, btnY, disableWidth, 20);
-        g.fill(disableX, btnY, disableX + disableWidth, btnY + 20, disableHover ? 0xFF693542 : 0xFF482B35);
+        g.fill(disableX, btnY, disableX + disableWidth, btnY + buttonHeight, disableHover ? 0xFF693542 : 0xFF482B35);
         String disableLabel = labels ? "OFF" : "×";
         g.text(font, Component.literal(disableLabel), disableX + Math.max(3, (disableWidth - font.width(disableLabel)) / 2),
-                btnY + 6, 0xFFFFB8C0, true);
+                btnY + Math.max(0,(buttonHeight - 8) / 2), 0xFFFFB8C0, true);
         if (!profileStatus.isEmpty() && profileStatusTicks > 0 && panelWidth >= 320)
             g.text(font, Component.literal(trim(profileStatus, 24)), panelX + panelWidth / 2 - 36, btnY + 6, TEXT, true);
     }
@@ -388,6 +421,11 @@ public final class SkyOPClickGui extends Screen {
         int visibleRows = Math.max(1, (settingsBottom - settingsTop + 2) / rowStep);
         settingsScroll = Math.max(0, Math.min(settingsScroll, Math.max(0, settings.size() - visibleRows)));
         int rowY = settingsTop - settingsScroll * rowStep;
+        if (w <= 8 || settingsBottom <= settingsTop) {
+            if (settings.isEmpty())
+                g.text(font, Component.literal(SkyOPLanguage.text("gui.no_extra_settings")), x + pad, settingsTop, MUTED, true);
+            return;
+        }
         g.enableScissor(x + 4, settingsTop, x + w - 4, settingsBottom);
         for (SkyOPSetting<?> setting : settings) {
             boolean hovered = inside(mouseX, mouseY, x + 4, rowY, w - 8, rowHeight);
@@ -400,7 +438,7 @@ public final class SkyOPClickGui extends Screen {
                 g.text(font, Component.literal(trim(setting.title(), compact ? 15 : 20)), x + pad, rowY + 4, TEXT, true);
                 g.text(font, Component.literal(trim(settingValue(setting), compact ? 12 : 15)),
                         x + w - (compact ? 76 : 80), rowY + 4, settingValueColor(setting), true);
-                if (!compact || !(setting instanceof KeybindSetting))
+                if (!compact || (!(setting instanceof KeybindSetting) && !(setting instanceof TextSetting) && !(setting instanceof MultiSetting)))
                     g.text(font, Component.literal(trim(setting.description(), compact ? 25 : 31)),
                             x + pad, rowY + (compact ? 16 : 19), MUTED, true);
                 if (setting instanceof NumberSetting number) {
@@ -466,7 +504,7 @@ public final class SkyOPClickGui extends Screen {
             editingHudText = true;
             return true;
         }
-        applySettingClick(setting, mx, x + 8, w - 16, rowY);
+        applySettingClick(setting, mx, x, w, rowY);
         return true;
     }
 
@@ -566,7 +604,7 @@ public final class SkyOPClickGui extends Screen {
 
     private void applySettingClick(SkyOPSetting<?> setting, double mouseX,
                                    int inspectorX, int inspectorWidth, int rowY) {
-        int settingInset = layout.compact() ? 7 : 15;
+        int settingInset = layout.compact() ? 7 : 12;
         if (setting instanceof BooleanSetting bool) {
             bool.set(!bool.value());
         } else if (setting instanceof NumberSetting number) {
@@ -728,11 +766,13 @@ public final class SkyOPClickGui extends Screen {
 
     private boolean compactMouseClicked(MouseButtonEvent event, boolean doubleClick,
                                          int mx, int my, int button) {
-        if (button == InputConstants.MOUSE_BUTTON_LEFT && inside(mx, my, panelX + panelWidth - 27, panelY + 5, 20, 19)) {
+        if (button == InputConstants.MOUSE_BUTTON_LEFT && inside(mx, my, compactCloseX(), panelY + 5,
+                compactHeaderButtonWidth(), 19)) {
             onClose();
             return true;
         }
-        if (button == InputConstants.MOUSE_BUTTON_LEFT && inside(mx, my, panelX + panelWidth - 52, panelY + 5, 20, 19)) {
+        if (button == InputConstants.MOUSE_BUTTON_LEFT && inside(mx, my, compactToolsX(), panelY + 5,
+                compactHeaderButtonWidth(), 19)) {
             headerToolsOpen = !headerToolsOpen;
             return true;
         }
@@ -763,23 +803,24 @@ public final class SkyOPClickGui extends Screen {
             }
         }
         int footerY = panelY + panelHeight - layout.footerHeight();
-        int btnY = footerY + Math.max(2, (layout.footerHeight() - 21) / 2);
         boolean labels = panelWidth >= 280;
+        int buttonHeight = compactFooterButtonHeight();
+        int btnY = footerY + Math.max(0, (layout.footerHeight() - buttonHeight) / 2);
         int cursor = panelX + 7;
         int[] widths = labels ? new int[]{34,30,38} : new int[]{18,18,18};
         if (button == InputConstants.MOUSE_BUTTON_LEFT) {
             SkyOPPreset[] presets = {SkyOPPreset.PVE, SkyOPPreset.OP, SkyOPPreset.VISUAL};
             for (int n=0;n<3;n++) {
-                if (inside(mx,my,cursor,btnY,widths[n],20)) {
+                if (inside(mx,my,cursor,btnY,widths[n],buttonHeight)) {
                     SkyOPCore.applyPreset(Minecraft.getInstance(),presets[n]); return true;
                 }
                 cursor += widths[n] + 3;
             }
             int langWidth=labels?82:22,langX=cursor+2;
             if (langX+langWidth>panelX+panelWidth-24) langX=panelX+panelWidth-langWidth-25;
-            if (inside(mx,my,langX,btnY,langWidth,20)) { SkyOPCore.cycleLanguage(); return true; }
+            if (inside(mx,my,langX,btnY,langWidth,buttonHeight)) { SkyOPCore.cycleLanguage(); return true; }
             int disableWidth=labels?54:19,disableX=panelX+panelWidth-disableWidth-7;
-            if (inside(mx,my,disableX,btnY,disableWidth,20)) { SkyOPCore.disableAll(Minecraft.getInstance()); return true; }
+            if (inside(mx,my,disableX,btnY,disableWidth,buttonHeight)) { SkyOPCore.disableAll(Minecraft.getInstance()); return true; }
         }
         if (inspectorOpen && button == InputConstants.MOUSE_BUTTON_LEFT) {
             SkyOPGuiLayout.Rect inspector = layout.inspector();
