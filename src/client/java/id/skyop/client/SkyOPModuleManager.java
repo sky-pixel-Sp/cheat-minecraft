@@ -84,7 +84,7 @@ public final class SkyOPModuleManager {
     public static void loadSettings(Properties properties) {
         for (SkyOPModule module : MODULES.values()) {
             for (SkyOPSetting<?> setting : module.settings()) {
-                if (setting instanceof KeybindSetting) continue;
+                if (setting instanceof KeybindSetting || setting instanceof ActionSetting || setting instanceof TextSetting) continue;
                 String value = properties.getProperty(settingKey(module.type(), setting));
                 if (value != null) setting.deserialize(value);
             }
