@@ -82,6 +82,8 @@ jobs:
           grep -Fq 'SkyOPModuleManager.loadSettings(p);' src/client/java/id/skyop/client/SkyOPCore.java
           test -s src/main/resources/assets/skyop/lang/id_id.json
           grep -Fq '"key.skyop.module.auto_hunt"' src/main/resources/assets/skyop/lang/id_id.json
+          grep -Fq '"key.skyop.module.fast_break"' src/main/resources/assets/skyop/lang/en_us.json
+          grep -Fq '"key.skyop.module.fast_break"' src/main/resources/assets/skyop/lang/id_id.json
           grep -Fq 'return SkyOPModuleManager.settings(module);' src/client/java/id/skyop/client/SkyOPClickGui.java
           grep -Fq 'instanceof NumberSetting' src/client/java/id/skyop/client/SkyOPClickGui.java
           grep -Fq 'instanceof BooleanSetting' src/client/java/id/skyop/client/SkyOPClickGui.java
