@@ -47,5 +47,6 @@
   "key.skyop.module.night_vision": "Night Vision",
   "key.skyop.module.fast_break": "Fast Break",
   "key.skyop.module.auto_mlg": "Auto MLG",
-  "key.skyop.module.auto_totem": "Auto Totem"
+  "key.skyop.module.auto_totem": "Auto Totem",
+  "key.skyop.diagnostics": "Open SkyOP Diagnostics"
 }
