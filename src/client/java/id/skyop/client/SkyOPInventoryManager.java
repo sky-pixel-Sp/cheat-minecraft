@@ -181,9 +181,8 @@ public final class SkyOPInventoryManager {
     static void tickAutoTotem(Minecraft client) {
         if (totemDelay > 0) { totemDelay--; return; }
         var player = client.player;
-        if (player.getOffhandItem().is(Items.TOTEM_OF_UNDYING)
-                || !SkyOPAutomationRules.shouldEquipTotem(
-                        false, player.getHealth(), SkyOPState.autoTotemHealth)) return;
+        if (!SkyOPAutomationRules.shouldEquipTotem(
+                !player.getOffhandItem().isEmpty(), player.getHealth(), SkyOPState.autoTotemHealth)) return;
 
         var inventory = player.getInventory();
         for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
