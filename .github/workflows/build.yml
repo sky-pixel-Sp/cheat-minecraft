@@ -71,7 +71,7 @@ jobs:
           grep -Fq 'client.mouseHandler.grabMouse();' src/client/java/id/skyop/client/SkyOPCore.java
           grep -Fq 'client.gui.screen() != null' src/client/java/id/skyop/client/SkyOPCore.java
 
-          # Language and registry invariants.
+          # Language and module registry invariants.
           grep -Fq 'SkyOPLanguage.set(p.getProperty("language", "id"));' src/client/java/id/skyop/client/SkyOPCore.java
           grep -Fq 'new Language("id", "Bahasa Indonesia")' src/client/java/id/skyop/client/SkyOPLanguage.java
           grep -Fq 'new Language("en", "English")' src/client/java/id/skyop/client/SkyOPLanguage.java
@@ -88,9 +88,6 @@ jobs:
           grep -Fq '"key.skyop.module.auto_totem"' src/main/resources/assets/skyop/lang/en_us.json
           grep -Fq '"key.skyop.module.auto_mlg"' src/main/resources/assets/skyop/lang/id_id.json
           grep -Fq '"key.skyop.module.auto_totem"' src/main/resources/assets/skyop/lang/id_id.json
-          grep -Fq 'case AUTO_MLG -> new SkyOPMovementModules.AutoMlg(settings);' src/client/java/id/skyop/client/SkyOPModuleManager.java
-          grep -Fq 'case AUTO_TOTEM -> new SkyOPInventoryModules.AutoTotem(settings);' src/client/java/id/skyop/client/SkyOPModuleManager.java
-          grep -Fq 'SkyOPAutomationRulesTest' src/test/java/id/skyop/client/SkyOPAutomationRulesTest.java
           grep -Fq 'return SkyOPModuleManager.settings(module);' src/client/java/id/skyop/client/SkyOPClickGui.java
           grep -Fq 'instanceof NumberSetting' src/client/java/id/skyop/client/SkyOPClickGui.java
           grep -Fq 'instanceof BooleanSetting' src/client/java/id/skyop/client/SkyOPClickGui.java
@@ -99,15 +96,21 @@ jobs:
           grep -Fq 'instanceof ColorSetting' src/client/java/id/skyop/client/SkyOPClickGui.java
           grep -Fq 'instanceof KeybindSetting' src/client/java/id/skyop/client/SkyOPClickGui.java
           grep -Fq 'SkyOPInventoryModules.AutoEat' src/client/java/id/skyop/client/SkyOPModuleManager.java
+
           if [[ $(wc -l < src/client/java/id/skyop/client/SkyOPClient.java) -gt 30 ]]; then
             echo 'SkyOPClient must remain a bootstrap-only entrypoint.' >&2
             exit 1
           fi
 
-          # Fast Break Haste I–VII implementation and mixin must be packaged.
+          # Fast Break, Auto MLG and Auto Totem must be registered and tested.
           grep -Fq 'number("fastBreakLevel", 7, 1, 7, true)' src/client/java/id/skyop/client/SkyOPSettingsSchema.java
+          grep -Fq 'number("autoMlgFallDistance", 6, 3, 18, false)' src/client/java/id/skyop/client/SkyOPSettingsSchema.java
+          grep -Fq 'number("autoTotemHealth", 14, 1, 20, false)' src/client/java/id/skyop/client/SkyOPSettingsSchema.java
           grep -Fq 'getDestroySpeed(Lnet/minecraft/world/level/block/state/BlockState;)F' src/client/java/id/skyop/mixin/FastBreakMixin.java
           grep -Fq '"FastBreakMixin"' src/main/resources/skyop.mixins.json
+          grep -Fq 'case AUTO_MLG -> new SkyOPMovementModules.AutoMlg(settings);' src/client/java/id/skyop/client/SkyOPModuleManager.java
+          grep -Fq 'case AUTO_TOTEM -> new SkyOPInventoryModules.AutoTotem(settings);' src/client/java/id/skyop/client/SkyOPModuleManager.java
+          test -s src/test/java/id/skyop/client/SkyOPAutomationRulesTest.java
           grep -Fq 'SkyOPFastBreak.multiplierForLevel' src/test/java/id/skyop/client/SkyOPFastBreakTest.java
 
           JAR_ENTRIES="$(jar tf "$JAR_PATH")"
@@ -117,74 +120,10 @@ jobs:
           printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/mixin/FastBreakMixin.class$'
           printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPSdlKeyboardIndex.class$'
           printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPFastBreak.class$'
-          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPPlayerModules\$FastBreak.class          if printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPFishingHookAccessor.class$'; then
-            echo 'Mixin accessor must not remain in the client entrypoint package.' >&2
-            exit 1
-          fi
-          unzip -p "$JAR_PATH" fabric.mod.json | grep -q '"id": "skyop"'
-          unzip -p "$JAR_PATH" skyop.mixins.json | grep -q '"package": "id.skyop.mixin"'
-          echo "Verified installable JAR: $JAR_PATH"
-          echo "SKYOP_JAR_PATH=$JAR_PATH" >> "$GITHUB_ENV"
-
-      - name: Upload ready-to-install JAR
-        uses: actions/upload-artifact@v4
-        with:
-          name: SkyOP-Client-Minecraft-26.3
-          path: ${{ env.SKYOP_JAR_PATH }}
-          if-no-files-found: error
-          retention-days: 30
-
-          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPAutomationRules.class          if printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPFishingHookAccessor.class$'; then
-            echo 'Mixin accessor must not remain in the client entrypoint package.' >&2
-            exit 1
-          fi
-          unzip -p "$JAR_PATH" fabric.mod.json | grep -q '"id": "skyop"'
-          unzip -p "$JAR_PATH" skyop.mixins.json | grep -q '"package": "id.skyop.mixin"'
-          echo "Verified installable JAR: $JAR_PATH"
-          echo "SKYOP_JAR_PATH=$JAR_PATH" >> "$GITHUB_ENV"
-
-      - name: Upload ready-to-install JAR
-        uses: actions/upload-artifact@v4
-        with:
-          name: SkyOP-Client-Minecraft-26.3
-          path: ${{ env.SKYOP_JAR_PATH }}
-          if-no-files-found: error
-          retention-days: 30
-
-          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPMovementModules\$AutoMlg.class          if printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPFishingHookAccessor.class$'; then
-            echo 'Mixin accessor must not remain in the client entrypoint package.' >&2
-            exit 1
-          fi
-          unzip -p "$JAR_PATH" fabric.mod.json | grep -q '"id": "skyop"'
-          unzip -p "$JAR_PATH" skyop.mixins.json | grep -q '"package": "id.skyop.mixin"'
-          echo "Verified installable JAR: $JAR_PATH"
-          echo "SKYOP_JAR_PATH=$JAR_PATH" >> "$GITHUB_ENV"
-
-      - name: Upload ready-to-install JAR
-        uses: actions/upload-artifact@v4
-        with:
-          name: SkyOP-Client-Minecraft-26.3
-          path: ${{ env.SKYOP_JAR_PATH }}
-          if-no-files-found: error
-          retention-days: 30
-
-          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPInventoryModules\$AutoTotem.class          if printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPFishingHookAccessor.class$'; then
-            echo 'Mixin accessor must not remain in the client entrypoint package.' >&2
-            exit 1
-          fi
-          unzip -p "$JAR_PATH" fabric.mod.json | grep -q '"id": "skyop"'
-          unzip -p "$JAR_PATH" skyop.mixins.json | grep -q '"package": "id.skyop.mixin"'
-          echo "Verified installable JAR: $JAR_PATH"
-          echo "SKYOP_JAR_PATH=$JAR_PATH" >> "$GITHUB_ENV"
-
-      - name: Upload ready-to-install JAR
-        uses: actions/upload-artifact@v4
-        with:
-          name: SkyOP-Client-Minecraft-26.3
-          path: ${{ env.SKYOP_JAR_PATH }}
-          if-no-files-found: error
-          retention-days: 30
-
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPPlayerModules\$FastBreak.class$'
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPAutomationRules.class$'
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPMovementModules\$AutoMlg.class$'
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPInventoryModules\$AutoTotem.class$'
           if printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPFishingHookAccessor.class$'; then
             echo 'Mixin accessor must not remain in the client entrypoint package.' >&2
             exit 1
