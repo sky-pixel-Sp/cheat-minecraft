@@ -39,6 +39,7 @@ package id.skyop.client;
         TEXT_GUI("Text GUI", "Displays a configurable custom HUD message.", SkyOPCategory.VISUAL),
 
         NO_FALL("NoFall", "Clears the local fall-distance accumulator.", SkyOPCategory.PLAYER),
+        FAST_BREAK("Fast Break", "Boosts local block-breaking speed with a configurable Haste I–VII equivalent.", SkyOPCategory.PLAYER),
 
         AUTO_EAT("Auto Eat", "Uses safe food from your hotbar when hunger is low.", SkyOPCategory.INVENTORY),
         AUTO_ARMOR("Auto Armor", "Equips armor into empty armor slots.", SkyOPCategory.INVENTORY),

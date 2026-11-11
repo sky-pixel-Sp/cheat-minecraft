@@ -55,6 +55,7 @@ public final class SkyOPState {
     public static boolean espItems = true;
     public static double autoHuntRange = 4.5;
     public static double jumpBoostMultiplier = 1.35;
+    public static double fastBreakLevel = 7.0;
     public static int bridgeDelayTicks = 2;
     public static int autoEatThreshold = 14;
     public static int autoRefillThreshold = 2;

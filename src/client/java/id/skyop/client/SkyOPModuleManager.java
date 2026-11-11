@@ -162,6 +162,7 @@ public final class SkyOPModuleManager {
             case JUMP_BOOST -> new SkyOPMovementModules.JumpBoost(settings);
             case INFINITE_JUMP -> new SkyOPMovementModules.InfiniteJump(settings);
             case NO_FALL -> new SkyOPMovementModules.NoFall(settings);
+            case FAST_BREAK -> new SkyOPPlayerModules.FastBreak(settings);
 
             case KILL_AURA -> new SkyOPCombatModules.KillAura(settings);
             case AUTO_HUNT -> new SkyOPCombatModules.AutoHunt(settings);
@@ -248,6 +249,8 @@ public final class SkyOPModuleManager {
                     () -> (double) SkyOPState.autoClickerCps, value -> SkyOPState.autoClickerCps = value.intValue()));
             case AUTO_HUNT -> settings.add(number("autoHuntRange", "setting.hunt_range", "setting.hunt_range_desc",
                     () -> SkyOPState.autoHuntRange, value -> SkyOPState.autoHuntRange = value));
+            case FAST_BREAK -> settings.add(number("fastBreakLevel", "setting.fast_break_level", "setting.fast_break_level_desc",
+                    () -> SkyOPState.fastBreakLevel, value -> SkyOPState.fastBreakLevel = value));
             case AUTO_BRIDGE -> settings.add(number("bridgeDelayTicks", "setting.placement_delay", "setting.placement_delay_desc",
                     () -> (double) SkyOPState.bridgeDelayTicks, value -> SkyOPState.bridgeDelayTicks = value.intValue()));
             case JUMP_BOOST -> settings.add(number("jumpBoostMultiplier", "setting.jump_multiplier", "setting.jump_multiplier_desc",
