@@ -67,7 +67,7 @@ public final class SkyOPDiagnosticsScreen extends Screen {
                     : SkyOPLanguage.text("diagnostics.not_ready"))
                     + "  •  " + (enabled ? SkyOPLanguage.text("gui.on") : SkyOPLanguage.text("gui.off"))
                     + "  •  " + SkyOPLanguage.text("diagnostics.errors") + ": " + status.errorCount() + "/3";
-            graphics.text(font, Component.literal(fit(module.title() + "  |  " + state, width - 54)),
+            graphics.text(font, Component.literal(fit(id.title() + "  |  " + state, width - 54)),
                     28, rowY + 5, ready ? TEXT : RED, true);
             String reason = status.lastReason().isBlank()
                     ? (enabled ? "—" : SkyOPLanguage.text("diagnostics.module_disabled"))
