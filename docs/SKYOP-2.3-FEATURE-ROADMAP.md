@@ -5,6 +5,8 @@ This document tracks the requested feature expansion against real implementation
 ## Implemented in this development branch
 
 - Fast Break: configurable Haste I–VII-equivalent local mining-speed multiplier; Haste VII is 2.4x. The client mixin only adjusts the local player's calculation and does not bypass server-side validation.
+- Auto MLG: thresholded water-bucket use attempt when falling toward a valid block hit; uses ordinary client interaction and restores the previous hotbar selection after the water bucket is consumed or the player lands.
+- Auto Totem: moves a carried totem into an empty offhand using the vanilla inventory SWAP operation when health reaches a configurable threshold.
 
 - Auto Hunt: targets the nearest loaded hostile mob in a configurable range without rotating the player's camera.
 - Auto Bridge: selects the first placeable block in the hotbar and attempts to place it beneath the player while movement input is active.
@@ -32,7 +34,7 @@ These requested features need separate implementation and in-game verification; 
 - Projectile lead/aim, Auto Crit, Auto Potion/Heal, advanced hitbox controls and Auto Mace/Crystal.
 - Freecam with a detached camera entity, collision-safe Noclip and camera orbit.
 - Bot mining by 3D cuboid coordinates, block filtering, pause/resume and resumable job state.
-- Auto MLG water bucket, Auto Craft, chest automation and advanced totem/armor management.
+- Auto Craft, chest automation, Auto Crystal/Mace, projectile lead and advanced totem management.
 - Music player, playlist, synchronized 2D/3D lyrics and user asset import.
 - Custom theme editor, draggable floating window modes and richer layout scaling.
 - In-mod login/registration gate.
