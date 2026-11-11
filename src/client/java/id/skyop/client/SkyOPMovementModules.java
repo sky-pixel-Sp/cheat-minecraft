@@ -20,6 +20,9 @@ public final class SkyOPMovementModules {
     private static int autoJumpCooldown;
     private static int stepAssistCooldown;
     private static int bridgeCooldown;
+    private static int autoMlgCooldown;
+    private static int autoMlgOriginalSlot = -1;
+    private static int autoMlgBucketSlot = -1;
     private static boolean jumpKeyWasDown;
     private static boolean jumpBoostKeyWasDown;
     private static Boolean originalNoGravity;
@@ -190,6 +193,56 @@ public final class SkyOPMovementModules {
 
 
 
+    static void tickAutoMlg(Minecraft client) {
+        if (autoMlgCooldown > 0) {
+            autoMlgCooldown--;
+            return;
+        }
+        LocalPlayer player = client.player;
+        var inventory = player.getInventory();
+
+        if (autoMlgOriginalSlot >= 0) {
+            boolean waterUsed = autoMlgBucketSlot >= 0
+                    && !inventory.getItem(autoMlgBucketSlot).is(net.minecraft.world.item.Items.WATER_BUCKET);
+            if (player.onGround() || waterUsed) {
+                restoreAutoMlgSlot(client);
+                return;
+            }
+        }
+
+        if (!SkyOPAutomationRules.shouldTriggerMlg(
+                player.onGround(), player.fallDistance, player.getDeltaMovement().y,
+                SkyOPState.autoMlgFallDistance)) return;
+        if (!(client.hitResult instanceof BlockHitResult hit)
+                || hit.getBlockPos().getY() >= Math.floor(player.getY())) return;
+
+        int bucketSlot = -1;
+        for (int slot = 0; slot < net.minecraft.world.entity.player.Inventory.SELECTION_SIZE; slot++) {
+            if (inventory.getItem(slot).is(net.minecraft.world.item.Items.WATER_BUCKET)) {
+                bucketSlot = slot;
+                break;
+            }
+        }
+        if (bucketSlot < 0) return;
+
+        autoMlgOriginalSlot = inventory.getSelectedSlot();
+        autoMlgBucketSlot = bucketSlot;
+        inventory.setSelectedSlot(bucketSlot);
+        client.gameMode.useItemOn(player, InteractionHand.MAIN_HAND, hit);
+        player.swing(InteractionHand.MAIN_HAND, SwingAnimation.DEFAULT, true);
+        autoMlgCooldown = 5;
+    }
+
+    private static void restoreAutoMlgSlot(Minecraft client) {
+        if (client.player != null && autoMlgOriginalSlot >= 0
+                && client.player.getInventory().getSelectedSlot() == autoMlgBucketSlot) {
+            client.player.getInventory().setSelectedSlot(autoMlgOriginalSlot);
+        }
+        autoMlgOriginalSlot = -1;
+        autoMlgBucketSlot = -1;
+        autoMlgCooldown = 0;
+    }
+
     static void tickInfiniteJump(Minecraft client) {
         Player player = client.player;
         boolean jumpDown = client.options.keyJump.isDown();
@@ -223,6 +276,7 @@ static void restoreFlight(Minecraft client) {
         autoJumpCooldown = 0;
         stepAssistCooldown = 0;
         bridgeCooldown = 0;
+        restoreAutoMlgSlot(client);
         jumpKeyWasDown = false;
         jumpBoostKeyWasDown = false;
     }
@@ -267,6 +321,12 @@ static void restoreFlight(Minecraft client) {
         public AutoBridge(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.AUTO_BRIDGE, settings); }
         @Override public void onTick(Minecraft client) { tickAutoBridge(client); }
         @Override public void onDisable(Minecraft client) { bridgeCooldown = 0; }
+    }
+
+    public static final class AutoMlg extends SkyOPModule {
+        public AutoMlg(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.AUTO_MLG, settings); }
+        @Override public void onTick(Minecraft client) { tickAutoMlg(client); }
+        @Override public void onDisable(Minecraft client) { restoreAutoMlgSlot(client); }
     }
 
     public static final class JumpBoost extends SkyOPModule {

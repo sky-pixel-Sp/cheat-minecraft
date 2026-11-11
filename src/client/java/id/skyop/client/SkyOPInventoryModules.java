@@ -12,6 +12,12 @@ public final class SkyOPInventoryModules {
         @Override public void onDisable(net.minecraft.client.Minecraft client) { SkyOPInventoryManager.onModuleDisabled(client, type()); }
     }
 
+    public static final class AutoTotem extends SkyOPModule {
+        public AutoTotem(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.AUTO_TOTEM, settings); }
+        @Override public void onTick(net.minecraft.client.Minecraft client) { SkyOPInventoryManager.tickAutoTotem(client); }
+        @Override public void onDisable(net.minecraft.client.Minecraft client) { SkyOPInventoryManager.onModuleDisabled(client, type()); }
+    }
+
     public static final class AutoArmor extends SkyOPModule {
         public AutoArmor(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.AUTO_ARMOR, settings); }
         @Override public void onTick(net.minecraft.client.Minecraft client) { SkyOPInventoryManager.tickAutoArmor(client); }

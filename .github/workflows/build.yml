@@ -48,8 +48,7 @@ jobs:
             exit 1
           fi
 
-          # SDL keyboard-state buffers are indexed by 0..SDL_SCANCODE_COUNT-1.
-          # Keep vanilla UNKNOWN semantics, but guard every lookup before ByteBuffer access.
+          # Minecraft 26.3 SDL keyboard-state regression guard.
           grep -Fq 'SDL_SCANCODE_COUNT = 512' src/main/java/id/skyop/client/SkyOPSdlKeyboardIndex.java
           grep -Fq 'method = "isKeyDown(I)Z"' src/client/java/id/skyop/mixin/InputConstantsMixin.java
           grep -Fq 'int key' src/client/java/id/skyop/mixin/InputConstantsMixin.java
@@ -62,27 +61,33 @@ jobs:
           grep -Fq 'InputConstants.UNKNOWN.getValue()' src/client/java/id/skyop/client/SkyOPCore.java
           grep -Fq 'InputConstants.UNKNOWN' src/client/java/id/skyop/client/SkyOPCore.java
           if grep -Fq 'InputConstants.Type.KEYBOARD, -1' src/client/java/id/skyop/client/SkyOPCore.java; then
-            echo 'Do not hardcode an invalid SDL key index; use the vanilla UNKNOWN key and the bounds guard.' >&2
+            echo 'Do not hardcode an invalid SDL key index; use the vanilla UNKNOWN key.' >&2
             exit 1
           fi
-          # Prevent regression: gameplay must re-acquire SDL relative mouse mode
-          # after a UI closes, but only when the game is focused and no UI is open.
+
+          # Mouse capture must recover after the GUI closes, without stealing focus from screens.
           grep -Fq 'ensureMouseCaptured(client);' src/client/java/id/skyop/client/SkyOPCore.java
           grep -Fq 'client.mouseHandler.isMouseGrabbed()' src/client/java/id/skyop/client/SkyOPCore.java
           grep -Fq 'client.mouseHandler.grabMouse();' src/client/java/id/skyop/client/SkyOPCore.java
           grep -Fq 'client.gui.screen() != null' src/client/java/id/skyop/client/SkyOPCore.java
-          # Indonesian is the first-run default and must have module translations.
+
+          # Language and module registry invariants.
           grep -Fq 'SkyOPLanguage.set(p.getProperty("language", "id"));' src/client/java/id/skyop/client/SkyOPCore.java
+          grep -Fq 'new Language("id", "Bahasa Indonesia")' src/client/java/id/skyop/client/SkyOPLanguage.java
           grep -Fq 'new Language("en", "English")' src/client/java/id/skyop/client/SkyOPLanguage.java
           grep -Fq 'CURRENT_CONFIG_VERSION = 2' src/client/java/id/skyop/client/SkyOPConfigManager.java
           grep -Fq 'SkyOPCore.initialize();' src/client/java/id/skyop/client/SkyOPClient.java
           grep -Fq 'SkyOPModuleManager.initialize();' src/client/java/id/skyop/client/SkyOPCore.java
           grep -Fq 'SkyOPModuleManager.saveSettings(p);' src/client/java/id/skyop/client/SkyOPCore.java
           grep -Fq 'SkyOPModuleManager.loadSettings(p);' src/client/java/id/skyop/client/SkyOPCore.java
-          grep -Fq 'new Language("id", "Bahasa Indonesia")' src/client/java/id/skyop/client/SkyOPLanguage.java
-          grep -Fq 'new Language("en", "English")' src/client/java/id/skyop/client/SkyOPLanguage.java
           test -s src/main/resources/assets/skyop/lang/id_id.json
           grep -Fq '"key.skyop.module.auto_hunt"' src/main/resources/assets/skyop/lang/id_id.json
+          grep -Fq '"key.skyop.module.fast_break"' src/main/resources/assets/skyop/lang/en_us.json
+          grep -Fq '"key.skyop.module.fast_break"' src/main/resources/assets/skyop/lang/id_id.json
+          grep -Fq '"key.skyop.module.auto_mlg"' src/main/resources/assets/skyop/lang/en_us.json
+          grep -Fq '"key.skyop.module.auto_totem"' src/main/resources/assets/skyop/lang/en_us.json
+          grep -Fq '"key.skyop.module.auto_mlg"' src/main/resources/assets/skyop/lang/id_id.json
+          grep -Fq '"key.skyop.module.auto_totem"' src/main/resources/assets/skyop/lang/id_id.json
           grep -Fq 'return SkyOPModuleManager.settings(module);' src/client/java/id/skyop/client/SkyOPClickGui.java
           grep -Fq 'instanceof NumberSetting' src/client/java/id/skyop/client/SkyOPClickGui.java
           grep -Fq 'instanceof BooleanSetting' src/client/java/id/skyop/client/SkyOPClickGui.java
@@ -90,22 +95,35 @@ jobs:
           grep -Fq 'instanceof MultiSetting' src/client/java/id/skyop/client/SkyOPClickGui.java
           grep -Fq 'instanceof ColorSetting' src/client/java/id/skyop/client/SkyOPClickGui.java
           grep -Fq 'instanceof KeybindSetting' src/client/java/id/skyop/client/SkyOPClickGui.java
+          grep -Fq 'SkyOPInventoryModules.AutoEat' src/client/java/id/skyop/client/SkyOPModuleManager.java
+
           if [[ $(wc -l < src/client/java/id/skyop/client/SkyOPClient.java) -gt 30 ]]; then
             echo 'SkyOPClient must remain a bootstrap-only entrypoint.' >&2
             exit 1
           fi
-          grep -Fq 'SkyOPModuleManager.settings(module)' src/client/java/id/skyop/client/SkyOPClickGui.java
-          grep -Fq 'SkyOPInventoryModules.AutoEat' src/client/java/id/skyop/client/SkyOPModuleManager.java
-          if grep -Fq 'InputConstants.Type.KEYBOARD, -1' src/client/java/id/skyop/client/SkyOPCore.java; then
-            echo 'Unbound key mappings must not pass raw -1 to the SDL keyboard backend.' >&2
-            exit 1
-          fi
+
+          # Fast Break, Auto MLG and Auto Totem must be registered and tested.
+          grep -Fq 'number("fastBreakLevel", 7, 1, 7, true)' src/client/java/id/skyop/client/SkyOPSettingsSchema.java
+          grep -Fq 'number("autoMlgFallDistance", 6, 3, 18, false)' src/client/java/id/skyop/client/SkyOPSettingsSchema.java
+          grep -Fq 'number("autoTotemHealth", 14, 1, 20, false)' src/client/java/id/skyop/client/SkyOPSettingsSchema.java
+          grep -Fq 'getDestroySpeed(Lnet/minecraft/world/level/block/state/BlockState;)F' src/client/java/id/skyop/mixin/FastBreakMixin.java
+          grep -Fq '"FastBreakMixin"' src/main/resources/skyop.mixins.json
+          grep -Fq 'case AUTO_MLG -> new SkyOPMovementModules.AutoMlg(settings);' src/client/java/id/skyop/client/SkyOPModuleManager.java
+          grep -Fq 'case AUTO_TOTEM -> new SkyOPInventoryModules.AutoTotem(settings);' src/client/java/id/skyop/client/SkyOPModuleManager.java
+          test -s src/test/java/id/skyop/client/SkyOPAutomationRulesTest.java
+          grep -Fq 'SkyOPFastBreak.multiplierForLevel' src/test/java/id/skyop/client/SkyOPFastBreakTest.java
 
           JAR_ENTRIES="$(jar tf "$JAR_PATH")"
           printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPClient.class$'
           printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/mixin/SkyOPFishingHookAccessor.class$'
           printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/mixin/InputConstantsMixin.class$'
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/mixin/FastBreakMixin.class$'
           printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPSdlKeyboardIndex.class$'
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPFastBreak.class$'
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPPlayerModules\$FastBreak.class$'
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPAutomationRules.class$'
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPMovementModules\$AutoMlg.class$'
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPInventoryModules\$AutoTotem.class$'
           if printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPFishingHookAccessor.class$'; then
             echo 'Mixin accessor must not remain in the client entrypoint package.' >&2
             exit 1

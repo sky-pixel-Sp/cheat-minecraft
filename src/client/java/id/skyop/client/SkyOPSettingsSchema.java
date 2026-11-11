@@ -34,6 +34,9 @@ public final class SkyOPSettingsSchema {
         number("autoRefillThreshold", 2, 1, 16, true);
         number("autoHuntRange", 4.5, 2.5, 6.0, false);
         number("jumpBoostMultiplier", 1.35, 1.0, 3.0, false);
+        number("fastBreakLevel", 7, 1, 7, true);
+        number("autoMlgFallDistance", 6, 3, 18, false);
+        number("autoTotemHealth", 14, 1, 20, false);
         number("bridgeDelayTicks", 2, 1, 10, true);
     }
 

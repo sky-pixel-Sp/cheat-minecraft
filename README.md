@@ -114,6 +114,15 @@ The keybinds also appear in **Options → Controls → Key Binds → SkyOP Clien
 | Auto Jump | Automatic jumps while moving forward |
 | Step Assist | Jump when forward movement hits a wall |
 | Spider | Upward movement while pressing into a wall |
+| Auto MLG | Attempts vanilla water-bucket placement when falling toward a valid block |
+
+### Player
+
+| Module | Main behaviour |
+|---|---|
+| NoFall | Clears the local fall-distance accumulator; server-side rules still apply |
+| Fast Break | Configurable Haste I–VII-equivalent local mining speed; Haste VII = 2.4x |
+| Auto Totem | Uses a normal inventory SWAP to move a totem into the offhand below a health threshold |
 
 ### Visual and HUD
 

@@ -13,12 +13,12 @@ public final class SkyOPModuleDependencies {
 
     public static Requirement requirement(SkyOPModuleId module) {
         return switch (module) {
-            case AUTO_ARMOR, AUTO_TOOL, AUTO_REFILL, AUTO_EAT, INVENTORY_CLEANER, HOTBAR_PRESETS ->
+            case AUTO_ARMOR, AUTO_TOTEM, AUTO_TOOL, AUTO_REFILL, AUTO_EAT, INVENTORY_CLEANER, HOTBAR_PRESETS ->
                     Requirement.INVENTORY;
             case AUTO_FISH -> Requirement.FISHING_ROD;
             case AUTO_JUMP, STEP_ASSIST, SPIDER, SPEED, FLIGHT, NO_FALL, KILL_AURA,
-                    TRIGGER_BOT, AUTO_CLICKER, AUTO_HUNT, AUTO_BRIDGE, INFINITE_JUMP, JUMP_BOOST,
-                    ENTITY_ESP, ITEM_ESP, WAYPOINTS, MINIMAP, GAMMA_BOOST, NIGHT_VISION -> Requirement.WORLD;
+                    TRIGGER_BOT, AUTO_CLICKER, AUTO_HUNT, AUTO_BRIDGE, AUTO_MLG, INFINITE_JUMP, JUMP_BOOST,
+                    ENTITY_ESP, ITEM_ESP, WAYPOINTS, MINIMAP, GAMMA_BOOST, NIGHT_VISION, FAST_BREAK -> Requirement.WORLD;
             default -> Requirement.CLIENT;
         };
     }

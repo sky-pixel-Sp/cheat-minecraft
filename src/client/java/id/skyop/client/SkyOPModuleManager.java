@@ -24,14 +24,15 @@ public final class SkyOPModuleManager {
     private static final List<SkyOPModuleId> MOVEMENT_TICK_ORDER = List.of(
             SkyOPModuleId.AUTO_SPRINT, SkyOPModuleId.SPEED, SkyOPModuleId.FLIGHT,
             SkyOPModuleId.AUTO_JUMP, SkyOPModuleId.STEP_ASSIST, SkyOPModuleId.SPIDER,
-            SkyOPModuleId.AUTO_BRIDGE, SkyOPModuleId.JUMP_BOOST, SkyOPModuleId.INFINITE_JUMP
+            SkyOPModuleId.AUTO_BRIDGE, SkyOPModuleId.JUMP_BOOST, SkyOPModuleId.INFINITE_JUMP,
+            SkyOPModuleId.AUTO_MLG
     );
     private static final List<SkyOPModuleId> COMBAT_TICK_ORDER = List.of(
             SkyOPModuleId.KILL_AURA, SkyOPModuleId.AUTO_HUNT,
             SkyOPModuleId.TRIGGER_BOT, SkyOPModuleId.AUTO_CLICKER
     );
     private static final List<SkyOPModuleId> INVENTORY_TICK_ORDER = List.of(
-            SkyOPModuleId.AUTO_EAT, SkyOPModuleId.AUTO_ARMOR, SkyOPModuleId.AUTO_TOOL,
+            SkyOPModuleId.AUTO_EAT, SkyOPModuleId.AUTO_ARMOR, SkyOPModuleId.AUTO_TOTEM, SkyOPModuleId.AUTO_TOOL,
             SkyOPModuleId.AUTO_REFILL, SkyOPModuleId.INVENTORY_CLEANER, SkyOPModuleId.AUTO_FISH
     );
 
@@ -160,8 +161,10 @@ public final class SkyOPModuleManager {
             case SPIDER -> new SkyOPMovementModules.Spider(settings);
             case AUTO_BRIDGE -> new SkyOPMovementModules.AutoBridge(settings);
             case JUMP_BOOST -> new SkyOPMovementModules.JumpBoost(settings);
+            case AUTO_MLG -> new SkyOPMovementModules.AutoMlg(settings);
             case INFINITE_JUMP -> new SkyOPMovementModules.InfiniteJump(settings);
             case NO_FALL -> new SkyOPMovementModules.NoFall(settings);
+            case FAST_BREAK -> new SkyOPPlayerModules.FastBreak(settings);
 
             case KILL_AURA -> new SkyOPCombatModules.KillAura(settings);
             case AUTO_HUNT -> new SkyOPCombatModules.AutoHunt(settings);
@@ -191,6 +194,7 @@ public final class SkyOPModuleManager {
 
             case AUTO_EAT -> new SkyOPInventoryModules.AutoEat(settings);
             case AUTO_ARMOR -> new SkyOPInventoryModules.AutoArmor(settings);
+            case AUTO_TOTEM -> new SkyOPInventoryModules.AutoTotem(settings);
             case AUTO_TOOL -> new SkyOPInventoryModules.AutoTool(settings);
             case AUTO_REFILL -> new SkyOPInventoryModules.AutoRefill(settings);
             case AUTO_FISH -> new SkyOPInventoryModules.AutoFish(settings);
@@ -248,6 +252,12 @@ public final class SkyOPModuleManager {
                     () -> (double) SkyOPState.autoClickerCps, value -> SkyOPState.autoClickerCps = value.intValue()));
             case AUTO_HUNT -> settings.add(number("autoHuntRange", "setting.hunt_range", "setting.hunt_range_desc",
                     () -> SkyOPState.autoHuntRange, value -> SkyOPState.autoHuntRange = value));
+            case FAST_BREAK -> settings.add(number("fastBreakLevel", "setting.fast_break_level", "setting.fast_break_level_desc",
+                    () -> SkyOPState.fastBreakLevel, value -> SkyOPState.fastBreakLevel = value));
+            case AUTO_MLG -> settings.add(number("autoMlgFallDistance", "setting.auto_mlg_fall", "setting.auto_mlg_fall_desc",
+                    () -> SkyOPState.autoMlgFallDistance, value -> SkyOPState.autoMlgFallDistance = value));
+            case AUTO_TOTEM -> settings.add(number("autoTotemHealth", "setting.auto_totem_health", "setting.auto_totem_health_desc",
+                    () -> SkyOPState.autoTotemHealth, value -> SkyOPState.autoTotemHealth = value));
             case AUTO_BRIDGE -> settings.add(number("bridgeDelayTicks", "setting.placement_delay", "setting.placement_delay_desc",
                     () -> (double) SkyOPState.bridgeDelayTicks, value -> SkyOPState.bridgeDelayTicks = value.intValue()));
             case JUMP_BOOST -> settings.add(number("jumpBoostMultiplier", "setting.jump_multiplier", "setting.jump_multiplier_desc",
