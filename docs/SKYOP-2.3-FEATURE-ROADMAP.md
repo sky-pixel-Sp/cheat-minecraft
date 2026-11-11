@@ -2,7 +2,7 @@
 
 This document tracks the requested feature expansion against real implementation, not menu labels.
 
-## Implemented in `feature/skyop-2.3.0-expansion`
+## Implemented in this development branch
 
 - Fast Break: configurable Haste I–VII-equivalent local mining-speed multiplier; Haste VII is 2.4x. The client mixin only adjusts the local player's calculation and does not bypass server-side validation.
 
