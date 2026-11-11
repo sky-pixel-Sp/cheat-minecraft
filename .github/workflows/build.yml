@@ -147,72 +147,9 @@ jobs:
           printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/mixin/InputConstantsMixin.class$'
           printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/mixin/FastBreakMixin.class$'
           printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPSdlKeyboardIndex.class$'
-          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPDiagnostics.class
-          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPPlayerModules\$FastBreak.class$'
-          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPAutomationRules.class$'
-          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPMovementModules\$AutoMlg.class$'
-          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPInventoryModules\$AutoTotem.class$'
-          if printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPFishingHookAccessor.class$'; then
-            echo 'Mixin accessor must not remain in the client entrypoint package.' >&2
-            exit 1
-          fi
-          unzip -p "$JAR_PATH" fabric.mod.json | grep -q '"id": "skyop"'
-          unzip -p "$JAR_PATH" skyop.mixins.json | grep -q '"package": "id.skyop.mixin"'
-          echo "Verified installable JAR: $JAR_PATH"
-          echo "SKYOP_JAR_PATH=$JAR_PATH" >> "$GITHUB_ENV"
-
-      - name: Upload ready-to-install JAR
-        uses: actions/upload-artifact@v4
-        with:
-          name: SkyOP-Client-Minecraft-26.3
-          path: ${{ env.SKYOP_JAR_PATH }}
-          if-no-files-found: error
-          retention-days: 30
-
-          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPDiagnosticsScreen.class
-          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPPlayerModules\$FastBreak.class$'
-          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPAutomationRules.class$'
-          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPMovementModules\$AutoMlg.class$'
-          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPInventoryModules\$AutoTotem.class$'
-          if printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPFishingHookAccessor.class$'; then
-            echo 'Mixin accessor must not remain in the client entrypoint package.' >&2
-            exit 1
-          fi
-          unzip -p "$JAR_PATH" fabric.mod.json | grep -q '"id": "skyop"'
-          unzip -p "$JAR_PATH" skyop.mixins.json | grep -q '"package": "id.skyop.mixin"'
-          echo "Verified installable JAR: $JAR_PATH"
-          echo "SKYOP_JAR_PATH=$JAR_PATH" >> "$GITHUB_ENV"
-
-      - name: Upload ready-to-install JAR
-        uses: actions/upload-artifact@v4
-        with:
-          name: SkyOP-Client-Minecraft-26.3
-          path: ${{ env.SKYOP_JAR_PATH }}
-          if-no-files-found: error
-          retention-days: 30
-
-          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPFastBreak.class
-          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPPlayerModules\$FastBreak.class$'
-          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPAutomationRules.class$'
-          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPMovementModules\$AutoMlg.class$'
-          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPInventoryModules\$AutoTotem.class$'
-          if printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPFishingHookAccessor.class$'; then
-            echo 'Mixin accessor must not remain in the client entrypoint package.' >&2
-            exit 1
-          fi
-          unzip -p "$JAR_PATH" fabric.mod.json | grep -q '"id": "skyop"'
-          unzip -p "$JAR_PATH" skyop.mixins.json | grep -q '"package": "id.skyop.mixin"'
-          echo "Verified installable JAR: $JAR_PATH"
-          echo "SKYOP_JAR_PATH=$JAR_PATH" >> "$GITHUB_ENV"
-
-      - name: Upload ready-to-install JAR
-        uses: actions/upload-artifact@v4
-        with:
-          name: SkyOP-Client-Minecraft-26.3
-          path: ${{ env.SKYOP_JAR_PATH }}
-          if-no-files-found: error
-          retention-days: 30
-
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPDiagnostics.class$'
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPDiagnosticsScreen.class$'
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPFastBreak.class$'
           printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPPlayerModules\$FastBreak.class$'
           printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPAutomationRules.class$'
           printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPMovementModules\$AutoMlg.class$'
