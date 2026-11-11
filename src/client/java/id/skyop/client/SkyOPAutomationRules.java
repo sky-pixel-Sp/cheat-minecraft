@@ -10,10 +10,10 @@ public final class SkyOPAutomationRules {
         return !offhandOccupied && Float.isFinite(health) && health <= threshold;
     }
 
-    public static boolean shouldTriggerMlg(boolean onGround, float fallDistance,
+    public static boolean shouldTriggerMlg(boolean onGround, double fallDistance,
                                            double verticalVelocity, double triggerDistance) {
         double threshold = SkyOPSettingsSchema.rule("autoMlgFallDistance").validate(triggerDistance);
-        return !onGround && Float.isFinite(fallDistance) && fallDistance >= threshold
+        return !onGround && Double.isFinite(fallDistance) && fallDistance >= threshold
                 && Double.isFinite(verticalVelocity) && verticalVelocity < -0.55D;
     }
 }
