@@ -44,5 +44,6 @@
   "key.skyop.module.item_esp": "ESP Item",
   "key.skyop.module.waypoints": "Titik Koordinat",
   "key.skyop.module.minimap": "Peta Mini",
-  "key.skyop.module.night_vision": "Penglihatan Malam"
+  "key.skyop.module.night_vision": "Penglihatan Malam",
+  "key.skyop.module.fast_break": "Hancur Cepat"
 }
