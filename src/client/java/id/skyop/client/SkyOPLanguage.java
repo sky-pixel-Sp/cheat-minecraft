@@ -154,6 +154,8 @@ public final class SkyOPLanguage {
         put("module.CPS_HUD.description", "Displays successful attack actions per second.");
         put("module.NO_FALL.title", "NoFall");
         put("module.NO_FALL.description", "Clears the local fall-distance accumulator.");
+        put("module.FAST_BREAK.title", "Fast Break");
+        put("module.FAST_BREAK.description", "Boosts local mining speed with a Haste I–VII equivalent.");
 
         put("setting.target_players", "Target players");
         put("setting.include_other_players", "Include other players");
@@ -211,6 +213,8 @@ public final class SkyOPLanguage {
         put("setting.placement_delay_desc", "Ticks between block placement attempts.");
         put("setting.jump_multiplier", "Jump multiplier");
         put("setting.jump_multiplier_desc", "Multiplier applied to the local jump impulse.");
+        put("setting.fast_break_level", "Haste level");
+        put("setting.fast_break_level_desc", "Haste VII equals a 2.4x local mining-speed multiplier; server rules still apply.");
         put("setting.show_items", "Show dropped items");
         put("setting.highlight_items", "Highlight item entities already loaded by the client.");
         put("setting.hud_accent", "HUD accent color");
@@ -754,6 +758,12 @@ public final class SkyOPLanguage {
                 e("dependency.inventory_required", "Buka inventaris pemain terlebih dahulu."),
                 e("dependency.fishing_rod_required", "Pegang pancing di tangan utama."),
                 e("dependency.block_target_required", "Arahkan bidikan ke sebuah blok terlebih dahulu.")
+        ));
+        translate("id", Map.ofEntries(
+                e("module.FAST_BREAK.title", "Hancur Cepat"),
+                e("module.FAST_BREAK.description", "Meningkatkan kecepatan mining lokal setara Haste I–VII."),
+                e("setting.fast_break_level", "Level Haste"),
+                e("setting.fast_break_level_desc", "Haste VII setara pengali kecepatan mining lokal 2,4x; aturan server tetap berlaku.")
         ));
     }
 

@@ -118,6 +118,7 @@ Run these checks in a disposable single-player world before using a private serv
 6. Waypoints: press V in a world; verify a coordinate entry appears in the Waypoints HUD and is persisted in config/skyop-client/waypoints.properties. Restart and verify it reloads. Test the 32-waypoint limit.
 7. Mini Map: spawn a player, hostile mob and dropped item within 48 blocks; verify the HUD dots update as entities move and disappear when no longer client-loaded.
 8. Night Vision: enable in a dark local area, then disable and verify the original gamma value is restored. Test toggling Gamma Boost and Night Vision in both orders.
+9. Fast Break: set Haste level to VII, verify the client multiplier is 2.4x, mine several breakable blocks, then disable the module and verify vanilla mining speed is restored. Confirm unbreakable blocks remain unbreakable and record any server-side correction; do not treat client prediction as proof of server acceptance.
 9. New settings: write out-of-range values for autoHuntRange, jumpBoostMultiplier and bridgeDelayTicks; verify values are clamped or reset to safe defaults.
 10. Password EXE: confirm the Windows workflow runs py_compile, builds SkyOP-Password-Generator.exe, and uploads the artifact. Test generation with each character group enabled/disabled, copy, save, and ambiguous-character exclusion.
 11. Disable All: enable all new modules, press F12, and confirm temporary glow/gamma state is restored and movement automation stops.

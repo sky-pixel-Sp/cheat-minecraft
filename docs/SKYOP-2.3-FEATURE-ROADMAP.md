@@ -4,6 +4,8 @@ This document tracks the requested feature expansion against real implementation
 
 ## Implemented in `feature/skyop-2.3.0-expansion`
 
+- Fast Break: configurable Haste I–VII-equivalent local mining-speed multiplier; Haste VII is 2.4x. The client mixin only adjusts the local player's calculation and does not bypass server-side validation.
+
 - Auto Hunt: targets the nearest loaded hostile mob in a configurable range without rotating the player's camera.
 - Auto Bridge: selects the first placeable block in the hotbar and attempts to place it beneath the player while movement input is active.
 - Infinite Jump: a fresh jump-key press while airborne applies another local jump impulse.

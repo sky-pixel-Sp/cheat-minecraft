@@ -17,14 +17,14 @@ import java.util.List;
  * Responsive, two-column SkyOP module manager for Minecraft 26.3.
  */
 public final class SkyOPClickGui extends Screen {
-    private static final int PANEL = 0xF0141B29;
-    private static final int PANEL_LIGHT = 0xFF202B3D;
-    private static final int PANEL_HOVER = 0xFF293A50;
-    private static final int ACCENT = 0xFF61C7F2;
-    private static final int TEXT = 0xFFF1F6FB;
-    private static final int MUTED = 0xFF9AAABD;
-    private static final int GREEN = 0xFF57D69A;
-    private static final int RED = 0xFFFF7885;
+    private static final int PANEL = 0xF010141C;
+    private static final int PANEL_LIGHT = 0xFF1A202B;
+    private static final int PANEL_HOVER = 0xFF263343;
+    private static final int ACCENT = 0xFF55B8F4;
+    private static final int TEXT = 0xFFF3F6FA;
+    private static final int MUTED = 0xFF98A6B8;
+    private static final int GREEN = 0xFF64D6A4;
+    private static final int RED = 0xFFE07B83;
 
     private SkyOPCategory selectedCategory = SkyOPCategory.COMBAT;
     private SkyOPModuleId selectedModule = SkyOPModuleId.KILL_AURA;
@@ -51,6 +51,7 @@ public final class SkyOPClickGui extends Screen {
     protected void init() {
         calculateLayout();
         selectFirstModule();
+        searchFocused = true;
     }
 
     private void calculateLayout() {
@@ -254,8 +255,12 @@ public final class SkyOPClickGui extends Screen {
             boolean selected = module == selectedModule;
             boolean hovered = inside(mouseX, mouseY, cardX, cardY, cardWidth, cardHeight);
             g.fill(cardX, cardY, cardX + cardWidth, cardY + cardHeight,
-                    selected ? 0xFF263D53 : (hovered ? PANEL_HOVER : PANEL_LIGHT));
-            if (selected) g.fill(cardX, cardY, cardX + 3, cardY + cardHeight, ACCENT);
+                    selected ? 0xFF23364A : (hovered ? PANEL_HOVER : PANEL_LIGHT));
+            g.fill(cardX, cardY, cardX + cardWidth, cardY + 1, enabled ? ACCENT : 0xFF303B49);
+            if (enabled || selected) {
+                g.fill(cardX, cardY + 1, cardX + 3, cardY + cardHeight,
+                        enabled ? ACCENT : 0xFF7898B4);
+            }
 
             int favoriteX = cardX + cardWidth - (layout.compact() ? 58 : 74);
             int pillX = cardX + cardWidth - 46;
@@ -268,9 +273,9 @@ public final class SkyOPClickGui extends Screen {
             g.text(font, Component.literal(SkyOPCore.isFavorite(module) ? "★" : "☆"),
                     favoriteX, cardY + 6, SkyOPCore.isFavorite(module) ? 0xFFFFC85A : MUTED, true);
             g.fill(pillX, cardY + 13, pillX + 38, cardY + 32,
-                    enabled ? 0xFF174633 : 0xFF3B2631);
+                    enabled ? 0xFF1D4653 : 0xFF2B323D);
             g.text(font, Component.literal(enabled ? SkyOPLanguage.text("gui.on") : SkyOPLanguage.text("gui.off")),
-                    pillX + 7, cardY + 19, enabled ? GREEN : RED, true);
+                    pillX + 7, cardY + 19, enabled ? GREEN : 0xFF9AA7B5, true);
 
             if (hovered) hoveredModule = module;
             index++;

@@ -52,6 +52,8 @@ jobs:
           # Keep vanilla UNKNOWN semantics, but guard every lookup before ByteBuffer access.
           grep -Fq 'SDL_SCANCODE_COUNT = 512' src/main/java/id/skyop/client/SkyOPSdlKeyboardIndex.java
           grep -Fq 'method = "isKeyDown(I)Z"' src/client/java/id/skyop/mixin/InputConstantsMixin.java
+          grep -Fq 'getDestroySpeed(Lnet/minecraft/world/level/block/state/BlockState;)F' src/client/java/id/skyop/mixin/FastBreakMixin.java
+          grep -Fq 'FastBreakMixin' src/main/resources/skyop.mixins.json
           grep -Fq 'int key' src/client/java/id/skyop/mixin/InputConstantsMixin.java
           grep -Fq 'SkyOPSdlKeyboardIndex.isValidStateIndex(key)' src/client/java/id/skyop/mixin/InputConstantsMixin.java
           if grep -Fq 'isKeyDown(JI)Z' src/client/java/id/skyop/mixin/InputConstantsMixin.java; then
@@ -104,7 +106,78 @@ jobs:
           JAR_ENTRIES="$(jar tf "$JAR_PATH")"
           printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPClient.class$'
           printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/mixin/SkyOPFishingHookAccessor.class$'
-          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/mixin/InputConstantsMixin.class$'
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/mixin/InputConstantsMixin.class          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPSdlKeyboardIndex.class$'
+          if printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPFishingHookAccessor.class$'; then
+            echo 'Mixin accessor must not remain in the client entrypoint package.' >&2
+            exit 1
+          fi
+          unzip -p "$JAR_PATH" fabric.mod.json | grep -q '"id": "skyop"'
+          unzip -p "$JAR_PATH" skyop.mixins.json | grep -q '"package": "id.skyop.mixin"'
+          echo "Verified installable JAR: $JAR_PATH"
+          echo "SKYOP_JAR_PATH=$JAR_PATH" >> "$GITHUB_ENV"
+
+      - name: Upload ready-to-install JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: SkyOP-Client-Minecraft-26.3
+          path: ${{ env.SKYOP_JAR_PATH }}
+          if-no-files-found: error
+          retention-days: 30
+
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/mixin/FastBreakMixin.class          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPSdlKeyboardIndex.class$'
+          if printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPFishingHookAccessor.class$'; then
+            echo 'Mixin accessor must not remain in the client entrypoint package.' >&2
+            exit 1
+          fi
+          unzip -p "$JAR_PATH" fabric.mod.json | grep -q '"id": "skyop"'
+          unzip -p "$JAR_PATH" skyop.mixins.json | grep -q '"package": "id.skyop.mixin"'
+          echo "Verified installable JAR: $JAR_PATH"
+          echo "SKYOP_JAR_PATH=$JAR_PATH" >> "$GITHUB_ENV"
+
+      - name: Upload ready-to-install JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: SkyOP-Client-Minecraft-26.3
+          path: ${{ env.SKYOP_JAR_PATH }}
+          if-no-files-found: error
+          retention-days: 30
+
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPFastBreak.class          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPSdlKeyboardIndex.class$'
+          if printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPFishingHookAccessor.class$'; then
+            echo 'Mixin accessor must not remain in the client entrypoint package.' >&2
+            exit 1
+          fi
+          unzip -p "$JAR_PATH" fabric.mod.json | grep -q '"id": "skyop"'
+          unzip -p "$JAR_PATH" skyop.mixins.json | grep -q '"package": "id.skyop.mixin"'
+          echo "Verified installable JAR: $JAR_PATH"
+          echo "SKYOP_JAR_PATH=$JAR_PATH" >> "$GITHUB_ENV"
+
+      - name: Upload ready-to-install JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: SkyOP-Client-Minecraft-26.3
+          path: ${{ env.SKYOP_JAR_PATH }}
+          if-no-files-found: error
+          retention-days: 30
+
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPPlayerModules$FastBreak.class          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPSdlKeyboardIndex.class$'
+          if printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPFishingHookAccessor.class$'; then
+            echo 'Mixin accessor must not remain in the client entrypoint package.' >&2
+            exit 1
+          fi
+          unzip -p "$JAR_PATH" fabric.mod.json | grep -q '"id": "skyop"'
+          unzip -p "$JAR_PATH" skyop.mixins.json | grep -q '"package": "id.skyop.mixin"'
+          echo "Verified installable JAR: $JAR_PATH"
+          echo "SKYOP_JAR_PATH=$JAR_PATH" >> "$GITHUB_ENV"
+
+      - name: Upload ready-to-install JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: SkyOP-Client-Minecraft-26.3
+          path: ${{ env.SKYOP_JAR_PATH }}
+          if-no-files-found: error
+          retention-days: 30
+
           printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPSdlKeyboardIndex.class$'
           if printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPFishingHookAccessor.class$'; then
             echo 'Mixin accessor must not remain in the client entrypoint package.' >&2
