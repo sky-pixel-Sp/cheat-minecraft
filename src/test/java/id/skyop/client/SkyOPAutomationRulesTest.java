@@ -13,6 +13,11 @@ class SkyOPAutomationRulesTest {
     }
 
     @Test
+    void autoTotemNeverReplacesAnExistingOffhandItem() {
+        assertFalse(SkyOPAutomationRules.shouldEquipTotem(true, 1.0F, 20));
+    }
+
+    @Test
     void autoTotemThresholdIsClampedToValidHealthRange() {
         assertTrue(SkyOPAutomationRules.shouldEquipTotem(false, 1.0F, 99));
         assertFalse(SkyOPAutomationRules.shouldEquipTotem(false, 2.0F, 0));
