@@ -16,7 +16,7 @@ public final class SkyOPFastBreak {
 
     public static float multiplierForLevel(double hasteLevel) {
         SkyOPSettingsSchema.NumberRule rule = SkyOPSettingsSchema.rule("fastBreakLevel");
-        double safeLevel = rule == null ? 7.0 : rule.validate(hasteLevel);
+        double safeLevel = rule == null ? 50.0 : rule.validate(hasteLevel);
         return 1.0F + (float) (safeLevel * 0.2D);
     }
 
