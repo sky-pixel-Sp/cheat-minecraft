@@ -114,6 +114,12 @@ The keybinds also appear in **Options → Controls → Key Binds → SkyOP Clien
 | Auto Jump | Automatic jumps while moving forward |
 | Step Assist | Jump when forward movement hits a wall |
 | Spider | Upward movement while pressing into a wall |
+
+### Player
+
+| Module | Main behaviour |
+|---|---|
+| NoFall | Clears the local fall-distance accumulator; server-side rules still apply |
 | Fast Break | Configurable Haste I–VII-equivalent local mining speed; Haste VII = 2.4x |
 
 ### Visual and HUD
