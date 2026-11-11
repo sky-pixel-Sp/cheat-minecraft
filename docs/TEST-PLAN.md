@@ -185,3 +185,29 @@ CI coverage for Phase 1 includes ConfigManager migration/corruption tests and ty
 10. Verify the ClickGUI inspector has no per-module settings switch and uses the registered typed setting instance as the source of truth.
 
 CI covers compilation, JUnit tests for legacy utilities, config migration, typed setting validation/serialization and dynamic bilingual setting labels. Manual Minecraft 26.3 launch/gameplay checks remain mandatory.
+
+
+## SkyOP 3.0 review feedback — manual Minecraft 26.3 checks
+
+These checks are required in a disposable singleplayer world and a private test server. CI passing is not evidence that the interactions work in-game.
+
+### Auto Totem
+1. Put a totem in each hotbar position in turn (slots 1–9), leave the offhand empty, lower health below the configured threshold, and verify it moves to the offhand.
+2. Repeat with the offhand occupied by a shield or another item; verify Auto Totem does not overwrite it.
+3. Wear a helmet and keep a totem in inventory; verify the armor menu slots are never mistaken for player-inventory source slots and the helmet remains equipped.
+4. Repeat with the totem in main-inventory slots 10–36. Verify no stack is duplicated, deleted, or moved from armor/offhand.
+5. Toggle Auto Totem off during its cooldown, then disconnect/reconnect; verify no delayed swap is issued after disable or world teardown.
+
+### Auto MLG
+1. Fall toward a reachable solid block with a water bucket in hotbar. Test while already looking down and while looking forward/up; verify the temporary downward pitch finds the block below and is restored immediately after both interaction paths.
+2. Repeat with no water bucket; verify no item-use is sent and pitch/hotbar remain unchanged.
+3. Test with no block below, while on ground, while rising, and below the configured fall-distance threshold; verify no placement attempt.
+4. Toggle Auto MLG off during a fall and disconnect while the module is enabled; verify pitch and selected hotbar slot are restored and no subsequent attempt occurs.
+5. Repeat on the private test server and record the server response; a denied/reverted bucket action is a server-authority result, not proof that the client-side API call failed.
+
+### Fast Break — integrated server
+1. In singleplayer, enable Fast Break VII and compare local client mining and integrated-server break progression for the same player UUID.
+2. Verify a different UUID / remote multiplayer server player receives no multiplier.
+3. Disable Fast Break and confirm vanilla mining speed is restored in both local and integrated-server paths.
+
+Record Minecraft 26.3, Fabric Loader/API versions, GUI scale, client log, server log, and a short video for each check. Do not mark any item as game-tested until evidence is captured.

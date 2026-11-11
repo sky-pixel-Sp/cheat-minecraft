@@ -1,8 +1,26 @@
 package id.skyop.client;
 
+import java.util.UUID;
+
 /** Pure decision rules shared by automation modules and their unit tests. */
 public final class SkyOPAutomationRules {
     private SkyOPAutomationRules() { }
+
+    /**
+     * Maps Player inventory indices to AbstractContainerMenu player-inventory slot ids.
+     * Hotbar 0..8 is menu 36..44; main inventory 9..35 retains its index.
+     * Armor 36..39 and offhand 40 are deliberately not mapped.
+     */
+    public static int playerInventorySlotToMenuSlot(int inventorySlot) {
+        if (inventorySlot >= 0 && inventorySlot <= 8) return inventorySlot + 36;
+        if (inventorySlot >= 9 && inventorySlot <= 35) return inventorySlot;
+        return -1;
+    }
+
+    public static boolean matchesSingleplayerPlayerUuid(UUID localPlayerUuid, UUID serverPlayerUuid) {
+        return localPlayerUuid != null && serverPlayerUuid != null
+                && localPlayerUuid.equals(serverPlayerUuid);
+    }
 
     public static boolean shouldEquipTotem(boolean offhandOccupied,
                                            float health, double healthThreshold) {

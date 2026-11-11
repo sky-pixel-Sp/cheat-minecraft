@@ -9,6 +9,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.component.SwingAnimation;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
@@ -213,8 +214,6 @@ public final class SkyOPMovementModules {
         if (!SkyOPAutomationRules.shouldTriggerMlg(
                 player.onGround(), player.fallDistance, player.getDeltaMovement().y,
                 SkyOPState.autoMlgFallDistance)) return;
-        if (!(client.hitResult instanceof BlockHitResult hit)
-                || hit.getBlockPos().getY() >= Math.floor(player.getY())) return;
 
         int bucketSlot = -1;
         for (int slot = 0; slot < net.minecraft.world.entity.player.Inventory.SELECTION_SIZE; slot++) {
@@ -225,12 +224,32 @@ public final class SkyOPMovementModules {
         }
         if (bucketSlot < 0) return;
 
-        autoMlgOriginalSlot = inventory.getSelectedSlot();
-        autoMlgBucketSlot = bucketSlot;
-        inventory.setSelectedSlot(bucketSlot);
-        client.gameMode.useItemOn(player, InteractionHand.MAIN_HAND, hit);
-        player.swing(InteractionHand.MAIN_HAND, SwingAnimation.DEFAULT, true);
-        autoMlgCooldown = 5;
+        float originalPitch = player.getXRot();
+        try {
+            // Temporarily aim straight down, then calculate a fresh block hit from that view.
+            // This also lets the module work when the player's camera was not already looking down.
+            player.setXRot(90.0F);
+            HitResult rayHit = player.pick(4.5D, 1.0F, false);
+            if (rayHit.getType() != HitResult.Type.BLOCK
+                    || !(rayHit instanceof BlockHitResult hit)
+                    || hit.getBlockPos().getY() >= Math.floor(player.getY())) {
+                return;
+            }
+
+            autoMlgOriginalSlot = inventory.getSelectedSlot();
+            autoMlgBucketSlot = bucketSlot;
+            inventory.setSelectedSlot(bucketSlot);
+
+            // Block-targeted interaction is attempted first. BucketItem overrides use(...),
+            // not useOn(...), so also submit the ordinary item-use path.
+            client.gameMode.useItemOn(player, InteractionHand.MAIN_HAND, hit);
+            player.swing(InteractionHand.MAIN_HAND, SwingAnimation.DEFAULT, true);
+            client.gameMode.useItem(player, InteractionHand.MAIN_HAND);
+            autoMlgCooldown = 5;
+        } finally {
+            // Pitch restoration is synchronous, including early return and exception paths.
+            player.setXRot(originalPitch);
+        }
     }
 
     private static void restoreAutoMlgSlot(Minecraft client) {
