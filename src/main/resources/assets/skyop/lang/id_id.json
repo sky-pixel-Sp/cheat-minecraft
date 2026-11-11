@@ -47,5 +47,6 @@
   "key.skyop.module.night_vision": "Penglihatan Malam",
   "key.skyop.module.fast_break": "Hancur Cepat",
   "key.skyop.module.auto_mlg": "MLG Otomatis",
-  "key.skyop.module.auto_totem": "Totem Otomatis"
+  "key.skyop.module.auto_totem": "Totem Otomatis",
+  "key.skyop.diagnostics": "Buka Diagnostik SkyOP"
 }
