@@ -4,10 +4,10 @@ package id.skyop.client;
 public final class SkyOPAutomationRules {
     private SkyOPAutomationRules() { }
 
-    public static boolean shouldEquipTotem(boolean offhandAlreadyHasTotem,
+    public static boolean shouldEquipTotem(boolean offhandOccupied,
                                            float health, double healthThreshold) {
         double threshold = SkyOPSettingsSchema.rule("autoTotemHealth").validate(healthThreshold);
-        return !offhandAlreadyHasTotem && Float.isFinite(health) && health <= threshold;
+        return !offhandOccupied && Float.isFinite(health) && health <= threshold;
     }
 
     public static boolean shouldTriggerMlg(boolean onGround, float fallDistance,
