@@ -44,5 +44,6 @@
   "key.skyop.module.item_esp": "Item ESP",
   "key.skyop.module.waypoints": "Waypoints",
   "key.skyop.module.minimap": "Mini Map",
-  "key.skyop.module.night_vision": "Night Vision"
+  "key.skyop.module.night_vision": "Night Vision",
+  "key.skyop.module.fast_break": "Fast Break"
 }
