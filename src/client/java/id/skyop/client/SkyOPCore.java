@@ -36,6 +36,7 @@ public final class SkyOPCore {
     private static final KeyMapping KEY_NO_FALL = key("key.skyop.toggle_nofall", InputConstants.KEY_F10);
     private static final KeyMapping KEY_FLIGHT = key("key.skyop.toggle_flight", InputConstants.KEY_F11);
     private static final KeyMapping KEY_DISABLE_ALL = key("key.skyop.disable_all", InputConstants.KEY_F12);
+    private static final KeyMapping KEY_DIAGNOSTICS = key("key.skyop.diagnostics", InputConstants.KEY_HOME);
     private static final KeyMapping KEY_ADD_WAYPOINT = key("key.skyop.add_waypoint", InputConstants.KEY_V);
 
     private static Object trackedLevelContext;
@@ -321,6 +322,7 @@ private static void ensureMouseCaptured(Minecraft client) {
 
 private static void handleKeybinds(Minecraft client) {
         if (KEY_GUI.consumeClick()) client.gui.setScreen(new SkyOPClickGui());
+        if (KEY_DIAGNOSTICS.consumeClick()) client.gui.setScreen(new SkyOPDiagnosticsScreen(client.gui.screen()));
         if (KEY_ADD_WAYPOINT.consumeClick()) {
             boolean added = SkyOPWaypointManager.addCurrent(client);
             if (client.player != null) client.player.sendSystemMessage(Component.literal(
