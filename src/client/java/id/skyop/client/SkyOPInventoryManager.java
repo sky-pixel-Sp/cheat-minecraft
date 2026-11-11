@@ -37,6 +37,7 @@ public final class SkyOPInventoryManager {
     private static int originalEatSlot = -1;
     private static int activeEatSlot = -1;
     private static int armorDelay;
+    private static int totemDelay;
     private static int refillDelay;
     private static int cleanDelay;
     private static int fishDelay;
@@ -49,6 +50,7 @@ public final class SkyOPInventoryManager {
         stopEating(client);
         restoreAutoTool(client);
         armorDelay = 0;
+        totemDelay = 0;
         refillDelay = 0;
         cleanDelay = 0;
         fishDelay = 0;
@@ -59,6 +61,7 @@ public final class SkyOPInventoryManager {
         switch (module) {
             case AUTO_EAT -> stopEating(client);
             case AUTO_ARMOR -> armorDelay = 0;
+            case AUTO_TOTEM -> totemDelay = 0;
             case AUTO_TOOL -> restoreAutoTool(client);
             case AUTO_REFILL -> refillDelay = 0;
             case INVENTORY_CLEANER -> cleanDelay = 0;
@@ -173,6 +176,27 @@ public final class SkyOPInventoryManager {
         originalEatSlot = -1;
         activeEatSlot = -1;
         eatDelay = 0;
+    }
+
+    static void tickAutoTotem(Minecraft client) {
+        if (totemDelay > 0) { totemDelay--; return; }
+        var player = client.player;
+        if (player.getOffhandItem().is(Items.TOTEM_OF_UNDYING)
+                || !SkyOPAutomationRules.shouldEquipTotem(
+                        false, player.getHealth(), SkyOPState.autoTotemHealth)) return;
+
+        var inventory = player.getInventory();
+        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
+            if (!inventory.getItem(slot).is(Items.TOTEM_OF_UNDYING)) continue;
+
+            // Vanilla inventory SWAP button 40 maps to the offhand slot.
+            // The server validates this ordinary container action.
+            client.gameMode.handleContainerInput(
+                    player.inventoryMenu.containerId, slot, 40, ContainerInput.SWAP, player
+            );
+            totemDelay = 10;
+            return;
+        }
     }
 
     static void tickAutoArmor(Minecraft client) {
@@ -316,6 +340,7 @@ public final class SkyOPInventoryManager {
         eatDelay = 0;
         eatRetry = 0;
         armorDelay = 0;
+        totemDelay = 0;
         refillDelay = 0;
         cleanDelay = 0;
         fishDelay = 0;

@@ -16,6 +16,7 @@ package id.skyop.client;
         AUTO_BRIDGE("Auto Bridge", "Places a selected hotbar block beneath the player while moving.", SkyOPCategory.MOVEMENT),
         INFINITE_JUMP("Infinite Jump", "Allows another jump after leaving the ground when jump is pressed again.", SkyOPCategory.MOVEMENT),
         JUMP_BOOST("Jump Boost", "Adjusts the local jump impulse multiplier.", SkyOPCategory.MOVEMENT),
+        AUTO_MLG("Auto MLG", "Attempts a normal water-bucket placement when falling toward a valid block.", SkyOPCategory.MOVEMENT),
 
         ENTITY_ESP("Entity ESP", "Highlights nearby loaded living entities and dropped items.", SkyOPCategory.VISUAL),
         ITEM_ESP("Item ESP", "Includes dropped item entities in the Entity ESP highlight filter.", SkyOPCategory.VISUAL),
@@ -43,6 +44,7 @@ package id.skyop.client;
 
         AUTO_EAT("Auto Eat", "Uses safe food from your hotbar when hunger is low.", SkyOPCategory.INVENTORY),
         AUTO_ARMOR("Auto Armor", "Equips armor into empty armor slots.", SkyOPCategory.INVENTORY),
+        AUTO_TOTEM("Auto Totem", "Moves a carried totem into the offhand when health reaches the configured threshold.", SkyOPCategory.INVENTORY),
         AUTO_TOOL("Auto Tool", "Selects the best hotbar tool for the targeted block.", SkyOPCategory.INVENTORY),
         AUTO_REFILL("Auto Refill", "Refills low hotbar stacks from matching inventory items.", SkyOPCategory.INVENTORY),
         AUTO_FISH("Auto Fish", "Automatically reels on bite and recasts your fishing rod.", SkyOPCategory.INVENTORY),

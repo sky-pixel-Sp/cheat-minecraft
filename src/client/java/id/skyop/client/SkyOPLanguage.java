@@ -156,6 +156,10 @@ public final class SkyOPLanguage {
         put("module.NO_FALL.description", "Clears the local fall-distance accumulator.");
         put("module.FAST_BREAK.title", "Fast Break");
         put("module.FAST_BREAK.description", "Boosts local mining speed with a Haste I–VII equivalent.");
+        put("module.AUTO_MLG.title", "Auto MLG");
+        put("module.AUTO_MLG.description", "Attempts a normal water-bucket placement while falling toward a valid block.");
+        put("module.AUTO_TOTEM.title", "Auto Totem");
+        put("module.AUTO_TOTEM.description", "Moves a carried totem into your offhand when health is low.");
 
         put("setting.target_players", "Target players");
         put("setting.include_other_players", "Include other players");
@@ -215,6 +219,10 @@ public final class SkyOPLanguage {
         put("setting.jump_multiplier_desc", "Multiplier applied to the local jump impulse.");
         put("setting.fast_break_level", "Haste level");
         put("setting.fast_break_level_desc", "Haste VII equals a 2.4x local mining-speed multiplier; server rules still apply.");
+        put("setting.auto_mlg_fall", "MLG trigger distance");
+        put("setting.auto_mlg_fall_desc", "Minimum fall distance before a normal water-bucket use attempt.");
+        put("setting.auto_totem_health", "Totem health threshold");
+        put("setting.auto_totem_health_desc", "Moves a totem to offhand when health is at or below this value.");
         put("setting.show_items", "Show dropped items");
         put("setting.highlight_items", "Highlight item entities already loaded by the client.");
         put("setting.hud_accent", "HUD accent color");
@@ -758,6 +766,16 @@ public final class SkyOPLanguage {
                 e("dependency.inventory_required", "Buka inventaris pemain terlebih dahulu."),
                 e("dependency.fishing_rod_required", "Pegang pancing di tangan utama."),
                 e("dependency.block_target_required", "Arahkan bidikan ke sebuah blok terlebih dahulu.")
+        ));
+        translate("id", Map.ofEntries(
+                e("module.AUTO_MLG.title", "MLG Otomatis"),
+                e("module.AUTO_MLG.description", "Mencoba memasang water bucket dengan aksi normal saat jatuh menuju blok valid."),
+                e("module.AUTO_TOTEM.title", "Totem Otomatis"),
+                e("module.AUTO_TOTEM.description", "Memindahkan totem ke offhand saat health rendah."),
+                e("setting.auto_mlg_fall", "Jarak pemicu MLG"),
+                e("setting.auto_mlg_fall_desc", "Jarak jatuh minimum sebelum mencoba menggunakan water bucket."),
+                e("setting.auto_totem_health", "Ambang health totem"),
+                e("setting.auto_totem_health_desc", "Memindahkan totem ke offhand saat health sama dengan atau di bawah nilai ini.")
         ));
         translate("id", Map.ofEntries(
                 e("module.FAST_BREAK.title", "Hancur Cepat"),
