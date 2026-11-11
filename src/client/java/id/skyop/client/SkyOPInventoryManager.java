@@ -185,13 +185,17 @@ public final class SkyOPInventoryManager {
                 !player.getOffhandItem().isEmpty(), player.getHealth(), SkyOPState.autoTotemHealth)) return;
 
         var inventory = player.getInventory();
-        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
-            if (!inventory.getItem(slot).is(Items.TOTEM_OF_UNDYING)) continue;
+        // Only main inventory + hotbar are eligible. Armor (36-39) and offhand (40)
+        // are not source slots for this automation.
+        for (int inventorySlot = 0; inventorySlot <= 35; inventorySlot++) {
+            if (!inventory.getItem(inventorySlot).is(Items.TOTEM_OF_UNDYING)) continue;
+            int menuSlot = SkyOPAutomationRules.playerInventorySlotToMenuSlot(inventorySlot);
+            if (menuSlot < 0) continue;
 
             // Vanilla inventory SWAP button 40 maps to the offhand slot.
             // The server validates this ordinary container action.
             client.gameMode.handleContainerInput(
-                    player.inventoryMenu.containerId, slot, 40, ContainerInput.SWAP, player
+                    player.inventoryMenu.containerId, menuSlot, 40, ContainerInput.SWAP, player
             );
             totemDelay = 10;
             return;

@@ -112,6 +112,15 @@ jobs:
           grep -Fq 'case AUTO_TOTEM -> new SkyOPInventoryModules.AutoTotem(settings);' src/client/java/id/skyop/client/SkyOPModuleManager.java
           test -s src/test/java/id/skyop/client/SkyOPAutomationRulesTest.java
           grep -Fq 'SkyOPFastBreak.multiplierForLevel' src/test/java/id/skyop/client/SkyOPFastBreakTest.java
+          grep -Fq 'playerInventorySlotToMenuSlot' src/client/java/id/skyop/client/SkyOPAutomationRules.java
+          grep -Fq 'SkyOPAutomationRules.playerInventorySlotToMenuSlot(inventorySlot)' src/client/java/id/skyop/client/SkyOPInventoryManager.java
+          grep -Fq 'HitResult.Type.BLOCK' src/client/java/id/skyop/client/SkyOPMovementModules.java
+          grep -Fq 'client.gameMode.useItem(player, InteractionHand.MAIN_HAND);' src/client/java/id/skyop/client/SkyOPMovementModules.java
+          grep -Fq 'player.setXRot(originalPitch);' src/client/java/id/skyop/client/SkyOPMovementModules.java
+          grep -Fq 'getSingleplayerServer()' src/client/java/id/skyop/client/SkyOPFastBreak.java
+          grep -Fq 'getPlayer(client.player.getUUID())' src/client/java/id/skyop/client/SkyOPFastBreak.java
+          grep -Fq 'playerInventorySlotsMapToVanillaMenuSlots' src/test/java/id/skyop/client/SkyOPAutomationRulesTest.java
+          grep -Fq 'SkyOP 3.0 review feedback' docs/TEST-PLAN.md
 
           JAR_ENTRIES="$(jar tf "$JAR_PATH")"
           printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPClient.class$'

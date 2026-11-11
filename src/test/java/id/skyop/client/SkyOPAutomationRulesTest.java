@@ -6,6 +6,35 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SkyOPAutomationRulesTest {
     @Test
+    void playerInventorySlotsMapToVanillaMenuSlots() {
+        assertEquals(36, SkyOPAutomationRules.playerInventorySlotToMenuSlot(0));
+        assertEquals(37, SkyOPAutomationRules.playerInventorySlotToMenuSlot(1));
+        assertEquals(44, SkyOPAutomationRules.playerInventorySlotToMenuSlot(8));
+        assertEquals(9, SkyOPAutomationRules.playerInventorySlotToMenuSlot(9));
+        assertEquals(35, SkyOPAutomationRules.playerInventorySlotToMenuSlot(35));
+    }
+
+    @Test
+    void armorOffhandAndOutOfRangeInventorySlotsAreNotMappable() {
+        for (int slot = 36; slot <= 40; slot++) {
+            assertEquals(-1, SkyOPAutomationRules.playerInventorySlotToMenuSlot(slot));
+        }
+        assertEquals(-1, SkyOPAutomationRules.playerInventorySlotToMenuSlot(-1));
+        assertEquals(-1, SkyOPAutomationRules.playerInventorySlotToMenuSlot(41));
+    }
+
+    @Test
+    void singleplayerServerPlayerMustHaveTheLocalPlayersUuid() {
+        var local = java.util.UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        var matching = java.util.UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+        var different = java.util.UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+        assertTrue(SkyOPAutomationRules.matchesSingleplayerPlayerUuid(local, matching));
+        assertFalse(SkyOPAutomationRules.matchesSingleplayerPlayerUuid(local, different));
+        assertFalse(SkyOPAutomationRules.matchesSingleplayerPlayerUuid(local, null));
+        assertFalse(SkyOPAutomationRules.matchesSingleplayerPlayerUuid(null, matching));
+    }
+
+    @Test
     void autoTotemOnlyRequestsSwapWhenOffhandIsEmptyAndHealthIsLow() {
         assertTrue(SkyOPAutomationRules.shouldEquipTotem(false, 8.0F, 14));
         assertFalse(SkyOPAutomationRules.shouldEquipTotem(true, 2.0F, 14));
