@@ -231,3 +231,17 @@ Released under the **MIT License**. See LICENSE.
 The ClickGUI inspector obtains its rows from `SkyOPModuleManager.settings(module)`. Boolean, numeric, mode, multi-select, color and keybind settings render and edit through their typed `SkyOPSetting` instances; the inspector does not contain a per-module settings switch. Setting labels resolve their translation keys at render time so a language switch also updates an already-open GUI.
 
 Bahasa Indonesia is the default. The English and Indonesian in-client dictionaries currently contain the same 232 keys. The Minecraft language resources `id_id.json` and `en_us.json` contain keybinding translations.
+
+
+## Diagnostics and Phase A failure isolation
+
+Press **Home** (configurable under Minecraft Controls → SkyOP Client) to open the in-game Diagnostics screen. It shows module readiness, the most recent decision reason, error count, and last exception. **Copy Report** copies a local diagnostic snapshot to the clipboard.
+
+Runtime details and stack traces are written locally to `.minecraft/config/skyop-client/skyop.log` (rotated to `skyop.log.1` at approximately 1 MiB). No diagnostic data is sent over the network. A module is automatically disabled after three caught errors in the same enable session; other modules continue running.
+
+Auto Totem and Auto MLG expose their skip reasons in Diagnostics. Auto MLG predicts a landing surface using local movement integration and already-loaded chunks, then only attempts a normal vanilla bucket interaction within 4.5-block reach. It does not force-load chunks or bypass server validation.
+
+Fast Break supports levels 1–50. The local destroy-speed factor is `1 + 0.2 × level` (level 50 = 11×). Remote multiplayer servers remain authoritative; this client-side setting does not grant server permission or guarantee faster server-side block breaking.
+
+See [docs/TEST-PLAN.md](docs/TEST-PLAN.md) for the Survival regression checklist. Diagnostics and a successful CI build are not substitutes for in-game verification.
+
