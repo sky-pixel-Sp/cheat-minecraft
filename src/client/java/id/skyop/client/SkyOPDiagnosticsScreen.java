@@ -29,6 +29,7 @@ public final class SkyOPDiagnosticsScreen extends Screen {
     private int panelWidth;
     private int panelHeight;
     private int page;
+    private int copiedTicks;
 
     public SkyOPDiagnosticsScreen(Screen parent) {
         super(Component.literal("SkyOP Diagnostics"));
@@ -77,6 +78,7 @@ public final class SkyOPDiagnosticsScreen extends Screen {
         drawMetrics(graphics, client, palette, idLanguage);
         drawRuntimePanel(graphics, client, palette, idLanguage);
         drawFooter(graphics, mouseX, mouseY, palette, idLanguage);
+        if (copiedTicks > 0) copiedTicks--;
     }
 
     private void drawHeader(GuiGraphicsExtractor g, int mouseX, int mouseY,
@@ -85,10 +87,10 @@ public final class SkyOPDiagnosticsScreen extends Screen {
         g.text(font, Component.literal("SKYOP"), panelX + 18, y, p.accent(), true);
         g.text(font, Component.literal(idLanguage ? "DIAGNOSTIK" : "DIAGNOSTICS"),
                 panelX + 78, y, p.text(), true);
-        g.text(font, Component.literal(idLanguage
-                        ? "Status runtime dan kesehatan modul"
-                        : "Runtime status and module health"),
-                panelX + 18, y + 20, p.muted(), false);
+        String subtitle = idLanguage
+                ? "Status runtime dan kesehatan modul • C: salin laporan"
+                : "Runtime status and module health • C: copy report";
+        g.text(font, Component.literal(subtitle), panelX + 18, y + 20, p.muted(), false);
 
         int closeX = panelX + panelWidth - 42;
         boolean closeHover = inside(mouseX, mouseY, closeX, panelY + 10, 28, 24);
@@ -106,6 +108,12 @@ public final class SkyOPDiagnosticsScreen extends Screen {
                 : (idLanguage ? "MENU / OFFLINE" : "MENU / OFFLINE");
         g.text(font, Component.literal(status), statusX + 21, panelY + 18,
                 online ? p.success() : p.muted(), true);
+
+        if (!compact()) {
+            int copyX = statusX - 74;
+            drawButton(g, mouseX, mouseY, copyX, panelY + 10, 66, 24,
+                    SkyOPLanguage.text(copiedTicks > 0 ? "diagnostics.copied" : "diagnostics.copy"), p);
+        }
     }
 
     private void drawMetrics(GuiGraphicsExtractor g, Minecraft client,
@@ -230,7 +238,7 @@ public final class SkyOPDiagnosticsScreen extends Screen {
             boolean enabled = SkyOPCore.isEnabled(id);
             boolean active = SkyOPModuleManager.isActive(id);
             SkyOPModule module = SkyOPModuleManager.get(id);
-            boolean ready = module != null && module.isReady(client);
+            boolean ready = module != null && SkyOPModuleManager.isReadyForDiagnostics(client, id);
             String state = active
                     ? (idLanguage ? "AKTIF" : "ACTIVE")
                     : (enabled && !ready ? (idLanguage ? "MENUNGGU" : "WAITING")
@@ -250,8 +258,22 @@ public final class SkyOPDiagnosticsScreen extends Screen {
                     cardX + cardWidth - font.width(state) - 7, cardY + 5,
                     stateColor, true);
             if (!compact() && cardHeight >= 30) {
-                String category = id.category().title();
-                g.text(font, Component.literal(category), cardX + 8, cardY + 18, p.muted(), false);
+                SkyOPDiagnostics.Snapshot diagnostic = SkyOPDiagnostics.snapshot(id);
+                String detail;
+                int detailColor;
+                if (diagnostic.errorCount() > 0 && !diagnostic.lastError().isBlank()) {
+                    detail = diagnostic.lastError();
+                    detailColor = p.danger();
+                } else if (!diagnostic.lastReason().isBlank()) {
+                    detail = diagnostic.lastReason();
+                    detailColor = p.muted();
+                } else {
+                    detail = id.category().title();
+                    detailColor = p.muted();
+                }
+                int detailWidth = Math.max(10, (cardWidth - 18) / 6);
+                g.text(font, Component.literal(trim(detail, detailWidth)),
+                        cardX + 8, cardY + 18, detailColor, false);
             }
         }
     }
@@ -296,7 +318,7 @@ public final class SkyOPDiagnosticsScreen extends Screen {
         for (SkyOPModuleId id : SkyOPModuleId.values()) {
             if (!SkyOPCore.isEnabled(id)) continue;
             SkyOPModule module = SkyOPModuleManager.get(id);
-            if (module == null || !module.isReady(client)) waiting++;
+            if (module == null || !SkyOPModuleManager.isReadyForDiagnostics(client, id)) waiting++;
         }
         return waiting;
     }
@@ -311,6 +333,15 @@ public final class SkyOPDiagnosticsScreen extends Screen {
         int mx = (int) event.x();
         int my = (int) event.y();
         int closeX = panelX + panelWidth - 42;
+        if (!compact()) {
+            int statusX = closeX - 126 - 10;
+            int copyX = statusX - 74;
+            if (inside(mx, my, copyX, panelY + 10, 66, 24)) {
+                Minecraft.getInstance().keyboardHandler.setClipboard(SkyOPDiagnostics.buildReport());
+                copiedTicks = 50;
+                return true;
+            }
+        }
         if (inside(mx, my, closeX, panelY + 10, 28, 24)
                 || inside(mx, my, panelX + 16, panelY + panelHeight - FOOTER_HEIGHT + 6,
                 compact() ? 126 : 174, 24)) {
@@ -366,6 +397,11 @@ public final class SkyOPDiagnosticsScreen extends Screen {
 
     @Override
     public boolean keyPressed(KeyEvent event) {
+        if (event.key() == InputConstants.KEY_C) {
+            Minecraft.getInstance().keyboardHandler.setClipboard(SkyOPDiagnostics.buildReport());
+            copiedTicks = 50;
+            return true;
+        }
         if (event.key() == InputConstants.KEY_ESCAPE
                 || event.key() == InputConstants.KEY_BACKSPACE) {
             returnToParent();
