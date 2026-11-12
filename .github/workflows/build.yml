@@ -48,6 +48,16 @@ jobs:
             exit 1
           fi
 
+          # SkyOP 4.0.0 version identity guard: filename and Fabric metadata
+          # must match Gradle's mod_version so a stale development version
+          # cannot be uploaded under the 4.0 feature branch.
+          EXPECTED_JAR="build/libs/skyop-client-4.0.0.jar"
+          if [[ "$JAR_PATH" != "$EXPECTED_JAR" ]]; then
+            echo "Expected $EXPECTED_JAR but produced $JAR_PATH." >&2
+            exit 1
+          fi
+          unzip -p "$JAR_PATH" fabric.mod.json | grep -Fq '"version": "4.0.0"'
+
           # Minecraft 26.3 SDL keyboard-state regression guard.
           grep -Fq 'SDL_SCANCODE_COUNT = 512' src/main/java/id/skyop/client/SkyOPSdlKeyboardIndex.java
           grep -Fq 'method = "isKeyDown(I)Z"' src/client/java/id/skyop/mixin/InputConstantsMixin.java
