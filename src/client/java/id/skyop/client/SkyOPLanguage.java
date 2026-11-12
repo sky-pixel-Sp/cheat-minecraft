@@ -786,6 +786,39 @@ public final class SkyOPLanguage {
                 e("setting.fast_break_level", "Level Haste"),
                 e("setting.fast_break_level_desc", "Haste VII setara pengali kecepatan mining lokal 2,4x; aturan server tetap berlaku.")
         ));
+
+        // New utility pack — English labels remain the enum/source fallbacks.
+        put("setting.zoom_fov", "Zoom FOV");
+        put("setting.zoom_fov_desc", "Client field of view while Zoom is enabled.");
+        put("setting.container_range", "Container scan range");
+        put("setting.container_range_desc", "Search radius in already-loaded client chunks.");
+        put("setting.low_health_threshold", "Low-health threshold");
+        put("setting.low_health_desc", "Notify once when health falls to this value or lower.");
+        put("setting.armor_alert_percent", "Armor durability threshold");
+        put("setting.armor_alert_desc", "Notify when any equipped damageable armor reaches this remaining percentage.");
+
+        translate("id", Map.ofEntries(
+                e("module.AUTO_WALK.title", "Jalan Otomatis"),
+                e("module.AUTO_WALK.description", "Menahan input gerak maju normal selama modul aktif."),
+                e("module.ZOOM.title", "Zoom"),
+                e("module.ZOOM.description", "Mempersempit FOV klien sementara menggunakan nilai FOV yang diatur."),
+                e("module.CONTAINER_FINDER.title", "Pencari Peti"),
+                e("module.CONTAINER_FINDER.description", "Mencantumkan peti, barrel, dan ender chest dalam chunk sekitar yang sudah dimuat klien."),
+                e("module.AUTO_RESPAWN.title", "Respawn Otomatis"),
+                e("module.AUTO_RESPAWN.description", "Mengirim permintaan respawn normal setelah mati; server tetap menentukan penerimaannya."),
+                e("module.LOW_HEALTH_ALERT.title", "Peringatan Health Rendah"),
+                e("module.LOW_HEALTH_ALERT.description", "Memberi notifikasi saat health melewati ambang rendah yang diatur."),
+                e("module.ARMOR_ALERT.title", "Peringatan Armor"),
+                e("module.ARMOR_ALERT.description", "Memberi notifikasi saat daya tahan armor mencapai persentase yang diatur."),
+                e("setting.zoom_fov", "FOV Zoom"),
+                e("setting.zoom_fov_desc", "Field of view klien saat Zoom aktif."),
+                e("setting.container_range", "Jarak pemindaian peti"),
+                e("setting.container_range_desc", "Radius pencarian pada chunk yang sudah dimuat klien."),
+                e("setting.low_health_threshold", "Ambang health rendah"),
+                e("setting.low_health_desc", "Kirim notifikasi sekali saat health mencapai nilai ini atau lebih rendah."),
+                e("setting.armor_alert_percent", "Ambang daya tahan armor"),
+                e("setting.armor_alert_desc", "Kirim notifikasi jika armor yang dipakai tersisa pada persentase ini.")
+        ));
     }
 
     private SkyOPLanguage() { }
