@@ -207,12 +207,16 @@ public final class SkyOPClickGui extends Screen {
                     case COMBAT -> "⚔";
                     case MOVEMENT -> "↗";
                     case VISUAL -> "◉";
+                    case WORLD -> "⌖";
                     case PLAYER -> "♟";
                     case INVENTORY -> "▣";
                     case FAVORITES -> "★";
+                    case SAFE -> "✓";
+                    case DANGEROUS -> "⚠";
                 };
                 int textX = x + (buttonWidth - font.width(icon)) / 2;
-                g.text(font, Component.literal(icon), textX, rowY + 8,
+                g.text(font, Component.literal(icon), textX,
+                        rowY + Math.max(0, (buttonHeight - 8) / 2),
                         selected ? TEXT : MUTED, true);
             }
             return;
@@ -359,6 +363,12 @@ public final class SkyOPClickGui extends Screen {
         g.text(font, Component.literal(enabled ? "● " + SkyOPLanguage.text("gui.enabled")
                         : "○ " + SkyOPLanguage.text("gui.disabled")),
                 x + 12, y + 47, enabled ? GREEN : MUTED, true);
+        String riskLabel = selectedModule.isDangerous()
+                ? "⚠ " + SkyOPLanguage.text("gui.risk_dangerous")
+                : "✓ " + SkyOPLanguage.text("gui.risk_safe");
+        int riskColor = selectedModule.isDangerous() ? RED : GREEN;
+        int riskX = Math.max(x + 12, x + w - font.width(riskLabel) - 12);
+        g.text(font, Component.literal(riskLabel), riskX, y + 47, riskColor, true);
         g.fill(x + 12, y + 59, x + w - 12, y + 60, 0xFF2B394A);
 
         List<SkyOPSetting<?>> settings = visibleSettings(selectedModule);
@@ -531,8 +541,12 @@ public final class SkyOPClickGui extends Screen {
         List<SkyOPModuleId> modules = new ArrayList<>();
         String query = searchQuery.toLowerCase(java.util.Locale.ROOT);
         for (SkyOPModuleId module : SkyOPModuleId.values()) {
-            boolean inCategory = selectedCategory == SkyOPCategory.FAVORITES
-                    ? SkyOPCore.isFavorite(module) : module.category() == selectedCategory;
+            boolean inCategory = switch (selectedCategory) {
+                case FAVORITES -> SkyOPCore.isFavorite(module);
+                case SAFE -> !module.isDangerous();
+                case DANGEROUS -> module.isDangerous();
+                default -> module.category() == selectedCategory;
+            };
             boolean matches = query.isEmpty()
                     || module.title().toLowerCase(java.util.Locale.ROOT).contains(query)
                     || module.description().toLowerCase(java.util.Locale.ROOT).contains(query);
@@ -544,8 +558,13 @@ public final class SkyOPClickGui extends Screen {
     private int countModules(SkyOPCategory category) {
         int count = 0;
         for (SkyOPModuleId module : SkyOPModuleId.values()) {
-            if (category == SkyOPCategory.FAVORITES ? SkyOPCore.isFavorite(module)
-                    : module.category() == category) count++;
+            boolean included = switch (category) {
+                case FAVORITES -> SkyOPCore.isFavorite(module);
+                case SAFE -> !module.isDangerous();
+                case DANGEROUS -> module.isDangerous();
+                default -> module.category() == category;
+            };
+            if (included) count++;
         }
         return count;
     }
@@ -962,6 +981,14 @@ public final class SkyOPClickGui extends Screen {
             previews.add(hudPreview(SkyOPModuleId.SPEEDOMETER, sw / 2 - 58, sh - 37, 116, 25, null, sw, sh));
         if (SkyOPCore.isEnabled(SkyOPModuleId.CPS_HUD))
             previews.add(hudPreview(SkyOPModuleId.CPS_HUD, sw / 2 - 48, sh - 66, 96, 24, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.WORLD_INFO_HUD))
+            previews.add(hudPreview(SkyOPModuleId.WORLD_INFO_HUD, 8, 112, 220, 51, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.CHUNK_INFO_HUD))
+            previews.add(hudPreview(SkyOPModuleId.CHUNK_INFO_HUD, 8, 166, 184, 40, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.PERFORMANCE_HUD))
+            previews.add(hudPreview(SkyOPModuleId.PERFORMANCE_HUD, sw - 158, 62, 150, 42, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.SESSION_TIMER_HUD))
+            previews.add(hudPreview(SkyOPModuleId.SESSION_TIMER_HUD, sw / 2 - 75, sh - 114, 150, 29, null, sw, sh));
         return previews;
     }
 
