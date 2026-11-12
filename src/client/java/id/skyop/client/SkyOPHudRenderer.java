@@ -15,7 +15,13 @@ import java.util.List;
 
 /** Renders the HUD modules independently from the client initializer. */
 public final class SkyOPHudRenderer {
+    private static long sessionStartedAtMillis = System.currentTimeMillis();
+
     private SkyOPHudRenderer() { }
+
+    public static void resetSessionTimer() {
+        sessionStartedAtMillis = System.currentTimeMillis();
+    }
 
 
 
@@ -264,6 +270,71 @@ public final class SkyOPHudRenderer {
             graphics.fill(x, y, x + 96, y + 2, SkyOPState.hudAccentColor);
             graphics.text(client.font, Component.literal("CPS  " + SkyOPState.currentCps),
                     x + 10, y + 9, 0xFFF1F6FB, true);
+        }
+
+        if (SkyOPCore.isEnabled(SkyOPModuleId.WORLD_INFO_HUD)) {
+            var position = client.player.blockPosition();
+            String dimension = client.level.dimension().location().toString();
+            String biome = client.level.getBiome(position).unwrapKey()
+                    .map(key -> key.location().toString()).orElse("unknown");
+            long dayTime = Math.floorMod(client.level.getDayTime(), 24000L);
+            int hour = (int) ((dayTime / 1000L + 6L) % 24L);
+            int minute = (int) ((dayTime % 1000L) * 60L / 1000L);
+            String weather = client.level.isThundering() ? "Storm"
+                    : client.level.isRaining() ? "Rain" : "Clear";
+            int x = SkyOPCore.hudXFor(SkyOPModuleId.WORLD_INFO_HUD, 8, screenWidth, 220);
+            int y = SkyOPCore.hudYFor(SkyOPModuleId.WORLD_INFO_HUD, 112, screenHeight, 51);
+            drawInfoPanel(client, graphics, x, y, 220, "WORLD INTEL",
+                    List.of(trimText(dimension, 30), trimText(biome, 30),
+                            String.format(java.util.Locale.ROOT, "%02d:%02d  •  %s", hour, minute, weather)));
+        }
+
+        if (SkyOPCore.isEnabled(SkyOPModuleId.CHUNK_INFO_HUD)) {
+            var position = client.player.blockPosition();
+            int chunkX = Math.floorDiv(position.getX(), 16);
+            int chunkZ = Math.floorDiv(position.getZ(), 16);
+            int localX = Math.floorMod(position.getX(), 16);
+            int localZ = Math.floorMod(position.getZ(), 16);
+            int x = SkyOPCore.hudXFor(SkyOPModuleId.CHUNK_INFO_HUD, 8, screenWidth, 184);
+            int y = SkyOPCore.hudYFor(SkyOPModuleId.CHUNK_INFO_HUD, 166, screenHeight, 40);
+            drawInfoPanel(client, graphics, x, y, 184, "CHUNK DATA",
+                    List.of("Chunk " + chunkX + " / " + chunkZ,
+                            "Local " + localX + " / " + position.getY() + " / " + localZ));
+        }
+
+        if (SkyOPCore.isEnabled(SkyOPModuleId.PERFORMANCE_HUD)) {
+            Runtime runtime = Runtime.getRuntime();
+            long usedMb = (runtime.totalMemory() - runtime.freeMemory()) / (1024L * 1024L);
+            long maxMb = runtime.maxMemory() / (1024L * 1024L);
+            int percent = maxMb <= 0 ? 0 : (int) Math.min(100L, usedMb * 100L / maxMb);
+            int x = SkyOPCore.hudXFor(SkyOPModuleId.PERFORMANCE_HUD, screenWidth - 158, screenWidth, 150);
+            int y = SkyOPCore.hudYFor(SkyOPModuleId.PERFORMANCE_HUD, 62, screenHeight, 42);
+            drawInfoPanel(client, graphics, x, y, 150, "PERFORMANCE",
+                    List.of(client.getFps() + " FPS", usedMb + " / " + maxMb + " MB  •  " + percent + "%"));
+        }
+
+        if (SkyOPCore.isEnabled(SkyOPModuleId.SESSION_TIMER_HUD)) {
+            long elapsed = Math.max(0L, (System.currentTimeMillis() - sessionStartedAtMillis) / 1000L);
+            long hours = elapsed / 3600L;
+            long minutes = (elapsed % 3600L) / 60L;
+            long seconds = elapsed % 60L;
+            int x = SkyOPCore.hudXFor(SkyOPModuleId.SESSION_TIMER_HUD, screenWidth / 2 - 75, screenWidth, 150);
+            int y = SkyOPCore.hudYFor(SkyOPModuleId.SESSION_TIMER_HUD, screenHeight - 114, screenHeight, 29);
+            drawInfoPanel(client, graphics, x, y, 150, "WORLD SESSION",
+                    List.of(String.format(java.util.Locale.ROOT, "%02d:%02d:%02d", hours, minutes, seconds)));
+        }
+    }
+
+    private static void drawInfoPanel(Minecraft client, GuiGraphicsExtractor graphics,
+                                      int x, int y, int width, String heading, List<String> lines) {
+        int height = 18 + lines.size() * 11;
+        graphics.fill(x, y, x + width, y + height, 0xD5101726);
+        graphics.fill(x, y, x + width, y + 2, SkyOPState.hudAccentColor);
+        graphics.text(client.font, Component.literal(heading), x + 7, y + 5,
+                SkyOPState.hudAccentColor, true);
+        for (int index = 0; index < lines.size(); index++) {
+            graphics.text(client.font, Component.literal(trimText(lines.get(index), Math.max(8, (width - 14) / 6))),
+                    x + 7, y + 17 + index * 11, 0xFFF1F6FB, false);
         }
     }
 
