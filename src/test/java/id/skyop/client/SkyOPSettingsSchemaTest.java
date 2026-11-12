@@ -32,4 +32,33 @@ class SkyOPSettingsSchemaTest {
         assertEquals(10.0, rule.validate(99.0));
         assertEquals(4.0, rule.validate(3.6));
     }
+
+    @Test
+    void validatesNewUtilityModuleSettings() {
+        var zoom = SkyOPSettingsSchema.rule("zoomFov");
+        var containers = SkyOPSettingsSchema.rule("containerFinderRange");
+        var health = SkyOPSettingsSchema.rule("lowHealthAlertThreshold");
+        var armor = SkyOPSettingsSchema.rule("armorAlertPercent");
+
+        assertNotNull(zoom);
+        assertNotNull(containers);
+        assertNotNull(health);
+        assertNotNull(armor);
+
+        assertEquals(10.0, zoom.validate(2));
+        assertEquals(70.0, zoom.validate(90));
+        assertEquals(16.0, zoom.validate(Double.NaN));
+
+        assertEquals(4.0, containers.validate(1));
+        assertEquals(24.0, containers.validate(100));
+        assertEquals(16.0, containers.validate(Double.POSITIVE_INFINITY));
+
+        assertEquals(1.0, health.validate(0));
+        assertEquals(20.0, health.validate(25));
+        assertEquals(8.0, health.validate(Double.NaN));
+
+        assertEquals(1.0, armor.validate(0));
+        assertEquals(50.0, armor.validate(80));
+        assertEquals(15.0, armor.validate(Double.NaN));
+    }
 }
