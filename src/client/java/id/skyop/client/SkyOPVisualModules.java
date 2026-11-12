@@ -311,4 +311,20 @@ private static boolean shouldEsp(Entity entity) {
     public static final class TextHud extends SkyOPModule {
         public TextHud(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.TEXT_GUI, settings); }
     }
+
+    public static final class WorldInfoHud extends SkyOPModule {
+        public WorldInfoHud(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.WORLD_INFO_HUD, settings); }
+    }
+
+    public static final class ChunkInfoHud extends SkyOPModule {
+        public ChunkInfoHud(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.CHUNK_INFO_HUD, settings); }
+    }
+
+    public static final class PerformanceHud extends SkyOPModule {
+        public PerformanceHud(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.PERFORMANCE_HUD, settings); }
+    }
+
+    public static final class SessionTimerHud extends SkyOPModule {
+        public SessionTimerHud(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.SESSION_TIMER_HUD, settings); }
+    }
 }
