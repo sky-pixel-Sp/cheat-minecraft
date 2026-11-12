@@ -17,9 +17,12 @@ package id.skyop.client;
         INFINITE_JUMP("Infinite Jump", "Allows another jump after leaving the ground when jump is pressed again.", SkyOPCategory.MOVEMENT),
         JUMP_BOOST("Jump Boost", "Adjusts the local jump impulse multiplier.", SkyOPCategory.MOVEMENT),
         AUTO_MLG("Auto MLG", "Attempts a normal water-bucket placement when falling toward a valid block.", SkyOPCategory.MOVEMENT),
+        AUTO_WALK("Auto Walk", "Holds the normal forward movement input while enabled.", SkyOPCategory.MOVEMENT),
 
         ENTITY_ESP("Entity ESP", "Highlights nearby loaded living entities and dropped items.", SkyOPCategory.VISUAL),
         ITEM_ESP("Item ESP", "Includes dropped item entities in the Entity ESP highlight filter.", SkyOPCategory.VISUAL),
+        ZOOM("Zoom", "Temporarily narrows the client field of view using the configured FOV.", SkyOPCategory.VISUAL),
+        CONTAINER_FINDER("Container Finder", "Lists chests, barrels and ender chests in client-loaded nearby chunks.", SkyOPCategory.VISUAL),
         WAYPOINTS("Waypoints", "Displays saved coordinates and distances; press V to save a waypoint.", SkyOPCategory.VISUAL),
         MINIMAP("Mini Map", "Shows nearby entities already loaded by the client.", SkyOPCategory.VISUAL),
         GAMMA_BOOST("Gamma Boost", "Sets vanilla gamma to its maximum normal value.", SkyOPCategory.VISUAL),
@@ -40,6 +43,9 @@ package id.skyop.client;
         TEXT_GUI("Text GUI", "Displays a configurable custom HUD message.", SkyOPCategory.VISUAL),
 
         NO_FALL("NoFall", "Clears the local fall-distance accumulator.", SkyOPCategory.PLAYER),
+        AUTO_RESPAWN("Auto Respawn", "Sends the normal respawn request after death; the server controls acceptance.", SkyOPCategory.PLAYER),
+        LOW_HEALTH_ALERT("Low Health Alert", "Notifies when player health crosses the configured low-health threshold.", SkyOPCategory.PLAYER),
+        ARMOR_ALERT("Armor Alert", "Notifies when equipped armor durability falls below the configured percentage.", SkyOPCategory.PLAYER),
         FAST_BREAK("Fast Break", "Boosts local block-breaking speed with a configurable Haste I–VII equivalent.", SkyOPCategory.PLAYER),
 
         AUTO_EAT("Auto Eat", "Uses safe food from your hotbar when hunger is low.", SkyOPCategory.INVENTORY),
