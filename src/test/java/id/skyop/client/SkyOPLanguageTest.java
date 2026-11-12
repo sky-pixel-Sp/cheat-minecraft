@@ -52,6 +52,20 @@ class SkyOPLanguageTest {
         }
     }
 
+    @Test
+    void everyRegisteredModuleHasIndonesianTitleAndDescriptionTranslations() {
+        for (SkyOPModuleId module : SkyOPModuleId.values()) {
+            String titleKey = "module." + module.name() + ".title";
+            String descriptionKey = "module." + module.name() + ".description";
+            org.junit.jupiter.api.Assertions.assertTrue(
+                    SkyOPLanguage.hasTranslation("id", titleKey),
+                    module.name() + " Indonesian title is missing");
+            org.junit.jupiter.api.Assertions.assertTrue(
+                    SkyOPLanguage.hasTranslation("id", descriptionKey),
+                    module.name() + " Indonesian description is missing");
+        }
+    }
+
     private static void assertModule(SkyOPModuleId module, String expectedTitle,
                                      String expectedDescription) {
         assertEquals(expectedTitle, module.title(), module.name() + " title");
