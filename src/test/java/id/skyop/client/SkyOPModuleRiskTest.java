@@ -35,4 +35,15 @@ class SkyOPModuleRiskTest {
         assertTrue(SkyOPCategory.DANGEROUS.isRiskFilter());
         assertFalse(SkyOPCategory.WORLD.isRiskFilter());
     }
+
+    @Test
+    void categoryFiltersReturnActualModuleMembership() {
+        assertTrue(SkyOPCategory.WORLD.includes(SkyOPModuleId.WORLD_INFO_HUD, false));
+        assertTrue(SkyOPCategory.SAFE.includes(SkyOPModuleId.WORLD_INFO_HUD, false));
+        assertFalse(SkyOPCategory.SAFE.includes(SkyOPModuleId.KILL_AURA, false));
+        assertTrue(SkyOPCategory.DANGEROUS.includes(SkyOPModuleId.KILL_AURA, false));
+        assertTrue(SkyOPCategory.FAVORITES.includes(SkyOPModuleId.KILL_AURA, true));
+        assertFalse(SkyOPCategory.FAVORITES.includes(SkyOPModuleId.KILL_AURA, false));
+        assertFalse(SkyOPCategory.COMBAT.includes(null, false));
+    }
 }
