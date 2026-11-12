@@ -243,6 +243,16 @@ Run all tests first in a disposable singleplayer world, then on a private multip
 
 CI passing does not replace these in-game checks. Record Minecraft/Fabric versions, GUI scale, server type, latest.log, and a short capture for each module.
 
+## Quick Panel
+
+1. Press O while in a world; verify the panel opens without pausing the game.
+2. Toggle each visible quick module and verify its status changes.
+3. Resize the scaled GUI viewport; verify the panel and card grid stay inside the screen and the visible module count adapts.
+4. Click the theme control; verify the UI theme cycles and persists.
+5. Click Full GUI; verify the full ClickGUI opens.
+6. Click Disable All; verify every module is disabled and temporary flight, zoom, gamma, item-use and movement state is restored.
+7. Drag the title bar, release, reopen and verify the panel position persists.
+
 ## SkyOP 4.0 expansion checks
 
 1. Set KillAura field of view to 360 degrees. In a controlled local test world, confirm the target selector can choose loaded entities in front, behind, above and below within configured range.
