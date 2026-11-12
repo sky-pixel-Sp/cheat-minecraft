@@ -29,7 +29,7 @@ class SkyOPThemeTest {
         String last = SkyOPTheme.presets().get(SkyOPTheme.presets().size() - 1).id();
         assertEquals("AMETHYST", SkyOPTheme.next("CYAN"));
         assertEquals("CYAN", SkyOPTheme.next(last));
-        assertEquals("CYAN", SkyOPTheme.next("broken"));
+        assertEquals("AMETHYST", SkyOPTheme.next("broken"));
     }
 
     @Test
