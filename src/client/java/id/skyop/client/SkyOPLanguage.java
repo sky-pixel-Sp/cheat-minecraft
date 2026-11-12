@@ -879,6 +879,12 @@ public final class SkyOPLanguage {
                 .getOrDefault(key, EN.getOrDefault(key, key));
     }
 
+    /** Package-visible coverage hook used by the localization regression tests. */
+    static boolean hasTranslation(String code, String key) {
+        if ("en".equals(code)) return EN.containsKey(key);
+        return DICTIONARIES.getOrDefault(code, Map.of()).containsKey(key);
+    }
+
     public static String moduleTitle(String name, String fallback) {
         return text("module." + name + ".title").equals("module." + name + ".title")
                 ? fallback : text("module." + name + ".title");
