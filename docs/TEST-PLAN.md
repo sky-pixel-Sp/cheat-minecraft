@@ -257,7 +257,7 @@ CI passing does not replace these in-game checks. Record Minecraft/Fabric versio
 
 1. Set KillAura field of view to 360 degrees. In a controlled local test world, confirm the target selector can choose loaded entities in front, behind, above and below within configured range.
 2. Disable the line-of-sight requirement and confirm the client scanner retains loaded entities behind blocks. Do not treat this as proof that a multiplayer server will accept attacks through blocks.
-3. Toggle World Info HUD; verify dimension, biome, world clock and weather update with the world.
+3. Toggle World Info HUD; verify dimension, biome and current weather update with the world. This widget does not display a world-clock value.
 4. Toggle Chunk Info HUD; walk across chunk boundaries and confirm chunk and local block coordinates update.
 5. Toggle Performance HUD; verify FPS and JVM heap values update without a placeholder/static value.
 6. Toggle Session Timer; confirm elapsed time increments and resets on world/player context change.
