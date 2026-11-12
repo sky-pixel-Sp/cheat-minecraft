@@ -22,6 +22,28 @@ public final class SkyOPAutomationRules {
                 && localPlayerUuid.equals(serverPlayerUuid);
     }
 
+    /** One simplified vanilla air-movement step used for local landing prediction. */
+    public record FallMotion(double x, double y, double z,
+                             double velocityX, double velocityY, double velocityZ) { }
+
+    public static FallMotion advanceFall(double x, double y, double z,
+                                         double velocityX, double velocityY, double velocityZ) {
+        return new FallMotion(
+                x + velocityX, y + velocityY, z + velocityZ,
+                velocityX * 0.91D,
+                (velocityY - 0.08D) * 0.98D,
+                velocityZ * 0.91D
+        );
+    }
+
+    public static boolean shouldWriteReasonLog(long lastLogMillis, long nowMillis) {
+        return lastLogMillis <= 0L || nowMillis >= lastLogMillis + 2000L;
+    }
+
+    public static boolean shouldDisableAfterErrors(int errorCount) {
+        return errorCount >= 3;
+    }
+
     public static boolean shouldEquipTotem(boolean offhandOccupied,
                                            float health, double healthThreshold) {
         double threshold = SkyOPSettingsSchema.rule("autoTotemHealth").validate(healthThreshold);
