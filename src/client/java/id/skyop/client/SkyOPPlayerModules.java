@@ -2,6 +2,7 @@ package id.skyop.client;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
@@ -66,7 +67,10 @@ public final class SkyOPPlayerModules {
 
         int threshold = (int) SkyOPMath.clamp(SkyOPState.armorAlertPercent, 1, 50);
         boolean lowDurability = false;
-        for (ItemStack stack : client.player.getInventory().armor) {
+        for (EquipmentSlot slot : List.of(
+                EquipmentSlot.FEET, EquipmentSlot.LEGS,
+                EquipmentSlot.CHEST, EquipmentSlot.HEAD)) {
+            ItemStack stack = client.player.getItemBySlot(slot);
             if (stack.isEmpty() || !stack.isDamageableItem()) continue;
             int maximum = Math.max(1, stack.getMaxDamage());
             int remaining = Math.max(0, maximum - stack.getDamageValue());
