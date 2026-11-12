@@ -25,7 +25,7 @@ public final class SkyOPModuleManager {
             SkyOPModuleId.AUTO_SPRINT, SkyOPModuleId.SPEED, SkyOPModuleId.FLIGHT,
             SkyOPModuleId.AUTO_JUMP, SkyOPModuleId.STEP_ASSIST, SkyOPModuleId.SPIDER,
             SkyOPModuleId.AUTO_BRIDGE, SkyOPModuleId.JUMP_BOOST, SkyOPModuleId.INFINITE_JUMP,
-            SkyOPModuleId.AUTO_MLG
+            SkyOPModuleId.AUTO_MLG, SkyOPModuleId.AUTO_WALK
     );
     private static final List<SkyOPModuleId> COMBAT_TICK_ORDER = List.of(
             SkyOPModuleId.KILL_AURA, SkyOPModuleId.AUTO_HUNT,
@@ -37,6 +37,9 @@ public final class SkyOPModuleManager {
     );
     private static final List<SkyOPModuleId> PLAYER_TICK_ORDER = List.of(
             SkyOPModuleId.LOW_HEALTH_ALERT, SkyOPModuleId.ARMOR_ALERT
+    );
+    private static final List<SkyOPModuleId> VISUAL_TICK_ORDER = List.of(
+            SkyOPModuleId.ZOOM, SkyOPModuleId.CONTAINER_FINDER
     );
 
     private SkyOPModuleManager() { }
@@ -123,6 +126,7 @@ public final class SkyOPModuleManager {
 
         // ESP and gamma share client-owned temporary state and are applied once per tick.
         SkyOPVisualModules.tickShared(client);
+        tickModules(client, VISUAL_TICK_ORDER);
 
         tickModules(client, COMBAT_TICK_ORDER);
         tickModules(client, INVENTORY_TICK_ORDER);
