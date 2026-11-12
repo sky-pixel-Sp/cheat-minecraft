@@ -38,6 +38,8 @@ public final class SkyOPInventoryManager {
     private static int activeEatSlot = -1;
     private static int armorDelay;
     private static int totemDelay;
+    private static int totemPendingTicks;
+    private static boolean totemSwapPending;
     private static int refillDelay;
     private static int cleanDelay;
     private static int fishDelay;
@@ -51,6 +53,7 @@ public final class SkyOPInventoryManager {
         restoreAutoTool(client);
         armorDelay = 0;
         totemDelay = 0;
+        clearTotemPending();
         refillDelay = 0;
         cleanDelay = 0;
         fishDelay = 0;
@@ -61,7 +64,10 @@ public final class SkyOPInventoryManager {
         switch (module) {
             case AUTO_EAT -> stopEating(client);
             case AUTO_ARMOR -> armorDelay = 0;
-            case AUTO_TOTEM -> totemDelay = 0;
+            case AUTO_TOTEM -> {
+                totemDelay = 0;
+                clearTotemPending();
+            }
             case AUTO_TOOL -> restoreAutoTool(client);
             case AUTO_REFILL -> refillDelay = 0;
             case INVENTORY_CLEANER -> cleanDelay = 0;
@@ -179,27 +185,86 @@ public final class SkyOPInventoryManager {
     }
 
     static void tickAutoTotem(Minecraft client) {
-        if (totemDelay > 0) { totemDelay--; return; }
+        if (client == null || client.player == null || client.gameMode == null || client.level == null) return;
         var player = client.player;
-        if (!SkyOPAutomationRules.shouldEquipTotem(
-                !player.getOffhandItem().isEmpty(), player.getHealth(), SkyOPState.autoTotemHealth)) return;
+
+        // A container SWAP request is asynchronous. Wait for the authoritative
+        // offhand update instead of claiming success when a request is merely sent.
+        if (totemSwapPending) {
+            if (player.getOffhandItem().is(Items.TOTEM_OF_UNDYING)) {
+                SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_TOTEM,
+                        SkyOPLanguage.text("diagnostics.reason.totem_swap_confirmed"));
+                clearTotemPending();
+                totemDelay = 15;
+                return;
+            }
+            if (player.containerMenu != player.inventoryMenu || --totemPendingTicks <= 0) {
+                SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_TOTEM,
+                        SkyOPLanguage.text("diagnostics.reason.totem_swap_not_confirmed"));
+                clearTotemPending();
+                totemDelay = 20;
+                return;
+            }
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_TOTEM,
+                    SkyOPLanguage.text("diagnostics.reason.totem_swap_waiting"));
+            return;
+        }
+
+        if (totemDelay > 0) {
+            totemDelay--;
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_TOTEM,
+                    SkyOPLanguage.text("diagnostics.reason.cooldown"));
+            return;
+        }
+        if (player.getAbilities().instabuild) {
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_TOTEM,
+                    SkyOPLanguage.text("diagnostics.reason.creative"));
+            return;
+        }
+        if (!player.getOffhandItem().isEmpty()) {
+            String reason = player.getOffhandItem().is(Items.TOTEM_OF_UNDYING)
+                    ? SkyOPLanguage.text("diagnostics.reason.totem_already_equipped")
+                    : SkyOPLanguage.text("diagnostics.reason.offhand_occupied");
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_TOTEM, reason);
+            return;
+        }
+        if (player.getHealth() > SkyOPSettingsSchema.rule("autoTotemHealth")
+                .validate(SkyOPState.autoTotemHealth)) {
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_TOTEM,
+                    SkyOPLanguage.text("diagnostics.reason.health_above"));
+            return;
+        }
+        // Player-inventory slot ids are only valid while the ordinary player
+        // inventory menu is active; never target an open chest/container menu.
+        if (player.containerMenu != player.inventoryMenu) {
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_TOTEM,
+                    SkyOPLanguage.text("diagnostics.reason.container_open"));
+            return;
+        }
 
         var inventory = player.getInventory();
-        // Only main inventory + hotbar are eligible. Armor (36-39) and offhand (40)
-        // are not source slots for this automation.
         for (int inventorySlot = 0; inventorySlot <= 35; inventorySlot++) {
             if (!inventory.getItem(inventorySlot).is(Items.TOTEM_OF_UNDYING)) continue;
             int menuSlot = SkyOPAutomationRules.playerInventorySlotToMenuSlot(inventorySlot);
             if (menuSlot < 0) continue;
 
-            // Vanilla inventory SWAP button 40 maps to the offhand slot.
-            // The server validates this ordinary container action.
+            // Button 40 is vanilla's offhand swap action; the server validates it.
             client.gameMode.handleContainerInput(
                     player.inventoryMenu.containerId, menuSlot, 40, ContainerInput.SWAP, player
             );
-            totemDelay = 10;
+            totemSwapPending = true;
+            totemPendingTicks = 3;
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_TOTEM,
+                    SkyOPLanguage.text("diagnostics.reason.totem_swap_waiting"));
             return;
         }
+        SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_TOTEM,
+                SkyOPLanguage.text("diagnostics.reason.no_totem"));
+    }
+
+    private static void clearTotemPending() {
+        totemSwapPending = false;
+        totemPendingTicks = 0;
     }
 
     static void tickAutoArmor(Minecraft client) {
