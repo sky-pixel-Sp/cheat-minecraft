@@ -20,6 +20,13 @@ class SkyOPModuleRiskTest {
         assertFalse(SkyOPModuleId.CHUNK_INFO_HUD.isDangerous());
         assertFalse(SkyOPModuleId.PERFORMANCE_HUD.isDangerous());
         assertFalse(SkyOPModuleId.SESSION_TIMER_HUD.isDangerous());
+        assertFalse(SkyOPModuleId.FOOD_HUD.isDangerous());
+        assertFalse(SkyOPModuleId.AIR_HUD.isDangerous());
+        assertFalse(SkyOPModuleId.EXPERIENCE_HUD.isDangerous());
+        assertFalse(SkyOPModuleId.ITEM_INFO_HUD.isDangerous());
+        assertFalse(SkyOPModuleId.OFFHAND_HUD.isDangerous());
+        assertFalse(SkyOPModuleId.BLOCK_INFO_HUD.isDangerous());
+        assertFalse(SkyOPModuleId.ARMOR_DETAIL_HUD.isDangerous());
     }
 
     @Test
