@@ -47,6 +47,14 @@ package id.skyop.client;
         PERFORMANCE_HUD("Performance HUD", "Displays live FPS and JVM memory use.", SkyOPCategory.WORLD),
         SESSION_TIMER_HUD("Session Timer", "Displays elapsed time in the current world session.", SkyOPCategory.WORLD),
 
+        FOOD_HUD("Food HUD", "Displays current hunger and saturation.", SkyOPCategory.PLAYER),
+        AIR_HUD("Air HUD", "Displays remaining air supply.", SkyOPCategory.PLAYER),
+        EXPERIENCE_HUD("Experience HUD", "Displays experience level and progress.", SkyOPCategory.PLAYER),
+        ITEM_INFO_HUD("Item Info HUD", "Displays main-hand item name, count and durability.", SkyOPCategory.VISUAL),
+        OFFHAND_HUD("Offhand HUD", "Displays the currently held offhand item and count.", SkyOPCategory.VISUAL),
+        BLOCK_INFO_HUD("Block Info HUD", "Displays the block under the crosshair and its coordinates.", SkyOPCategory.VISUAL),
+        ARMOR_DETAIL_HUD("Armor Detail HUD", "Displays equipped armor pieces and remaining durability.", SkyOPCategory.VISUAL),
+
         NO_FALL("NoFall", "Clears the local fall-distance accumulator.", SkyOPCategory.PLAYER),
         AUTO_RESPAWN("Auto Respawn", "Sends the normal respawn request after death; the server controls acceptance.", SkyOPCategory.PLAYER),
         LOW_HEALTH_ALERT("Low Health Alert", "Notifies when player health crosses the configured low-health threshold.", SkyOPCategory.PLAYER),
