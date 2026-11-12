@@ -118,7 +118,12 @@ public final class SkyOPLanguage {
         put("category.combat", "Combat");
         put("category.movement", "Movement");
         put("category.visual", "Visual");
+        put("category.world", "World");
         put("category.player", "Player");
+        put("category.safe", "Safe");
+        put("category.dangerous", "Dangerous");
+        put("gui.risk_safe", "SAFE");
+        put("gui.risk_dangerous", "DANGEROUS");
 
         put("module.KILL_AURA.title", "KillAura");
         put("module.KILL_AURA.description", "Prioritises a nearby configured target.");
@@ -175,8 +180,9 @@ public final class SkyOPLanguage {
         put("setting.distance_blocks", "Target distance in blocks");
         put("setting.lowest_health", "Lowest health first");
         put("setting.weakest_target", "Prioritise the weakest target");
-        put("setting.aim_fov", "Aim field of view");
-        put("setting.target_cone", "Target cone width in degrees");
+        put("setting.aim_fov", "Target field of view");
+        put("setting.target_cone", "Full target field width in degrees, up to 360");
+        put("setting.clear_view", "Require unobstructed visibility; off scans loaded targets behind blocks (the server may reject attacks)");
         put("setting.rotation_speed", "Rotation speed");
         put("setting.rotation_interpolation", "Aim interpolation from slow to instant");
         put("setting.trigger_delay", "Trigger delay");
@@ -818,6 +824,19 @@ public final class SkyOPLanguage {
                 e("setting.low_health_desc", "Kirim notifikasi sekali saat health mencapai nilai ini atau lebih rendah."),
                 e("setting.armor_alert_percent", "Ambang daya tahan armor"),
                 e("setting.armor_alert_desc", "Kirim notifikasi jika armor yang dipakai tersisa pada persentase ini.")
+        ));
+    }
+
+    static {
+        translate("id", Map.ofEntries(
+                e("category.world", "Dunia"),
+                e("category.safe", "Aman"),
+                e("category.dangerous", "Bahaya"),
+                e("gui.risk_safe", "AMAN"),
+                e("gui.risk_dangerous", "BAHAYA"),
+                e("setting.aim_fov", "Sudut pandang target"),
+                e("setting.target_cone", "Lebar bidang target penuh hingga 360 derajat"),
+                e("setting.clear_view", "Wajibkan pandangan tanpa halangan; nonaktif memindai target yang sudah dimuat di balik blok (serangan dapat ditolak server)")
         ));
     }
 
