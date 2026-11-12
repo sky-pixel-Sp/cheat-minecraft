@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.component.SwingAnimation;
 import net.minecraft.world.phys.BlockHitResult;
@@ -21,9 +22,19 @@ public final class SkyOPMovementModules {
     private static int autoJumpCooldown;
     private static int stepAssistCooldown;
     private static int bridgeCooldown;
+    private enum AutoMlgPhase { IDLE, AIM_PENDING, CONFIRM_PENDING }
     private static int autoMlgCooldown;
     private static int autoMlgOriginalSlot = -1;
     private static int autoMlgBucketSlot = -1;
+    private static AutoMlgPhase autoMlgPhase = AutoMlgPhase.IDLE;
+    private static LocalPlayer autoMlgPendingPlayer;
+    private static BlockPos autoMlgPendingBlock;
+    private static float autoMlgOriginalYaw;
+    private static float autoMlgOriginalPitch;
+    private static float autoMlgOriginalHeadYaw;
+    private static float autoMlgTargetYaw;
+    private static float autoMlgTargetPitch;
+    private static int autoMlgPhaseTicks;
     private static boolean jumpKeyWasDown;
     private static boolean jumpBoostKeyWasDown;
     private static Boolean originalNoGravity;
@@ -195,26 +206,45 @@ public final class SkyOPMovementModules {
 
 
     static void tickAutoMlg(Minecraft client) {
-        if (autoMlgCooldown > 0) {
-            autoMlgCooldown--;
+        if (client == null || client.player == null || client.level == null || client.gameMode == null) return;
+
+        if (autoMlgPhase == AutoMlgPhase.AIM_PENDING) {
+            tickAutoMlgAimPending(client);
             return;
         }
-        LocalPlayer player = client.player;
-        var inventory = player.getInventory();
-
-        if (autoMlgOriginalSlot >= 0) {
-            boolean waterUsed = autoMlgBucketSlot >= 0
-                    && !inventory.getItem(autoMlgBucketSlot).is(net.minecraft.world.item.Items.WATER_BUCKET);
-            if (player.onGround() || waterUsed) {
-                restoreAutoMlgSlot(client);
-                return;
-            }
+        if (autoMlgPhase == AutoMlgPhase.CONFIRM_PENDING) {
+            tickAutoMlgConfirmPending(client);
+            return;
+        }
+        if (autoMlgCooldown > 0) {
+            autoMlgCooldown--;
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_MLG,
+                    SkyOPLanguage.text("diagnostics.reason.mlg_cooldown"));
+            return;
         }
 
+        LocalPlayer player = client.player;
+        if (player.getAbilities().instabuild || player.isSpectator()
+                || player.isPassenger() || player.isFallFlying()
+                || player.isInWaterOrBubble() || player.isInLava() || player.isNoGravity()) {
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_MLG,
+                    SkyOPLanguage.text("diagnostics.reason.creative_or_unsupported"));
+            return;
+        }
         if (!SkyOPAutomationRules.shouldTriggerMlg(
                 player.onGround(), player.fallDistance, player.getDeltaMovement().y,
-                SkyOPState.autoMlgFallDistance)) return;
+                SkyOPState.autoMlgFallDistance)) {
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_MLG,
+                    SkyOPLanguage.text("diagnostics.reason.not_falling"));
+            return;
+        }
+        if (player.containerMenu != player.inventoryMenu) {
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_MLG,
+                    SkyOPLanguage.text("diagnostics.reason.container_open"));
+            return;
+        }
 
+        var inventory = player.getInventory();
         int bucketSlot = -1;
         for (int slot = 0; slot < net.minecraft.world.entity.player.Inventory.SELECTION_SIZE; slot++) {
             if (inventory.getItem(slot).is(net.minecraft.world.item.Items.WATER_BUCKET)) {
@@ -222,44 +252,223 @@ public final class SkyOPMovementModules {
                 break;
             }
         }
-        if (bucketSlot < 0) return;
+        if (bucketSlot < 0) {
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_MLG,
+                    SkyOPLanguage.text("diagnostics.reason.no_bucket"));
+            return;
+        }
 
-        float originalPitch = player.getXRot();
-        try {
-            // Temporarily aim straight down, then calculate a fresh block hit from that view.
-            // This also lets the module work when the player's camera was not already looking down.
-            player.setXRot(90.0F);
-            HitResult rayHit = player.pick(4.5D, 1.0F, false);
-            if (rayHit.getType() != HitResult.Type.BLOCK
-                    || !(rayHit instanceof BlockHitResult hit)
-                    || hit.getBlockPos().getY() >= Math.floor(player.getY())) {
-                return;
-            }
+        BlockHitResult landing = predictLandingSurface(client, player);
+        if (landing == null) {
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_MLG,
+                    SkyOPLanguage.text("diagnostics.reason.no_landing"));
+            return;
+        }
+        double reachSquared = player.getEyePosition().distanceToSqr(landing.getLocation());
+        if (reachSquared > 4.5D * 4.5D) {
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_MLG,
+                    SkyOPLanguage.text("diagnostics.reason.out_of_reach")
+                            + " (" + String.format(java.util.Locale.ROOT, "%.2f", Math.sqrt(reachSquared)) + " blocks)");
+            return;
+        }
 
-            autoMlgOriginalSlot = inventory.getSelectedSlot();
-            autoMlgBucketSlot = bucketSlot;
-            inventory.setSelectedSlot(bucketSlot);
+        beginAutoMlgAim(client, player, landing, bucketSlot);
+    }
 
-            // Block-targeted interaction is attempted first. BucketItem overrides use(...),
-            // not useOn(...), so also submit the ordinary item-use path.
-            client.gameMode.useItemOn(player, InteractionHand.MAIN_HAND, hit);
-            player.swing(InteractionHand.MAIN_HAND, SwingAnimation.DEFAULT, true);
-            client.gameMode.useItem(player, InteractionHand.MAIN_HAND);
-            autoMlgCooldown = 5;
-        } finally {
-            // Pitch restoration is synchronous, including early return and exception paths.
-            player.setXRot(originalPitch);
+    private static void beginAutoMlgAim(Minecraft client, LocalPlayer player,
+                                        BlockHitResult landing, int bucketSlot) {
+        Vec3 direction = landing.getLocation().subtract(player.getEyePosition());
+        double horizontal = Math.sqrt(direction.x * direction.x + direction.z * direction.z);
+        autoMlgTargetYaw = horizontal < 1.0E-5D
+                ? player.getYRot()
+                : (float) (Math.toDegrees(Math.atan2(direction.z, direction.x)) - 90.0D);
+        autoMlgTargetPitch = (float) -Math.toDegrees(Math.atan2(direction.y, horizontal));
+
+        autoMlgOriginalSlot = player.getInventory().getSelectedSlot();
+        autoMlgBucketSlot = bucketSlot;
+        autoMlgOriginalYaw = player.getYRot();
+        autoMlgOriginalPitch = player.getXRot();
+        autoMlgOriginalHeadYaw = player.getYHeadRot();
+        autoMlgPendingPlayer = player;
+        autoMlgPendingBlock = landing.getBlockPos();
+        autoMlgPhase = AutoMlgPhase.AIM_PENDING;
+        // One complete client tick lets the ordinary movement update carry this view
+        // before the single normal use-item interaction is submitted.
+        autoMlgPhaseTicks = 1;
+
+        player.getInventory().setSelectedSlot(bucketSlot);
+        player.setYRot(autoMlgTargetYaw);
+        player.setXRot(autoMlgTargetPitch);
+        player.setYHeadRot(autoMlgTargetYaw);
+        SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_MLG,
+                SkyOPLanguage.text("diagnostics.reason.aim_sync_pending"));
+    }
+
+    private static void tickAutoMlgAimPending(Minecraft client) {
+        LocalPlayer player = client.player;
+        if (player != autoMlgPendingPlayer || !player.isAlive()
+                || client.level == null || client.gameMode == null) {
+            abortAutoMlg(client, "diagnostics.reason.action_cancelled", 0);
+            return;
+        }
+        if (player.containerMenu != player.inventoryMenu
+                || player.getInventory().getSelectedSlot() != autoMlgBucketSlot) {
+            abortAutoMlg(client, "diagnostics.reason.action_cancelled", 0);
+            return;
+        }
+        // Do not fight the player's own input while aim synchronization is pending.
+        if (Math.abs(angleDifference(player.getYRot(), autoMlgTargetYaw)) > 1.5F
+                || Math.abs(player.getXRot() - autoMlgTargetPitch) > 1.5F) {
+            abortAutoMlg(client, "diagnostics.reason.aim_cancelled", 0);
+            return;
+        }
+        if (autoMlgPhaseTicks > 0) {
+            autoMlgPhaseTicks--;
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_MLG,
+                    SkyOPLanguage.text("diagnostics.reason.aim_sync_pending"));
+            return;
+        }
+
+        HitResult result = player.pick(4.5D, 1.0F, false);
+        if (!(result instanceof BlockHitResult hit)
+                || result.getType() != HitResult.Type.BLOCK
+                || autoMlgPendingBlock == null
+                || !hit.getBlockPos().equals(autoMlgPendingBlock)
+                || player.getEyePosition().distanceToSqr(hit.getLocation()) > 4.5D * 4.5D
+                || !player.getInventory().getItem(autoMlgBucketSlot)
+                        .is(net.minecraft.world.item.Items.WATER_BUCKET)) {
+            abortAutoMlg(client, "diagnostics.reason.aim_mismatch", 8);
+            return;
+        }
+
+        // Exactly one normal vanilla item-use request. No packet construction or
+        // synthetic reach is used; the remote server remains authoritative.
+        client.gameMode.useItem(player, InteractionHand.MAIN_HAND);
+        player.swing(InteractionHand.MAIN_HAND, SwingAnimation.DEFAULT, true);
+        restoreAutoMlgView(player);
+        autoMlgPhase = AutoMlgPhase.CONFIRM_PENDING;
+        autoMlgPhaseTicks = 6;
+        SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_MLG,
+                SkyOPLanguage.text("diagnostics.reason.mlg_interaction_sent"));
+    }
+
+    private static void tickAutoMlgConfirmPending(Minecraft client) {
+        LocalPlayer player = client.player;
+        if (player != autoMlgPendingPlayer) {
+            clearAutoMlgState();
+            return;
+        }
+        if (player.getInventory().getSelectedSlot() != autoMlgBucketSlot) {
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_MLG,
+                    SkyOPLanguage.text("diagnostics.reason.action_cancelled"));
+            clearAutoMlgState();
+            autoMlgCooldown = 8;
+            return;
+        }
+
+        if (player.getInventory().getItem(autoMlgBucketSlot).is(net.minecraft.world.item.Items.BUCKET)) {
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_MLG,
+                    SkyOPLanguage.text("diagnostics.reason.mlg_confirmed"));
+            restoreAutoMlgSlot(client);
+            autoMlgCooldown = 15;
+            return;
+        }
+
+        if (--autoMlgPhaseTicks <= 0) {
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_MLG,
+                    SkyOPLanguage.text("diagnostics.reason.mlg_not_confirmed"));
+            restoreAutoMlgSlot(client);
+            autoMlgCooldown = 15;
         }
     }
 
-    private static void restoreAutoMlgSlot(Minecraft client) {
-        if (client.player != null && autoMlgOriginalSlot >= 0
-                && client.player.getInventory().getSelectedSlot() == autoMlgBucketSlot) {
-            client.player.getInventory().setSelectedSlot(autoMlgOriginalSlot);
+    /**
+     * Predicts the first solid surface crossed by a simplified local falling trajectory.
+     * It only clips through chunks that are already loaded; no chunk is requested or forced.
+     */
+    static BlockHitResult predictLandingSurface(Minecraft client, LocalPlayer player) {
+        if (client == null || client.level == null || player == null) return null;
+        Vec3 position = player.position();
+        Vec3 velocity = player.getDeltaMovement();
+
+        for (int tick = 0; tick < 80; tick++) {
+            SkyOPAutomationRules.FallMotion next = SkyOPAutomationRules.advanceFall(
+                    position.x, position.y, position.z, velocity.x, velocity.y, velocity.z);
+            Vec3 nextPosition = new Vec3(next.x(), next.y(), next.z());
+
+            if (next.velocityY() < 0.0D && nextPosition.y < position.y) {
+                Vec3 from = position.add(0.0D, 0.05D, 0.0D);
+                Vec3 to = nextPosition.add(0.0D, -0.05D, 0.0D);
+                if (!isLoadedSegment(client, from, to)) return null;
+                if (from.distanceToSqr(to) > 1.0E-8D) {
+                    HitResult collision = client.level.clip(new ClipContext(
+                            from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
+                    if (collision instanceof BlockHitResult blockHit
+                            && collision.getType() == HitResult.Type.BLOCK
+                            && blockHit.getBlockPos().getY() < Math.floor(player.getY())) {
+                        return blockHit;
+                    }
+                }
+            }
+
+            position = nextPosition;
+            velocity = new Vec3(next.velocityX(), next.velocityY(), next.velocityZ());
         }
+        return null;
+    }
+
+    private static boolean isLoadedSegment(Minecraft client, Vec3 from, Vec3 to) {
+        Vec3 delta = to.subtract(from);
+        double length = Math.sqrt(delta.lengthSqr());
+        int samples = Math.max(1, (int) Math.ceil(length * 2.0D));
+        for (int index = 0; index <= samples; index++) {
+            double fraction = index / (double) samples;
+            Vec3 sample = from.add(delta.scale(fraction));
+            if (!client.level.hasChunkAt(BlockPos.containing(sample.x, sample.y, sample.z))) return false;
+        }
+        return true;
+    }
+
+    private static float angleDifference(float first, float second) {
+        float difference = (first - second) % 360.0F;
+        if (difference >= 180.0F) difference -= 360.0F;
+        if (difference < -180.0F) difference += 360.0F;
+        return difference;
+    }
+
+    private static void abortAutoMlg(Minecraft client, String reasonKey, int cooldown) {
+        SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_MLG, SkyOPLanguage.text(reasonKey));
+        restoreAutoMlgSlot(client);
+        autoMlgCooldown = Math.max(0, cooldown);
+    }
+
+    private static void restoreAutoMlgView(LocalPlayer player) {
+        if (player == null || player != autoMlgPendingPlayer) return;
+        player.setYRot(autoMlgOriginalYaw);
+        player.setXRot(autoMlgOriginalPitch);
+        player.setYHeadRot(autoMlgOriginalHeadYaw);
+    }
+
+    private static void restoreAutoMlgSlot(Minecraft client) {
+        LocalPlayer player = client == null ? null : client.player;
+        if (player != null && player == autoMlgPendingPlayer) {
+            if (autoMlgPhase == AutoMlgPhase.AIM_PENDING) restoreAutoMlgView(player);
+            if (autoMlgOriginalSlot >= 0
+                    && player.getInventory().getSelectedSlot() == autoMlgBucketSlot) {
+                player.getInventory().setSelectedSlot(autoMlgOriginalSlot);
+            }
+        }
+        clearAutoMlgState();
+        autoMlgCooldown = 0;
+    }
+
+    private static void clearAutoMlgState() {
         autoMlgOriginalSlot = -1;
         autoMlgBucketSlot = -1;
-        autoMlgCooldown = 0;
+        autoMlgPhase = AutoMlgPhase.IDLE;
+        autoMlgPendingPlayer = null;
+        autoMlgPendingBlock = null;
+        autoMlgPhaseTicks = 0;
     }
 
     static void tickInfiniteJump(Minecraft client) {
