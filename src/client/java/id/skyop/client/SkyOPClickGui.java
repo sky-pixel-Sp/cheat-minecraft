@@ -177,10 +177,13 @@ public final class SkyOPClickGui extends Screen {
                 hudEditX + 7, panelY + 20, hudEditMode ? GREEN : ACCENT, true);
 
         int statusX = panelX + panelWidth - 172;
-        g.fill(statusX, panelY + 13, statusX + 104, panelY + 35, PANEL_LIGHT);
+        boolean diagnosticsHovered = inside(mouseX, mouseY, statusX, panelY + 13, 104, 22);
+        g.fill(statusX, panelY + 13, statusX + 104, panelY + 35,
+                diagnosticsHovered ? PANEL_HOVER : PANEL_LIGHT);
         g.fill(statusX + 9, panelY + 21, statusX + 15, panelY + 27, GREEN);
-        g.text(font, Component.literal(SkyOPLanguage.text("gui.ready")),
-                statusX + 21, panelY + 20, TEXT, true);
+        String diagnosticsLabel = "id".equals(SkyOPLanguage.code()) ? "DIAGNOSTIK" : "DIAGNOSTICS";
+        g.text(font, Component.literal(diagnosticsLabel),
+                statusX + 21, panelY + 20, diagnosticsHovered ? TEXT : ACCENT, true);
         int closeX = layout.closeButtonX();
         g.fill(closeX, panelY + 12, closeX + 30, panelY + 35, PANEL_LIGHT);
         g.text(font, Component.literal("×"), closeX + 11, panelY + 16, TEXT, true);
@@ -645,6 +648,14 @@ public final class SkyOPClickGui extends Screen {
                 && inside(mx, my, closeX, closeY, closeWidth, closeHeight)) {
             onClose();
             return true;
+        }
+
+        if (button == InputConstants.MOUSE_BUTTON_LEFT && !layout.compact()) {
+            int diagnosticsX = panelX + panelWidth - 172;
+            if (inside(mx, my, diagnosticsX, panelY + 13, 104, 22)) {
+                Minecraft.getInstance().setScreen(new SkyOPDiagnosticsScreen(this));
+                return true;
+            }
         }
 
         if (button == InputConstants.MOUSE_BUTTON_LEFT) {
