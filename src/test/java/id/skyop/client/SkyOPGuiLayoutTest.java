@@ -237,7 +237,7 @@ class SkyOPGuiLayoutTest {
         assertEquals(42, layout.moduleCardHeight());
         assertEquals(36, layout.settingRowStep());
         assertEquals(66, layout.settingsTopOffset());
-        assertEquals(27, layout.categoryRowY(1) - layout.categoryRowY(0));
+        assertEquals(layout.categoryButtonHeight(), layout.categoryRowY(1) - layout.categoryRowY(0));
     }
 
     private static void assertCompactFooterInsidePanel(SkyOPGuiLayout layout) {
