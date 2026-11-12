@@ -85,6 +85,10 @@ jobs:
           grep -Fq 'SkyOPTheme.normalize(p.getProperty("uiTheme"' src/client/java/id/skyop/client/SkyOPCore.java
           grep -Fq 'SkyOPTheme.palette(SkyOPState.uiTheme)' src/client/java/id/skyop/client/SkyOPFloatingPanel.java
           grep -Fq 'SkyOPCore.cycleUiTheme();' src/client/java/id/skyop/client/SkyOPClickGui.java
+          grep -Fq 'new SkyOPDiagnosticsScreen(this)' src/client/java/id/skyop/client/SkyOPClickGui.java
+          grep -Fq 'SkyOPModuleManager.activeCount()' src/client/java/id/skyop/client/SkyOPDiagnosticsScreen.java
+          grep -Fq 'SkyOPModuleManager.isActive(id)' src/client/java/id/skyop/client/SkyOPDiagnosticsScreen.java
+          test -s src/client/java/id/skyop/client/SkyOPDiagnosticsScreen.java
           test -s src/main/java/id/skyop/client/SkyOPTheme.java
           test -s src/test/java/id/skyop/client/SkyOPThemeTest.java
           test -s src/client/java/id/skyop/client/SkyOPFloatingPanel.java
