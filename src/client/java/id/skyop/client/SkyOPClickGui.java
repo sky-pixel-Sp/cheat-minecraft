@@ -78,7 +78,13 @@ public final class SkyOPClickGui extends Screen {
 
     private void selectFirstModule() {
         for (SkyOPModuleId module : SkyOPModuleId.values()) {
-            if (module.category() == selectedCategory) {
+            boolean included = switch (selectedCategory) {
+                case FAVORITES -> SkyOPCore.isFavorite(module);
+                case SAFE -> !module.isDangerous();
+                case DANGEROUS -> module.isDangerous();
+                default -> module.category() == selectedCategory;
+            };
+            if (included) {
                 selectedModule = module;
                 return;
             }
