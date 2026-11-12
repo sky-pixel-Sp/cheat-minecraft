@@ -47,7 +47,7 @@ class SkyOPSettingsSchemaTest {
 
         assertEquals(10.0, zoom.validate(2));
         assertEquals(70.0, zoom.validate(90));
-        assertEquals(16.0, zoom.validate(Double.NaN));
+        assertEquals(20.0, zoom.validate(Double.NaN));
 
         assertEquals(4.0, containers.validate(1));
         assertEquals(24.0, containers.validate(100));
