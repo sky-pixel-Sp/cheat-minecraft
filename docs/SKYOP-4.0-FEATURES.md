@@ -14,8 +14,15 @@
 | Chunk Info HUD | Displays chunk X/Z and local X/Y/Z coordinates | Local player block position |
 | Performance HUD | Displays FPS and JVM used/max heap | Minecraft client FPS + JVM Runtime |
 | Session Timer | Displays elapsed time in the current world session | Local elapsed time; resets on world/player context change |
+| Food HUD | Displays hunger and saturation | Player FoodData |
+| Air HUD | Displays current/max air supply | Player air supply |
+| Experience HUD | Displays XP level and progress | Player experience state |
+| Item Info HUD | Displays main-hand item name, stack count and durability | Main-hand ItemStack |
+| Offhand HUD | Displays offhand item name and stack count | OFFHAND equipment slot |
+| Block Info HUD | Displays block under crosshair and coordinates | Client block hit result |
+| Armor Detail HUD | Displays HEAD/CHEST/LEGS/FEET and remaining durability | Equipped armor ItemStacks |
 
-All four widgets are draggable in HUD Edit and use per-module HUD position persistence.
+All eleven newly-added widgets are draggable in HUD Edit and use per-module HUD position persistence.
 
 ## KillAura targeting
 - Target FOV is configurable from 1° through 360°; default is 360°.
