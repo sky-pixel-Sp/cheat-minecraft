@@ -1,6 +1,7 @@
 {
   "key.category.skyop.client": "Klien SkyOP",
   "key.skyop.open_gui": "Buka ClickGUI SkyOP",
+  "key.skyop.diagnostics": "Buka Diagnostik SkyOP",
   "key.skyop.open_quick_panel": "Buka Panel Cepat SkyOP",
   "key.skyop.toggle_hud": "Aktif/nonaktif HUD",
   "key.skyop.toggle_autoclicker": "Aktif/nonaktif AutoClicker",
