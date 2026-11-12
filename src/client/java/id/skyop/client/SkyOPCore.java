@@ -309,6 +309,9 @@ private static void onClientTick(Minecraft client) {
             return;
         }
 
+        // Auto Respawn must keep running while the normal death screen is open.
+        SkyOPPlayerModules.tickAutoRespawn(client);
+
         SkyOPTelemetry.update(client);
         if (client.gui.screen() != null) {
             SkyOPInventoryManager.stop(client);
