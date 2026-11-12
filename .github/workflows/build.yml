@@ -80,6 +80,14 @@ jobs:
           grep -Fq 'SkyOPModuleManager.initialize();' src/client/java/id/skyop/client/SkyOPCore.java
           grep -Fq 'SkyOPModuleManager.saveSettings(p);' src/client/java/id/skyop/client/SkyOPCore.java
           grep -Fq 'SkyOPModuleManager.loadSettings(p);' src/client/java/id/skyop/client/SkyOPCore.java
+          grep -Fq 'KEY_QUICK_PANEL = key("key.skyop.open_quick_panel", InputConstants.KEY_O)' src/client/java/id/skyop/client/SkyOPCore.java
+          grep -Fq 'new SkyOPFloatingPanel()' src/client/java/id/skyop/client/SkyOPCore.java
+          grep -Fq 'SkyOPTheme.normalize(p.getProperty("uiTheme"' src/client/java/id/skyop/client/SkyOPCore.java
+          grep -Fq 'SkyOPTheme.palette(SkyOPState.uiTheme)' src/client/java/id/skyop/client/SkyOPFloatingPanel.java
+          grep -Fq 'SkyOPCore.cycleUiTheme();' src/client/java/id/skyop/client/SkyOPClickGui.java
+          test -s src/main/java/id/skyop/client/SkyOPTheme.java
+          test -s src/test/java/id/skyop/client/SkyOPThemeTest.java
+          test -s src/client/java/id/skyop/client/SkyOPFloatingPanel.java
           test -s src/main/resources/assets/skyop/lang/id_id.json
           grep -Fq '"key.skyop.module.auto_hunt"' src/main/resources/assets/skyop/lang/id_id.json
           grep -Fq '"key.skyop.module.fast_break"' src/main/resources/assets/skyop/lang/en_us.json

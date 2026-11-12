@@ -211,3 +211,18 @@ These checks are required in a disposable singleplayer world and a private test 
 3. Disable Fast Break and confirm vanilla mining speed is restored in both local and integrated-server paths.
 
 Record Minecraft 26.3, Fabric Loader/API versions, GUI scale, client log, server log, and a short video for each check. Do not mark any item as game-tested until evidence is captured.
+
+
+## Premium UI, theme and HUD regression checks
+
+1. Open ClickGUI with Right Shift, open the HUD color popover, and cycle all six UI themes. Verify panel, hover, text and accent colors change while the separate HUD accent swatch remains unchanged.
+2. Select a theme, close Minecraft, relaunch and verify the theme is restored from `uiTheme`.
+3. Press **O** while in a world. Verify the floating Quick Panel opens without pausing the world and shows Auto Totem, Auto MLG, Fast Break, Auto Sprint, Entity ESP and Auto Eat.
+4. Toggle each Quick Panel tile and verify the matching module registry state and ClickGUI state update together.
+5. Drag the Quick Panel title bar to all four screen corners, release, close and reopen it. Verify the panel remains inside the viewport and its location persists after restart.
+6. Enable Compass HUD and Direction HUD together. Verify both widgets render independently, Direction displays block X/Z coordinates, and moving either widget in HUD Edit does not move the other.
+7. Enable several modules so the main HUD lists multiple rows. Verify the coordinates and FPS footer are inside the HUD background and the complete widget remains within the screen.
+8. Apply more than seven potion effects. Verify the Potion HUD renders at most seven rows and its backdrop remains sized to the visible content.
+9. At GUI widths below 20 units and at GUI scale 4, verify module descriptions/tooltips do not throw substring/index exceptions.
+10. Click the padding left of the first Multi-setting chip; verify no option changes. Click each chip itself and verify selection still toggles correctly.
+11. Open the color popover and click outside it. Verify the popover closes and the selected underlying control receives the new click normally.
