@@ -4,8 +4,16 @@
 - Combat, Movement, Visual, World, Player, Inventory.
 - Favorites is a user-managed filter.
 - Safe and Dangerous are risk filters over registered modules, not empty feature categories.
-- The inspector displays the selected module risk label.
+- The inspector displays the selected module risk label, and now auto-selects the first matching item when those filters are opened.
+- Category membership is implemented once in SkyOPCategory and reused by selection, listing and count logic.
 - Compact navigation calculates row height from the actual category count.
+
+## Quick Panel
+- Responsive in-world panel with up to eight real module toggles; available count adapts to current scaled viewport.
+- The header theme control cycles the persisted UI theme.
+- Full GUI opens the complete ClickGUI.
+- Disable All invokes the central cleanup path, restoring temporary client state.
+- Panel drag position is persisted and clamped to the current viewport.
 
 ## New World HUD modules
 | Module | Actual behavior | Data source |
