@@ -48,3 +48,14 @@ This project does not implement anti-cheat evasion, ban/kick evasion, IP rotatio
 ## Verification requirement
 
 A successful CI run proves compilation, unit tests, metadata checks and packaging. It does not prove that the feature works in a live Minecraft world. The modules listed above require the manual checks in `docs/TEST-PLAN.md`.
+
+
+## Premium UI development branch additions
+
+- Six persisted UI palettes: Cyber Neon, Amethyst, Emerald, Amber, Rose and Arctic. The ClickGUI color popover cycles themes without changing the independent HUD accent color.
+- Floating Quick Panel: press **O** in a world to open a non-pausing six-module switcher. The title bar is draggable, the position is saved, and each tile routes through the normal module lifecycle.
+- HUD rendering correction: Compass and Direction are now independent widgets with separate persisted HUD positions. Direction displays cardinal heading and block X/Z coordinates.
+- HUD bounds correction: the main HUD background now includes the coordinates/FPS footer, and the Potion HUD backdrop is capped to the seven effects that are actually rendered.
+- ClickGUI robustness: short text is safe at tiny GUI widths, clicks on Multi-setting left padding no longer toggle the first option, and clicking outside the color popover dismisses it.
+
+These UI changes do not replace in-game checks. The Quick Panel needs a world session to open; verify drag/persistence after restarting the client.

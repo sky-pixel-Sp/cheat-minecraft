@@ -74,8 +74,10 @@ public final class SkyOPCombatModules {
             if (SkyOPState.auraRequireLineOfSight && !player.hasLineOfSight(candidate)) continue;
 
             Vec3 direction = candidate.getBoundingBox().getCenter().subtract(eye).normalize();
-            double halfFovRadians = Math.toRadians(SkyOPMath.clamp(SkyOPState.auraFov, 30.0, 180.0) / 2.0);
-            if (look.dot(direction) < Math.cos(halfFovRadians)) continue;
+            // 360 degrees means a full sphere: front, rear, above and below.
+            double halfFovRadians = Math.toRadians(SkyOPMath.clamp(SkyOPState.auraFov, 1.0, 360.0) / 2.0);
+            double alignment = Math.max(-1.0, Math.min(1.0, look.dot(direction)));
+            if (alignment < Math.cos(halfFovRadians)) continue;
 
             if (SkyOPState.auraTargetLowestHealth) {
                 float health = candidate.getHealth();

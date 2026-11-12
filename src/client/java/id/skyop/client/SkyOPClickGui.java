@@ -17,14 +17,26 @@ import java.util.List;
  * Responsive, two-column SkyOP module manager for Minecraft 26.3.
  */
 public final class SkyOPClickGui extends Screen {
-    private static final int PANEL = 0xF010141C;
-    private static final int PANEL_LIGHT = 0xFF1A202B;
-    private static final int PANEL_HOVER = 0xFF263343;
-    private static final int ACCENT = 0xFF55B8F4;
-    private static final int TEXT = 0xFFF3F6FA;
-    private static final int MUTED = 0xFF98A6B8;
-    private static final int GREEN = 0xFF64D6A4;
-    private static final int RED = 0xFFE07B83;
+    private static int PANEL = 0xF010141C;
+    private static int PANEL_LIGHT = 0xFF1A202B;
+    private static int PANEL_HOVER = 0xFF263343;
+    private static int ACCENT = 0xFF55B8F4;
+    private static int TEXT = 0xFFF3F6FA;
+    private static int MUTED = 0xFF98A6B8;
+    private static int GREEN = 0xFF64D6A4;
+    private static int RED = 0xFFE07B83;
+
+    static void applyTheme() {
+        SkyOPTheme.Palette palette = SkyOPTheme.palette(SkyOPState.uiTheme);
+        PANEL = palette.panel();
+        PANEL_LIGHT = palette.elevated();
+        PANEL_HOVER = palette.hover();
+        ACCENT = palette.accent();
+        TEXT = palette.text();
+        MUTED = palette.muted();
+        GREEN = palette.success();
+        RED = palette.danger();
+    }
 
     private SkyOPCategory selectedCategory = SkyOPCategory.COMBAT;
     private SkyOPModuleId selectedModule = SkyOPModuleId.KILL_AURA;
@@ -45,10 +57,12 @@ public final class SkyOPClickGui extends Screen {
 
     public SkyOPClickGui() {
         super(Component.literal("SkyOP Client"));
+        applyTheme();
     }
 
     @Override
     protected void init() {
+        applyTheme();
         calculateLayout();
         selectFirstModule();
         searchFocused = true;
@@ -64,7 +78,8 @@ public final class SkyOPClickGui extends Screen {
 
     private void selectFirstModule() {
         for (SkyOPModuleId module : SkyOPModuleId.values()) {
-            if (module.category() == selectedCategory) {
+            boolean included = selectedCategory.includes(module, SkyOPCore.isFavorite(module));
+            if (included) {
                 selectedModule = module;
                 return;
             }
@@ -163,10 +178,13 @@ public final class SkyOPClickGui extends Screen {
                 hudEditX + 7, panelY + 20, hudEditMode ? GREEN : ACCENT, true);
 
         int statusX = panelX + panelWidth - 172;
-        g.fill(statusX, panelY + 13, statusX + 104, panelY + 35, PANEL_LIGHT);
+        boolean diagnosticsHovered = inside(mouseX, mouseY, statusX, panelY + 13, 104, 22);
+        g.fill(statusX, panelY + 13, statusX + 104, panelY + 35,
+                diagnosticsHovered ? PANEL_HOVER : PANEL_LIGHT);
         g.fill(statusX + 9, panelY + 21, statusX + 15, panelY + 27, GREEN);
-        g.text(font, Component.literal(SkyOPLanguage.text("gui.ready")),
-                statusX + 21, panelY + 20, TEXT, true);
+        String diagnosticsLabel = "id".equals(SkyOPLanguage.code()) ? "DIAGNOSTIK" : "DIAGNOSTICS";
+        g.text(font, Component.literal(diagnosticsLabel),
+                statusX + 21, panelY + 20, diagnosticsHovered ? TEXT : ACCENT, true);
         int closeX = layout.closeButtonX();
         g.fill(closeX, panelY + 12, closeX + 30, panelY + 35, PANEL_LIGHT);
         g.text(font, Component.literal("×"), closeX + 11, panelY + 16, TEXT, true);
@@ -190,12 +208,16 @@ public final class SkyOPClickGui extends Screen {
                     case COMBAT -> "⚔";
                     case MOVEMENT -> "↗";
                     case VISUAL -> "◉";
+                    case WORLD -> "⌖";
                     case PLAYER -> "♟";
                     case INVENTORY -> "▣";
                     case FAVORITES -> "★";
+                    case SAFE -> "✓";
+                    case DANGEROUS -> "⚠";
                 };
                 int textX = x + (buttonWidth - font.width(icon)) / 2;
-                g.text(font, Component.literal(icon), textX, rowY + 8,
+                g.text(font, Component.literal(icon), textX,
+                        rowY + Math.max(0, (buttonHeight - 8) / 2),
                         selected ? TEXT : MUTED, true);
             }
             return;
@@ -342,6 +364,12 @@ public final class SkyOPClickGui extends Screen {
         g.text(font, Component.literal(enabled ? "● " + SkyOPLanguage.text("gui.enabled")
                         : "○ " + SkyOPLanguage.text("gui.disabled")),
                 x + 12, y + 47, enabled ? GREEN : MUTED, true);
+        String riskLabel = selectedModule.isDangerous()
+                ? "⚠ " + SkyOPLanguage.text("gui.risk_dangerous")
+                : "✓ " + SkyOPLanguage.text("gui.risk_safe");
+        int riskColor = selectedModule.isDangerous() ? RED : GREEN;
+        int riskX = Math.max(x + 12, x + w - font.width(riskLabel) - 12);
+        g.text(font, Component.literal(riskLabel), riskX, y + 47, riskColor, true);
         g.fill(x + 12, y + 59, x + w - 12, y + 60, 0xFF2B394A);
 
         List<SkyOPSetting<?>> settings = visibleSettings(selectedModule);
@@ -514,8 +542,7 @@ public final class SkyOPClickGui extends Screen {
         List<SkyOPModuleId> modules = new ArrayList<>();
         String query = searchQuery.toLowerCase(java.util.Locale.ROOT);
         for (SkyOPModuleId module : SkyOPModuleId.values()) {
-            boolean inCategory = selectedCategory == SkyOPCategory.FAVORITES
-                    ? SkyOPCore.isFavorite(module) : module.category() == selectedCategory;
+            boolean inCategory = selectedCategory.includes(module, SkyOPCore.isFavorite(module));
             boolean matches = query.isEmpty()
                     || module.title().toLowerCase(java.util.Locale.ROOT).contains(query)
                     || module.description().toLowerCase(java.util.Locale.ROOT).contains(query);
@@ -527,8 +554,8 @@ public final class SkyOPClickGui extends Screen {
     private int countModules(SkyOPCategory category) {
         int count = 0;
         for (SkyOPModuleId module : SkyOPModuleId.values()) {
-            if (category == SkyOPCategory.FAVORITES ? SkyOPCore.isFavorite(module)
-                    : module.category() == category) count++;
+            boolean included = category.includes(module, SkyOPCore.isFavorite(module));
+            if (included) count++;
         }
         return count;
     }
@@ -593,13 +620,16 @@ public final class SkyOPClickGui extends Screen {
         } else if (setting instanceof MultiSetting multi) {
             int localX = (int) mouseX - (inspectorX + 15);
             int chipWidth = layout.compact() ? 54 : 64;
-            int index = Math.max(0, localX / chipWidth);
             List<String> options = multi.options().stream().sorted().toList();
-            if (index < options.size()) {
-                java.util.Set<String> selected = new java.util.LinkedHashSet<>(multi.value());
-                String option = options.get(index);
-                if (!selected.add(option)) selected.remove(option);
-                multi.set(selected);
+            // Ignore the left padding instead of accidentally toggling chip zero.
+            if (localX >= 0) {
+                int index = localX / chipWidth;
+                if (index < options.size()) {
+                    java.util.Set<String> selected = new java.util.LinkedHashSet<>(multi.value());
+                    String option = options.get(index);
+                    if (!selected.add(option)) selected.remove(option);
+                    multi.set(selected);
+                }
             }
         } else if (setting instanceof ColorSetting color) {
             colorPickerOpen = true;
@@ -630,6 +660,14 @@ public final class SkyOPClickGui extends Screen {
             return true;
         }
 
+        if (button == InputConstants.MOUSE_BUTTON_LEFT && !layout.compact()) {
+            int diagnosticsX = panelX + panelWidth - 172;
+            if (inside(mx, my, diagnosticsX, panelY + 13, 104, 22)) {
+                Minecraft.getInstance().gui.setScreen(new SkyOPDiagnosticsScreen(this));
+                return true;
+            }
+        }
+
         if (button == InputConstants.MOUSE_BUTTON_LEFT) {
             int colorX = layout.colorButtonX();
             int hudX = layout.hudButtonX();
@@ -650,7 +688,10 @@ public final class SkyOPClickGui extends Screen {
             }
         }
 
-        if (colorPickerOpen && handleColorPickerClick(mx, my)) return true;
+        if (colorPickerOpen) {
+            if (handleColorPickerClick(mx, my)) return true;
+            colorPickerOpen = false;
+        }
         if (hudEditMode) {
             HudPreview preview = hudPreviewAt(mx, my);
             if (preview != null) {
@@ -830,6 +871,11 @@ public final class SkyOPClickGui extends Screen {
                 return true;
             }
         }
+        if (inside(mx, my, x + 110, y + 4, 48, 14)) {
+            SkyOPCore.cycleUiTheme();
+            setProfileStatus(SkyOPLanguage.text("gui.theme") + ": " + SkyOPTheme.displayName(SkyOPState.uiTheme));
+            return true;
+        }
         if (inside(mx, my, x + 8, y + 76, 96, 22)) {
             editingHudColor = true;
             hexColorInput = "";
@@ -863,6 +909,12 @@ public final class SkyOPClickGui extends Screen {
         g.fill(x, y, x + 166, y + 104, 0xF0101726);
         g.outline(x, y, 166, 104, 0xFF40546B);
         g.text(font, Component.literal(SkyOPLanguage.text("gui.hud_color")), x + 8, y + 6, TEXT, true);
+        g.text(font, Component.literal(SkyOPTheme.displayName(SkyOPState.uiTheme)),
+                x + 78, y + 6, ACCENT, true);
+        boolean nextHovered = inside(mouseX, mouseY, x + 110, y + 4, 48, 14);
+        g.fill(x + 110, y + 4, x + 158, y + 18, nextHovered ? PANEL_HOVER : PANEL_LIGHT);
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.next_theme")),
+                x + 115, y + 7, nextHovered ? TEXT : ACCENT, true);
         for (int row = 0; row < 2; row++) for (int col = 0; col < 3; col++) {
             int px = x + 8 + col * 28, py = y + 20 + row * 27;
             g.fill(px, py, px + 22, py + 22, colors[row][col]);
@@ -898,11 +950,13 @@ public final class SkyOPClickGui extends Screen {
             previews.add(hudPreview(SkyOPModuleId.POTION_HUD, sw - 198, 76, 190, 96, null, sw, sh));
         if (SkyOPCore.isEnabled(SkyOPModuleId.DURABILITY_HUD))
             previews.add(hudPreview(SkyOPModuleId.DURABILITY_HUD, sw / 2 - 82, sh - 94, 164, 24, null, sw, sh));
-        if (SkyOPCore.isEnabled(SkyOPModuleId.COMPASS_HUD)
-                || SkyOPCore.isEnabled(SkyOPModuleId.DIRECTION_HUD)) {
-            String label = SkyOPCore.isEnabled(SkyOPModuleId.COMPASS_HUD)
-                    ? SkyOPLanguage.text("gui.compass_direction") : SkyOPModuleId.DIRECTION_HUD.title();
-            previews.add(hudPreview(SkyOPModuleId.COMPASS_HUD, sw / 2 - 48, 8, 96, 23, label, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.COMPASS_HUD)) {
+            previews.add(hudPreview(SkyOPModuleId.COMPASS_HUD, sw / 2 - 52, 8, 104, 23,
+                    SkyOPLanguage.text("gui.compass_direction"), sw, sh));
+        }
+        if (SkyOPCore.isEnabled(SkyOPModuleId.DIRECTION_HUD)) {
+            previews.add(hudPreview(SkyOPModuleId.DIRECTION_HUD, sw / 2 - 82, 36, 164, 24,
+                    SkyOPModuleId.DIRECTION_HUD.title(), sw, sh));
         }
         if (SkyOPCore.isEnabled(SkyOPModuleId.PING_HUD))
             previews.add(hudPreview(SkyOPModuleId.PING_HUD, sw - 100, 8, 92, 22, null, sw, sh));
@@ -918,6 +972,28 @@ public final class SkyOPClickGui extends Screen {
             previews.add(hudPreview(SkyOPModuleId.SPEEDOMETER, sw / 2 - 58, sh - 37, 116, 25, null, sw, sh));
         if (SkyOPCore.isEnabled(SkyOPModuleId.CPS_HUD))
             previews.add(hudPreview(SkyOPModuleId.CPS_HUD, sw / 2 - 48, sh - 66, 96, 24, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.WORLD_INFO_HUD))
+            previews.add(hudPreview(SkyOPModuleId.WORLD_INFO_HUD, 8, 112, 220, 40, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.CHUNK_INFO_HUD))
+            previews.add(hudPreview(SkyOPModuleId.CHUNK_INFO_HUD, 8, 166, 184, 40, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.PERFORMANCE_HUD))
+            previews.add(hudPreview(SkyOPModuleId.PERFORMANCE_HUD, sw - 158, 62, 150, 42, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.SESSION_TIMER_HUD))
+            previews.add(hudPreview(SkyOPModuleId.SESSION_TIMER_HUD, sw / 2 - 75, sh - 114, 150, 29, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.FOOD_HUD))
+            previews.add(hudPreview(SkyOPModuleId.FOOD_HUD, 8, sh - 82, 140, 29, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.AIR_HUD))
+            previews.add(hudPreview(SkyOPModuleId.AIR_HUD, 8, sh - 48, 140, 29, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.EXPERIENCE_HUD))
+            previews.add(hudPreview(SkyOPModuleId.EXPERIENCE_HUD, sw / 2 - 75, sh - 150, 150, 29, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.ITEM_INFO_HUD))
+            previews.add(hudPreview(SkyOPModuleId.ITEM_INFO_HUD, sw / 2 - 110, sh - 112, 204, 40, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.OFFHAND_HUD))
+            previews.add(hudPreview(SkyOPModuleId.OFFHAND_HUD, sw - 190, 190, 182, 29, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.BLOCK_INFO_HUD))
+            previews.add(hudPreview(SkyOPModuleId.BLOCK_INFO_HUD, sw - 232, 112, 224, 40, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.ARMOR_DETAIL_HUD))
+            previews.add(hudPreview(SkyOPModuleId.ARMOR_DETAIL_HUD, sw - 218, sh - 144, 210, 62, null, sw, sh));
         return previews;
     }
 
@@ -1096,7 +1172,10 @@ public final class SkyOPClickGui extends Screen {
     }
 
     private String trim(String text, int maxLength) {
-        return text.length() <= maxLength ? text : text.substring(0, maxLength - 3) + "...";
+        if (text == null || maxLength <= 0) return "";
+        if (text.length() <= maxLength) return text;
+        if (maxLength <= 3) return text.substring(0, maxLength);
+        return text.substring(0, maxLength - 3) + "...";
     }
 
     @Override

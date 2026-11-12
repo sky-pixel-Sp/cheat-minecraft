@@ -47,6 +47,8 @@ public final class SkyOPLanguage {
         put("gui.favorites", "FAVORITES");
         put("gui.search", "SEARCH MODULES");
         put("gui.hud_color", "HUD COLOR");
+        put("gui.theme", "THEME");
+        put("gui.next_theme", "NEXT");
         put("gui.apply", "APPLY");
         put("gui.hud_layout", "HUD LAYOUT");
         put("gui.drag_hud", "Drag each panel to reposition");
@@ -116,7 +118,12 @@ public final class SkyOPLanguage {
         put("category.combat", "Combat");
         put("category.movement", "Movement");
         put("category.visual", "Visual");
+        put("category.world", "World");
         put("category.player", "Player");
+        put("category.safe", "Safe");
+        put("category.dangerous", "Dangerous");
+        put("gui.risk_safe", "SAFE");
+        put("gui.risk_dangerous", "DANGEROUS");
 
         put("module.KILL_AURA.title", "KillAura");
         put("module.KILL_AURA.description", "Prioritises a nearby configured target.");
@@ -173,8 +180,9 @@ public final class SkyOPLanguage {
         put("setting.distance_blocks", "Target distance in blocks");
         put("setting.lowest_health", "Lowest health first");
         put("setting.weakest_target", "Prioritise the weakest target");
-        put("setting.aim_fov", "Aim field of view");
-        put("setting.target_cone", "Target cone width in degrees");
+        put("setting.aim_fov", "Target field of view");
+        put("setting.target_cone", "Full target field width in degrees, up to 360");
+        put("setting.clear_view", "Require unobstructed visibility; off scans loaded targets behind blocks (the server may reject attacks)");
         put("setting.rotation_speed", "Rotation speed");
         put("setting.rotation_interpolation", "Aim interpolation from slow to instant");
         put("setting.trigger_delay", "Trigger delay");
@@ -275,6 +283,7 @@ public final class SkyOPLanguage {
         translate("id", Map.ofEntries(
                 e("gui.control_center", "PUSAT KONTROL MODUL"), e("gui.subtitle", "Profil • Modul • Pengaturan langsung"),
                 e("gui.ready", "KLIEN SIAP"), e("gui.categories", "KATEGORI"), e("gui.active_modules", "MODUL AKTIF"),
+                e("gui.theme", "TEMA"), e("gui.next_theme", "GANTI"),
                 e("gui.inspector", "PENGATURAN MODUL"), e("gui.select_module", "Pilih modul"), e("gui.modules", "MODUL"),
                 e("gui.left_toggle_right_inspect", "Klik kiri: aktif/nonaktif • Klik kanan: pengaturan"),
                 e("gui.no_extra_settings", "Tidak ada pengaturan tambahan"), e("gui.enabled", "AKTIF"),
@@ -783,6 +792,52 @@ public final class SkyOPLanguage {
                 e("setting.fast_break_level", "Level Haste"),
                 e("setting.fast_break_level_desc", "Haste VII setara pengali kecepatan mining lokal 2,4x; aturan server tetap berlaku.")
         ));
+
+        // New utility pack — English labels remain the enum/source fallbacks.
+        put("setting.zoom_fov", "Zoom FOV");
+        put("setting.zoom_fov_desc", "Client field of view while Zoom is enabled.");
+        put("setting.container_range", "Container scan range");
+        put("setting.container_range_desc", "Search radius in already-loaded client chunks.");
+        put("setting.low_health_threshold", "Low-health threshold");
+        put("setting.low_health_desc", "Notify once when health falls to this value or lower.");
+        put("setting.armor_alert_percent", "Armor durability threshold");
+        put("setting.armor_alert_desc", "Notify when any equipped damageable armor reaches this remaining percentage.");
+
+        translate("id", Map.ofEntries(
+                e("module.AUTO_WALK.title", "Jalan Otomatis"),
+                e("module.AUTO_WALK.description", "Menahan input gerak maju normal selama modul aktif."),
+                e("module.ZOOM.title", "Zoom"),
+                e("module.ZOOM.description", "Mempersempit FOV klien sementara menggunakan nilai FOV yang diatur."),
+                e("module.CONTAINER_FINDER.title", "Pencari Peti"),
+                e("module.CONTAINER_FINDER.description", "Mencantumkan peti, barrel, dan ender chest dalam chunk sekitar yang sudah dimuat klien."),
+                e("module.AUTO_RESPAWN.title", "Respawn Otomatis"),
+                e("module.AUTO_RESPAWN.description", "Mengirim permintaan respawn normal setelah mati; server tetap menentukan penerimaannya."),
+                e("module.LOW_HEALTH_ALERT.title", "Peringatan Health Rendah"),
+                e("module.LOW_HEALTH_ALERT.description", "Memberi notifikasi saat health melewati ambang rendah yang diatur."),
+                e("module.ARMOR_ALERT.title", "Peringatan Armor"),
+                e("module.ARMOR_ALERT.description", "Memberi notifikasi saat daya tahan armor mencapai persentase yang diatur."),
+                e("setting.zoom_fov", "FOV Zoom"),
+                e("setting.zoom_fov_desc", "Field of view klien saat Zoom aktif."),
+                e("setting.container_range", "Jarak pemindaian peti"),
+                e("setting.container_range_desc", "Radius pencarian pada chunk yang sudah dimuat klien."),
+                e("setting.low_health_threshold", "Ambang health rendah"),
+                e("setting.low_health_desc", "Kirim notifikasi sekali saat health mencapai nilai ini atau lebih rendah."),
+                e("setting.armor_alert_percent", "Ambang daya tahan armor"),
+                e("setting.armor_alert_desc", "Kirim notifikasi jika armor yang dipakai tersisa pada persentase ini.")
+        ));
+    }
+
+    static {
+        translate("id", Map.ofEntries(
+                e("category.world", "Dunia"),
+                e("category.safe", "Aman"),
+                e("category.dangerous", "Bahaya"),
+                e("gui.risk_safe", "AMAN"),
+                e("gui.risk_dangerous", "BAHAYA"),
+                e("setting.aim_fov", "Sudut pandang target"),
+                e("setting.target_cone", "Lebar bidang target penuh hingga 360 derajat"),
+                e("setting.clear_view", "Wajibkan pandangan tanpa halangan; nonaktif memindai target yang sudah dimuat di balik blok (serangan dapat ditolak server)")
+        ));
     }
 
     private SkyOPLanguage() { }
@@ -824,6 +879,12 @@ public final class SkyOPLanguage {
                 .getOrDefault(key, EN.getOrDefault(key, key));
     }
 
+    /** Package-visible coverage hook used by the localization regression tests. */
+    static boolean hasTranslation(String code, String key) {
+        if ("en".equals(code)) return EN.containsKey(key);
+        return DICTIONARIES.getOrDefault(code, Map.of()).containsKey(key);
+    }
+
     public static String moduleTitle(String name, String fallback) {
         return text("module." + name + ".title").equals("module." + name + ".title")
                 ? fallback : text("module." + name + ".title");
@@ -832,5 +893,50 @@ public final class SkyOPLanguage {
     public static String moduleDescription(String name, String fallback) {
         return text("module." + name + ".description").equals("module." + name + ".description")
                 ? fallback : text("module." + name + ".description");
+    }
+
+    
+    // Indonesian translations for the eleven SkyOP 4.0 HUD modules.
+    static {
+        translate("id", Map.ofEntries(
+                e("module.WORLD_INFO_HUD.title", "Info Dunia"),
+                e("module.WORLD_INFO_HUD.description", "Menampilkan dimensi, bioma, dan kondisi cuaca saat ini."),
+                e("module.CHUNK_INFO_HUD.title", "Info Chunk"),
+                e("module.CHUNK_INFO_HUD.description", "Menampilkan koordinat chunk dan koordinat blok lokal."),
+                e("module.PERFORMANCE_HUD.title", "HUD Performa"),
+                e("module.PERFORMANCE_HUD.description", "Menampilkan FPS dan penggunaan memori JVM secara langsung."),
+                e("module.SESSION_TIMER_HUD.title", "Timer Sesi"),
+                e("module.SESSION_TIMER_HUD.description", "Menampilkan lama waktu sesi di dunia saat ini."),
+                e("module.FOOD_HUD.title", "HUD Makanan"),
+                e("module.FOOD_HUD.description", "Menampilkan tingkat lapar dan saturasi saat ini."),
+                e("module.AIR_HUD.title", "HUD Udara"),
+                e("module.AIR_HUD.description", "Menampilkan sisa pasokan udara."),
+                e("module.EXPERIENCE_HUD.title", "HUD Pengalaman"),
+                e("module.EXPERIENCE_HUD.description", "Menampilkan level pengalaman dan progres."),
+                e("module.ITEM_INFO_HUD.title", "Info Item"),
+                e("module.ITEM_INFO_HUD.description", "Menampilkan nama item tangan utama, jumlah, dan daya tahan."),
+                e("module.OFFHAND_HUD.title", "Info Offhand"),
+                e("module.OFFHAND_HUD.description", "Menampilkan item dan jumlah di tangan kedua."),
+                e("module.BLOCK_INFO_HUD.title", "Info Blok"),
+                e("module.BLOCK_INFO_HUD.description", "Menampilkan blok yang ditargetkan dan koordinatnya."),
+                e("module.ARMOR_DETAIL_HUD.title", "Detail Armor"),
+                e("module.ARMOR_DETAIL_HUD.description", "Menampilkan bagian armor yang dipakai dan sisa daya tahannya."),
+                e("module.AUTO_HUNT.title", "Berburu Otomatis"),
+                e("module.AUTO_HUNT.description", "Menyerang mob agresif terdekat yang sudah dimuat tanpa menggerakkan kamera."),
+                e("module.AUTO_BRIDGE.title", "Jembatan Otomatis"),
+                e("module.AUTO_BRIDGE.description", "Menempatkan blok hotbar terpilih di bawah pemain saat bergerak."),
+                e("module.INFINITE_JUMP.title", "Lompat Berulang"),
+                e("module.INFINITE_JUMP.description", "Memungkinkan satu lompatan tambahan saat tombol lompat ditekan kembali di udara."),
+                e("module.JUMP_BOOST.title", "Peningkat Lompatan"),
+                e("module.JUMP_BOOST.description", "Mengatur pengali dorongan lompatan lokal."),
+                e("module.ITEM_ESP.title", "ESP Item"),
+                e("module.ITEM_ESP.description", "Memasukkan entitas item yang terjatuh ke filter sorotan Entity ESP."),
+                e("module.WAYPOINTS.title", "Titik Koordinat"),
+                e("module.WAYPOINTS.description", "Menampilkan koordinat tersimpan dan jarak; tekan V untuk menyimpan titik."),
+                e("module.MINIMAP.title", "Peta Mini"),
+                e("module.MINIMAP.description", "Menampilkan entitas sekitar yang sudah dimuat oleh klien."),
+                e("module.NIGHT_VISION.title", "Penglihatan Malam"),
+                e("module.NIGHT_VISION.description", "Meningkatkan visibilitas lokal melalui pengaturan gamma klien.")
+        ));
     }
 }

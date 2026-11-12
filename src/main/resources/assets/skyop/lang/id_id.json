@@ -1,6 +1,7 @@
 {
   "key.category.skyop.client": "Klien SkyOP",
   "key.skyop.open_gui": "Buka ClickGUI SkyOP",
+  "key.skyop.open_quick_panel": "Buka Panel Cepat SkyOP",
   "key.skyop.toggle_hud": "Aktif/nonaktif HUD",
   "key.skyop.toggle_autoclicker": "Aktif/nonaktif AutoClicker",
   "key.skyop.toggle_sprint": "Aktif/nonaktif Auto Sprint",
@@ -47,5 +48,11 @@
   "key.skyop.module.night_vision": "Penglihatan Malam",
   "key.skyop.module.fast_break": "Hancur Cepat",
   "key.skyop.module.auto_mlg": "MLG Otomatis",
-  "key.skyop.module.auto_totem": "Totem Otomatis"
+  "key.skyop.module.auto_totem": "Totem Otomatis",
+  "key.skyop.module.auto_walk": "Jalan Otomatis",
+  "key.skyop.module.zoom": "Zoom",
+  "key.skyop.module.container_finder": "Pencari Peti",
+  "key.skyop.module.auto_respawn": "Respawn Otomatis",
+  "key.skyop.module.low_health_alert": "Peringatan Health Rendah",
+  "key.skyop.module.armor_alert": "Peringatan Armor"
 }

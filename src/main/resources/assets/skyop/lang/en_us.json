@@ -1,6 +1,7 @@
 {
   "key.category.skyop.client": "SkyOP Client",
   "key.skyop.open_gui": "Open SkyOP ClickGUI",
+  "key.skyop.open_quick_panel": "Open SkyOP floating Quick Panel",
   "key.skyop.toggle_hud": "Toggle HUD",
   "key.skyop.toggle_autoclicker": "Toggle AutoClicker",
   "key.skyop.toggle_sprint": "Toggle Auto Sprint",
@@ -47,5 +48,11 @@
   "key.skyop.module.night_vision": "Night Vision",
   "key.skyop.module.fast_break": "Fast Break",
   "key.skyop.module.auto_mlg": "Auto MLG",
-  "key.skyop.module.auto_totem": "Auto Totem"
+  "key.skyop.module.auto_totem": "Auto Totem",
+  "key.skyop.module.auto_walk": "Auto Walk",
+  "key.skyop.module.zoom": "Zoom",
+  "key.skyop.module.container_finder": "Container Finder",
+  "key.skyop.module.auto_respawn": "Auto Respawn",
+  "key.skyop.module.low_health_alert": "Low Health Alert",
+  "key.skyop.module.armor_alert": "Armor Alert"
 }

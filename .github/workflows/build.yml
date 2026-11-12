@@ -48,6 +48,16 @@ jobs:
             exit 1
           fi
 
+          # Enforce the SkyOP 4.0.0 release identity in both filename and
+          # embedded Fabric metadata. This prevents an old version from
+          # being uploaded from the current feature branch.
+          EXPECTED_JAR="build/libs/skyop-client-4.0.0.jar"
+          if [[ "$JAR_PATH" != "$EXPECTED_JAR" ]]; then
+            echo "Expected $EXPECTED_JAR but produced $JAR_PATH." >&2
+            exit 1
+          fi
+          unzip -p "$JAR_PATH" fabric.mod.json | grep -Fq '"version": "4.0.0"'
+
           # Minecraft 26.3 SDL keyboard-state regression guard.
           grep -Fq 'SDL_SCANCODE_COUNT = 512' src/main/java/id/skyop/client/SkyOPSdlKeyboardIndex.java
           grep -Fq 'method = "isKeyDown(I)Z"' src/client/java/id/skyop/mixin/InputConstantsMixin.java
@@ -80,6 +90,37 @@ jobs:
           grep -Fq 'SkyOPModuleManager.initialize();' src/client/java/id/skyop/client/SkyOPCore.java
           grep -Fq 'SkyOPModuleManager.saveSettings(p);' src/client/java/id/skyop/client/SkyOPCore.java
           grep -Fq 'SkyOPModuleManager.loadSettings(p);' src/client/java/id/skyop/client/SkyOPCore.java
+          grep -Fq 'KEY_QUICK_PANEL = key("key.skyop.open_quick_panel", InputConstants.KEY_O)' src/client/java/id/skyop/client/SkyOPCore.java
+          grep -Fq 'new SkyOPFloatingPanel()' src/client/java/id/skyop/client/SkyOPCore.java
+          grep -Fq 'SkyOPTheme.normalize(p.getProperty("uiTheme"' src/client/java/id/skyop/client/SkyOPCore.java
+          grep -Fq 'SkyOPTheme.palette(SkyOPState.uiTheme)' src/client/java/id/skyop/client/SkyOPFloatingPanel.java
+          grep -Fq 'SkyOPCore.cycleUiTheme();' src/client/java/id/skyop/client/SkyOPClickGui.java
+          grep -Fq 'new SkyOPDiagnosticsScreen(this)' src/client/java/id/skyop/client/SkyOPClickGui.java
+          grep -Fq 'SkyOPModuleManager.activeCount()' src/client/java/id/skyop/client/SkyOPDiagnosticsScreen.java
+          grep -Fq 'SkyOPModuleManager.isActive(id)' src/client/java/id/skyop/client/SkyOPDiagnosticsScreen.java
+          # Utility modules must be registered, dispatched and use vanilla/client-visible state.
+          grep -Fq 'SkyOPModuleId.AUTO_WALK' src/client/java/id/skyop/client/SkyOPModuleManager.java
+          grep -Fq 'SkyOPModuleId.ZOOM' src/client/java/id/skyop/client/SkyOPModuleManager.java
+          grep -Fq 'SkyOPModuleId.CONTAINER_FINDER' src/client/java/id/skyop/client/SkyOPModuleManager.java
+          grep -Fq 'tickAutoRespawn(client);' src/client/java/id/skyop/client/SkyOPCore.java
+          grep -Fq 'client.player.respawn();' src/client/java/id/skyop/client/SkyOPPlayerModules.java
+          grep -Fq 'client.options.keyUp.setDown(true);' src/client/java/id/skyop/client/SkyOPMovementModules.java
+          grep -Fq 'client.options.fov().set' src/client/java/id/skyop/client/SkyOPVisualModules.java
+          grep -Fq 'client.level.hasChunkAt(position)' src/client/java/id/skyop/client/SkyOPVisualModules.java
+          grep -Fq 'SkyOPModuleId.LOW_HEALTH_ALERT' src/client/java/id/skyop/client/SkyOPModuleManager.java
+          grep -Fq 'SkyOPModuleId.ARMOR_ALERT' src/client/java/id/skyop/client/SkyOPModuleManager.java
+          grep -Fq 'number("zoomFov", 20, 10, 70, true)' src/client/java/id/skyop/client/SkyOPSettingsSchema.java
+          grep -Fq 'number("containerFinderRange", 16, 4, 24, true)' src/client/java/id/skyop/client/SkyOPSettingsSchema.java
+          grep -Fq 'number("lowHealthAlertThreshold", 8, 1, 20, true)' src/client/java/id/skyop/client/SkyOPSettingsSchema.java
+          grep -Fq 'number("armorAlertPercent", 15, 1, 50, true)' src/client/java/id/skyop/client/SkyOPSettingsSchema.java
+          grep -Fq '"key.skyop.module.auto_walk"' src/main/resources/assets/skyop/lang/id_id.json
+          grep -Fq '"key.skyop.module.container_finder"' src/main/resources/assets/skyop/lang/en_us.json
+          grep -Fq 'validatesNewUtilityModuleSettings' src/test/java/id/skyop/client/SkyOPSettingsSchemaTest.java
+          grep -Fq 'SkyOPPlayerModules.cleanup();' src/client/java/id/skyop/client/SkyOPModuleManager.java
+          test -s src/client/java/id/skyop/client/SkyOPDiagnosticsScreen.java
+          test -s src/main/java/id/skyop/client/SkyOPTheme.java
+          test -s src/test/java/id/skyop/client/SkyOPThemeTest.java
+          test -s src/client/java/id/skyop/client/SkyOPFloatingPanel.java
           test -s src/main/resources/assets/skyop/lang/id_id.json
           grep -Fq '"key.skyop.module.auto_hunt"' src/main/resources/assets/skyop/lang/id_id.json
           grep -Fq '"key.skyop.module.fast_break"' src/main/resources/assets/skyop/lang/en_us.json
@@ -132,6 +173,12 @@ jobs:
           printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPPlayerModules\$FastBreak.class$'
           printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPAutomationRules.class$'
           printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPMovementModules\$AutoMlg.class$'
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPMovementModules\$AutoWalk.class$'
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPVisualModules\$Zoom.class$'
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPVisualModules\$ContainerFinder.class$'
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPPlayerModules\$AutoRespawn.class$'
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPPlayerModules\$LowHealthAlert.class$'
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPPlayerModules\$ArmorAlert.class$'
           printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPInventoryModules\$AutoTotem.class$'
           if printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPFishingHookAccessor.class$'; then
             echo 'Mixin accessor must not remain in the client entrypoint package.' >&2

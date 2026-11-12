@@ -17,9 +17,12 @@ package id.skyop.client;
         INFINITE_JUMP("Infinite Jump", "Allows another jump after leaving the ground when jump is pressed again.", SkyOPCategory.MOVEMENT),
         JUMP_BOOST("Jump Boost", "Adjusts the local jump impulse multiplier.", SkyOPCategory.MOVEMENT),
         AUTO_MLG("Auto MLG", "Attempts a normal water-bucket placement when falling toward a valid block.", SkyOPCategory.MOVEMENT),
+        AUTO_WALK("Auto Walk", "Holds the normal forward movement input while enabled.", SkyOPCategory.MOVEMENT),
 
         ENTITY_ESP("Entity ESP", "Highlights nearby loaded living entities and dropped items.", SkyOPCategory.VISUAL),
         ITEM_ESP("Item ESP", "Includes dropped item entities in the Entity ESP highlight filter.", SkyOPCategory.VISUAL),
+        ZOOM("Zoom", "Temporarily narrows the client field of view using the configured FOV.", SkyOPCategory.VISUAL),
+        CONTAINER_FINDER("Container Finder", "Lists chests, barrels and ender chests in client-loaded nearby chunks.", SkyOPCategory.VISUAL),
         WAYPOINTS("Waypoints", "Displays saved coordinates and distances; press V to save a waypoint.", SkyOPCategory.VISUAL),
         MINIMAP("Mini Map", "Shows nearby entities already loaded by the client.", SkyOPCategory.VISUAL),
         GAMMA_BOOST("Gamma Boost", "Sets vanilla gamma to its maximum normal value.", SkyOPCategory.VISUAL),
@@ -39,7 +42,23 @@ package id.skyop.client;
         RADAR_HUD("Nearby Entity Radar", "Lists nearby entities already loaded by the client.", SkyOPCategory.VISUAL),
         TEXT_GUI("Text GUI", "Displays a configurable custom HUD message.", SkyOPCategory.VISUAL),
 
+        WORLD_INFO_HUD("World Info HUD", "Displays dimension, biome and current weather.", SkyOPCategory.WORLD),
+        CHUNK_INFO_HUD("Chunk Info HUD", "Displays chunk coordinates and local block coordinates.", SkyOPCategory.WORLD),
+        PERFORMANCE_HUD("Performance HUD", "Displays live FPS and JVM memory use.", SkyOPCategory.WORLD),
+        SESSION_TIMER_HUD("Session Timer", "Displays elapsed time in the current world session.", SkyOPCategory.WORLD),
+
+        FOOD_HUD("Food HUD", "Displays current hunger and saturation.", SkyOPCategory.PLAYER),
+        AIR_HUD("Air HUD", "Displays remaining air supply.", SkyOPCategory.PLAYER),
+        EXPERIENCE_HUD("Experience HUD", "Displays experience level and progress.", SkyOPCategory.PLAYER),
+        ITEM_INFO_HUD("Item Info HUD", "Displays main-hand item name, count and durability.", SkyOPCategory.VISUAL),
+        OFFHAND_HUD("Offhand HUD", "Displays the currently held offhand item and count.", SkyOPCategory.VISUAL),
+        BLOCK_INFO_HUD("Block Info HUD", "Displays the block under the crosshair and its coordinates.", SkyOPCategory.VISUAL),
+        ARMOR_DETAIL_HUD("Armor Detail HUD", "Displays equipped armor pieces and remaining durability.", SkyOPCategory.VISUAL),
+
         NO_FALL("NoFall", "Clears the local fall-distance accumulator.", SkyOPCategory.PLAYER),
+        AUTO_RESPAWN("Auto Respawn", "Sends the normal respawn request after death; the server controls acceptance.", SkyOPCategory.PLAYER),
+        LOW_HEALTH_ALERT("Low Health Alert", "Notifies when player health crosses the configured low-health threshold.", SkyOPCategory.PLAYER),
+        ARMOR_ALERT("Armor Alert", "Notifies when equipped armor durability falls below the configured percentage.", SkyOPCategory.PLAYER),
         FAST_BREAK("Fast Break", "Boosts local block-breaking speed with a configurable Haste I–VII equivalent.", SkyOPCategory.PLAYER),
 
         AUTO_EAT("Auto Eat", "Uses safe food from your hotbar when hunger is low.", SkyOPCategory.INVENTORY),
@@ -65,6 +84,18 @@ package id.skyop.client;
         public String title() { return SkyOPLanguage.moduleTitle(name(), title); }
         public String description() { return SkyOPLanguage.moduleDescription(name(), description); }
         public SkyOPCategory category() { return category; }
+
+        /** Marks automated or movement/combat-altering modules that can violate server rules. */
+        public boolean isDangerous() {
+            return switch (this) {
+                case KILL_AURA, TRIGGER_BOT, AUTO_CLICKER, AUTO_HUNT,
+                     SPEED, FLIGHT, STEP_ASSIST, SPIDER, AUTO_BRIDGE, INFINITE_JUMP,
+                     JUMP_BOOST, AUTO_MLG, NO_FALL, FAST_BREAK,
+                     AUTO_EAT, AUTO_ARMOR, AUTO_TOTEM, AUTO_TOOL, AUTO_REFILL, AUTO_FISH,
+                     INVENTORY_CLEANER -> true;
+                default -> false;
+            };
+        }
     }
 
 

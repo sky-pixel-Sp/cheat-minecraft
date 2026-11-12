@@ -20,7 +20,7 @@ public final class SkyOPSettingsSchema {
 
     static {
         number("auraRange", 4.2, 2.5, 6.0, false);
-        number("auraFov", 110, 30, 180, true);
+        number("auraFov", 360, 1, 360, true);
         number("auraRotationSpeed", 0.42, 0.10, 1.0, false);
         number("auraDelayTicks", 8, 1, 20, true);
         number("triggerDelayTicks", 3, 1, 12, true);
@@ -38,6 +38,10 @@ public final class SkyOPSettingsSchema {
         number("autoMlgFallDistance", 6, 3, 18, false);
         number("autoTotemHealth", 14, 1, 20, false);
         number("bridgeDelayTicks", 2, 1, 10, true);
+        number("zoomFov", 20, 10, 70, true);
+        number("containerFinderRange", 16, 4, 24, true);
+        number("lowHealthAlertThreshold", 8, 1, 20, true);
+        number("armorAlertPercent", 15, 1, 50, true);
     }
 
     private SkyOPSettingsSchema() { }

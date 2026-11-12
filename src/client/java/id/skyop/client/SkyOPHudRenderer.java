@@ -15,7 +15,13 @@ import java.util.List;
 
 /** Renders the HUD modules independently from the client initializer. */
 public final class SkyOPHudRenderer {
+    private static long sessionStartedAtMillis = System.currentTimeMillis();
+
     private SkyOPHudRenderer() { }
+
+    public static void resetSessionTimer() {
+        sessionStartedAtMillis = System.currentTimeMillis();
+    }
 
 
 
@@ -26,16 +32,16 @@ public final class SkyOPHudRenderer {
         int screenHeight = client.getWindow().getGuiScaledHeight();
 
         if (SkyOPCore.isEnabled(SkyOPModuleId.HUD)) {
-            int width = 184, lineHeight = 12;
+            int width = 190, lineHeight = 12;
             int activeCount = 0;
             for (SkyOPModuleId module : SkyOPModuleId.values()) {
                 if (module != SkyOPModuleId.HUD && SkyOPCore.isEnabled(module)) activeCount++;
             }
             int height = 44 + activeCount * lineHeight;
             int fullHeight = height + 26;
-            int x = SkyOPCore.hudXFor(SkyOPModuleId.HUD, SkyOPState.hudX, screenWidth, 190);
+            int x = SkyOPCore.hudXFor(SkyOPModuleId.HUD, SkyOPState.hudX, screenWidth, width);
             int y = SkyOPCore.hudYFor(SkyOPModuleId.HUD, SkyOPState.hudY, screenHeight, fullHeight);
-            graphics.fill(x, y, x + width, y + height, 0xC5101726);
+            graphics.fill(x, y, x + width, y + fullHeight, 0xC5101726);
             graphics.fill(x, y, x + width, y + 2, SkyOPState.hudAccentColor);
             graphics.text(client.font, Component.literal("SKYOP  /  CLIENT"), x + 10, y + 8, SkyOPState.hudAccentColor, true);
             graphics.text(client.font, Component.literal("26.3  •  " + activeCount + " " + SkyOPLanguage.text("gui.active")),
@@ -103,9 +109,11 @@ public final class SkyOPHudRenderer {
         }
 
         if (SkyOPCore.isEnabled(SkyOPModuleId.POTION_HUD)) {
+            int visibleEffects = Math.min(7, client.player.getActiveEffects().size());
+            int panelHeight = 8 + visibleEffects * 11;
             int x = SkyOPCore.hudXFor(SkyOPModuleId.POTION_HUD, screenWidth - 198, screenWidth, 190);
-            int y = SkyOPCore.hudYFor(SkyOPModuleId.POTION_HUD, 76, screenHeight, 96);
-            graphics.fill(x, y, x + 190, y + 8 + client.player.getActiveEffects().size() * 11, 0xC5101726);
+            int y = SkyOPCore.hudYFor(SkyOPModuleId.POTION_HUD, 76, screenHeight, panelHeight);
+            graphics.fill(x, y, x + 190, y + panelHeight, 0xC5101726);
             graphics.text(client.font, Component.literal("EFFECTS"), x + 8, y + 4, SkyOPState.hudAccentColor, true);
             int row = 0;
             for (var effect : client.player.getActiveEffects()) {
@@ -132,13 +140,28 @@ public final class SkyOPHudRenderer {
             }
         }
 
-        if (SkyOPCore.isEnabled(SkyOPModuleId.COMPASS_HUD) || SkyOPCore.isEnabled(SkyOPModuleId.DIRECTION_HUD)) {
-            int x = SkyOPCore.hudXFor(SkyOPModuleId.COMPASS_HUD, screenWidth / 2 - 48, screenWidth, 96);
+        if (SkyOPCore.isEnabled(SkyOPModuleId.COMPASS_HUD)) {
+            int widgetWidth = 104;
+            int x = SkyOPCore.hudXFor(SkyOPModuleId.COMPASS_HUD, screenWidth / 2 - 52, screenWidth, widgetWidth);
             int y = SkyOPCore.hudYFor(SkyOPModuleId.COMPASS_HUD, 8, screenHeight, 23);
             String direction = SkyOPMath.compassDirection(client.player.getYRot());
-            graphics.fill(x, y, x + 96, y + 23, 0xC5101726);
+            graphics.fill(x, y, x + widgetWidth, y + 23, 0xC5101726);
+            graphics.fill(x, y, x + widgetWidth, y + 2, SkyOPState.hudAccentColor);
             graphics.text(client.font, Component.literal(direction + "  " + Math.round(client.player.getYRot()) + "°"),
                     x + 8, y + 8, SkyOPState.hudAccentColor, true);
+        }
+
+        if (SkyOPCore.isEnabled(SkyOPModuleId.DIRECTION_HUD)) {
+            int widgetWidth = 164;
+            int x = SkyOPCore.hudXFor(SkyOPModuleId.DIRECTION_HUD, screenWidth / 2 - 82, screenWidth, widgetWidth);
+            int y = SkyOPCore.hudYFor(SkyOPModuleId.DIRECTION_HUD, 36, screenHeight, 24);
+            String direction = SkyOPMath.compassDirection(client.player.getYRot());
+            String coordinates = "X " + client.player.blockPosition().getX()
+                    + "  Z " + client.player.blockPosition().getZ();
+            graphics.fill(x, y, x + widgetWidth, y + 24, 0xC5101726);
+            graphics.fill(x, y, x + widgetWidth, y + 2, SkyOPState.hudAccentColor);
+            graphics.text(client.font, Component.literal(direction + "  •  " + coordinates),
+                    x + 8, y + 9, 0xFFF1F6FB, true);
         }
 
         if (SkyOPCore.isEnabled(SkyOPModuleId.PING_HUD)) {
@@ -247,6 +270,148 @@ public final class SkyOPHudRenderer {
             graphics.fill(x, y, x + 96, y + 2, SkyOPState.hudAccentColor);
             graphics.text(client.font, Component.literal("CPS  " + SkyOPState.currentCps),
                     x + 10, y + 9, 0xFFF1F6FB, true);
+        }
+
+        if (SkyOPCore.isEnabled(SkyOPModuleId.WORLD_INFO_HUD)) {
+            var position = client.player.blockPosition();
+            String dimension = client.level.dimension().toString();
+            String biome = client.level.getBiome(position).unwrapKey()
+                    .map(key -> key.toString()).orElse("unknown");
+            String weather = client.level.isThundering() ? "Storm"
+                    : client.level.isRaining() ? "Rain" : "Clear";
+            int x = SkyOPCore.hudXFor(SkyOPModuleId.WORLD_INFO_HUD, 8, screenWidth, 220);
+            int y = SkyOPCore.hudYFor(SkyOPModuleId.WORLD_INFO_HUD, 112, screenHeight, 40);
+            drawInfoPanel(client, graphics, x, y, 220, "WORLD INTEL",
+                    List.of(trimText(dimension, 30), trimText(biome, 30), "Weather: " + weather));
+        }
+
+        if (SkyOPCore.isEnabled(SkyOPModuleId.CHUNK_INFO_HUD)) {
+            var position = client.player.blockPosition();
+            int chunkX = Math.floorDiv(position.getX(), 16);
+            int chunkZ = Math.floorDiv(position.getZ(), 16);
+            int localX = Math.floorMod(position.getX(), 16);
+            int localZ = Math.floorMod(position.getZ(), 16);
+            int x = SkyOPCore.hudXFor(SkyOPModuleId.CHUNK_INFO_HUD, 8, screenWidth, 184);
+            int y = SkyOPCore.hudYFor(SkyOPModuleId.CHUNK_INFO_HUD, 166, screenHeight, 40);
+            drawInfoPanel(client, graphics, x, y, 184, "CHUNK DATA",
+                    List.of("Chunk " + chunkX + " / " + chunkZ,
+                            "Local " + localX + " / " + position.getY() + " / " + localZ));
+        }
+
+        if (SkyOPCore.isEnabled(SkyOPModuleId.PERFORMANCE_HUD)) {
+            Runtime runtime = Runtime.getRuntime();
+            long usedMb = (runtime.totalMemory() - runtime.freeMemory()) / (1024L * 1024L);
+            long maxMb = runtime.maxMemory() / (1024L * 1024L);
+            int percent = maxMb <= 0 ? 0 : (int) Math.min(100L, usedMb * 100L / maxMb);
+            int x = SkyOPCore.hudXFor(SkyOPModuleId.PERFORMANCE_HUD, screenWidth - 158, screenWidth, 150);
+            int y = SkyOPCore.hudYFor(SkyOPModuleId.PERFORMANCE_HUD, 62, screenHeight, 42);
+            drawInfoPanel(client, graphics, x, y, 150, "PERFORMANCE",
+                    List.of(client.getFps() + " FPS", usedMb + " / " + maxMb + " MB  •  " + percent + "%"));
+        }
+
+        if (SkyOPCore.isEnabled(SkyOPModuleId.SESSION_TIMER_HUD)) {
+            long elapsed = Math.max(0L, (System.currentTimeMillis() - sessionStartedAtMillis) / 1000L);
+            long hours = elapsed / 3600L;
+            long minutes = (elapsed % 3600L) / 60L;
+            long seconds = elapsed % 60L;
+            int x = SkyOPCore.hudXFor(SkyOPModuleId.SESSION_TIMER_HUD, screenWidth / 2 - 75, screenWidth, 150);
+            int y = SkyOPCore.hudYFor(SkyOPModuleId.SESSION_TIMER_HUD, screenHeight - 114, screenHeight, 29);
+            drawInfoPanel(client, graphics, x, y, 150, "WORLD SESSION",
+                    List.of(String.format(java.util.Locale.ROOT, "%02d:%02d:%02d", hours, minutes, seconds)));
+        }
+
+        if (SkyOPCore.isEnabled(SkyOPModuleId.FOOD_HUD)) {
+            var food = client.player.getFoodData();
+            int x = SkyOPCore.hudXFor(SkyOPModuleId.FOOD_HUD, 8, screenWidth, 140);
+            int y = SkyOPCore.hudYFor(SkyOPModuleId.FOOD_HUD, screenHeight - 82, screenHeight, 29);
+            drawInfoPanel(client, graphics, x, y, 140, "FOOD",
+                    List.of("Hunger " + food.getFoodLevel() + "/20  •  Sat "
+                            + String.format(java.util.Locale.ROOT, "%.1f", food.getSaturationLevel())));
+        }
+
+        if (SkyOPCore.isEnabled(SkyOPModuleId.AIR_HUD)) {
+            int air = Math.max(0, client.player.getAirSupply());
+            int maxAir = Math.max(1, client.player.getMaxAirSupply());
+            int x = SkyOPCore.hudXFor(SkyOPModuleId.AIR_HUD, 8, screenWidth, 140);
+            int y = SkyOPCore.hudYFor(SkyOPModuleId.AIR_HUD, screenHeight - 48, screenHeight, 29);
+            drawInfoPanel(client, graphics, x, y, 140, "AIR SUPPLY",
+                    List.of(air + " / " + maxAir + " ticks"));
+        }
+
+        if (SkyOPCore.isEnabled(SkyOPModuleId.EXPERIENCE_HUD)) {
+            int percent = Math.max(0, Math.min(100, Math.round(client.player.experienceProgress * 100.0F)));
+            int x = SkyOPCore.hudXFor(SkyOPModuleId.EXPERIENCE_HUD, screenWidth / 2 - 75, screenWidth, 150);
+            int y = SkyOPCore.hudYFor(SkyOPModuleId.EXPERIENCE_HUD, screenHeight - 150, screenHeight, 29);
+            drawInfoPanel(client, graphics, x, y, 150, "EXPERIENCE",
+                    List.of("Level " + client.player.experienceLevel + "  •  " + percent + "%"));
+        }
+
+        if (SkyOPCore.isEnabled(SkyOPModuleId.ITEM_INFO_HUD)) {
+            var stack = client.player.getMainHandItem();
+            String name = stack.isEmpty() ? "Empty" : trimText(stack.getHoverName().getString(), 25);
+            String durability = stack.isDamageableItem()
+                    ? Math.max(0, stack.getMaxDamage() - stack.getDamageValue()) + " / " + stack.getMaxDamage()
+                    : "Not damageable";
+            int x = SkyOPCore.hudXFor(SkyOPModuleId.ITEM_INFO_HUD, screenWidth / 2 - 110, screenWidth, 204);
+            int y = SkyOPCore.hudYFor(SkyOPModuleId.ITEM_INFO_HUD, screenHeight - 112, screenHeight, 40);
+            drawInfoPanel(client, graphics, x, y, 204, "MAIN HAND",
+                    List.of(name + (stack.isEmpty() ? "" : "  x" + stack.getCount()), "Durability: " + durability));
+        }
+
+        if (SkyOPCore.isEnabled(SkyOPModuleId.OFFHAND_HUD)) {
+            var stack = client.player.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.OFFHAND);
+            String name = stack.isEmpty() ? "Empty" : trimText(stack.getHoverName().getString(), 22);
+            int x = SkyOPCore.hudXFor(SkyOPModuleId.OFFHAND_HUD, screenWidth - 190, screenWidth, 182);
+            int y = SkyOPCore.hudYFor(SkyOPModuleId.OFFHAND_HUD, 190, screenHeight, 29);
+            drawInfoPanel(client, graphics, x, y, 182, "OFFHAND",
+                    List.of(name + (stack.isEmpty() ? "" : "  x" + stack.getCount())));
+        }
+
+        if (SkyOPCore.isEnabled(SkyOPModuleId.BLOCK_INFO_HUD)) {
+            String blockName = "No block targeted";
+            String coordinates = "Aim at a block to inspect";
+            if (client.hitResult instanceof net.minecraft.world.phys.BlockHitResult blockHit) {
+                var position = blockHit.getBlockPos();
+                blockName = trimText(client.level.getBlockState(position).getBlock().getName().getString(), 28);
+                coordinates = position.getX() + " / " + position.getY() + " / " + position.getZ();
+            }
+            int x = SkyOPCore.hudXFor(SkyOPModuleId.BLOCK_INFO_HUD, screenWidth - 232, screenWidth, 224);
+            int y = SkyOPCore.hudYFor(SkyOPModuleId.BLOCK_INFO_HUD, 112, screenHeight, 40);
+            drawInfoPanel(client, graphics, x, y, 224, "CROSSHAIR BLOCK",
+                    List.of(blockName, coordinates));
+        }
+
+        if (SkyOPCore.isEnabled(SkyOPModuleId.ARMOR_DETAIL_HUD)) {
+            var head = client.player.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD);
+            var chest = client.player.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.CHEST);
+            var legs = client.player.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.LEGS);
+            var feet = client.player.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.FEET);
+            int x = SkyOPCore.hudXFor(SkyOPModuleId.ARMOR_DETAIL_HUD, screenWidth - 218, screenWidth, 210);
+            int y = SkyOPCore.hudYFor(SkyOPModuleId.ARMOR_DETAIL_HUD, screenHeight - 144, screenHeight, 62);
+            drawInfoPanel(client, graphics, x, y, 210, "ARMOR DETAIL",
+                    List.of("HEAD  " + armorStatus(head), "CHEST  " + armorStatus(chest),
+                            "LEGS  " + armorStatus(legs), "FEET  " + armorStatus(feet)));
+        }
+    }
+
+    private static String armorStatus(net.minecraft.world.item.ItemStack stack) {
+        if (stack.isEmpty()) return "Empty";
+        if (!stack.isDamageableItem()) return trimText(stack.getHoverName().getString(), 16);
+        int remaining = Math.max(0, stack.getMaxDamage() - stack.getDamageValue());
+        int percent = (int) Math.round(remaining * 100.0 / Math.max(1, stack.getMaxDamage()));
+        return percent + "%";
+    }
+
+    private static void drawInfoPanel(Minecraft client, GuiGraphicsExtractor graphics,
+                                      int x, int y, int width, String heading, List<String> lines) {
+        int height = 18 + lines.size() * 11;
+        graphics.fill(x, y, x + width, y + height, 0xD5101726);
+        graphics.fill(x, y, x + width, y + 2, SkyOPState.hudAccentColor);
+        graphics.text(client.font, Component.literal(heading), x + 7, y + 5,
+                SkyOPState.hudAccentColor, true);
+        for (int index = 0; index < lines.size(); index++) {
+            graphics.text(client.font, Component.literal(trimText(lines.get(index), Math.max(8, (width - 14) / 6))),
+                    x + 7, y + 17 + index * 11, 0xFFF1F6FB, false);
         }
     }
 

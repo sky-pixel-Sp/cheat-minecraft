@@ -37,9 +37,10 @@ public final class SkyOPState {
     public static boolean targetPlayers = false;
     public static boolean targetMobs = true;
     public static boolean auraRotate = true;
-    public static boolean auraRequireLineOfSight = true;
+    // OFF scans already-loaded entities behind blocks; it does not bypass server checks.
+    public static boolean auraRequireLineOfSight = false;
     public static boolean auraTargetLowestHealth = false;
-    public static double auraFov = 110.0;
+    public static double auraFov = 360.0;
     public static double auraRotationSpeed = 0.42;
     public static double auraRange = 4.2;
     public static int auraDelayTicks = 8;
@@ -59,12 +60,19 @@ public final class SkyOPState {
     public static double autoMlgFallDistance = 6.0;
     public static double autoTotemHealth = 14.0;
     public static int bridgeDelayTicks = 2;
+    public static int zoomFov = 20;
+    public static int containerFinderRange = 16;
+    public static int lowHealthAlertThreshold = 8;
+    public static int armorAlertPercent = 15;
     public static int autoEatThreshold = 14;
     public static int autoRefillThreshold = 2;
     public static int hudX = 8;
     public static int hudY = 8;
     public static int hudAccentColor = 0xFF61C7F2;
     public static String customHudText = "SkyOP Client • Have a great game!";
+    public static String uiTheme = "CYAN";
+    public static int quickPanelX = -1;
+    public static int quickPanelY = -1;
 
     static final int[] HUD_PALETTE = {
             0xFF61C7F2, 0xFF8B7CFF, 0xFFFFB45B, 0xFF57D69A, 0xFFFF7885, 0xFFF1F6FB

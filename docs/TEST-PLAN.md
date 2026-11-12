@@ -1,4 +1,4 @@
-# SkyOP Client 2.3.0 development test plan
+# SkyOP Client 4.0.0 development test plan
 
 ## Automated CI checks
 
@@ -27,11 +27,13 @@ A green CI result proves compilation and packaging. It does not prove an in-game
 3. Select English from the in-client language control; verify categories, module titles/descriptions, setting labels, keybind labels, profile/hotbar controls and HUD hints change.
 4. Change language while ClickGUI remains open; verify setting titles and descriptions update without reopening the screen.
 5. Restart Minecraft; verify the chosen `language=id` or `language=en` setting is persisted.
+6. Verify every registered module has a non-empty Indonesian title and description; the automated `SkyOPLanguageTest` enforces translation-key coverage for all module IDs.
 
 ## ClickGUI and core
 
 1. Press Right Shift and verify the GUI opens.
-2. Verify Combat, Movement, Visual, Player, Inventory and Favorites categories.
+2. Verify Combat, Movement, Visual, World, Player, Inventory, Favorites, Safe and Dangerous categories.
+3. Verify Safe and Dangerous are filters over registered modules and each module inspector shows the correct risk label.
 3. Search by a module name and a description term.
 4. Add/remove Favorites using the star; verify the Favorites category updates.
 5. Scroll the module panel and the settings panel independently.
@@ -211,3 +213,66 @@ These checks are required in a disposable singleplayer world and a private test 
 3. Disable Fast Break and confirm vanilla mining speed is restored in both local and integrated-server paths.
 
 Record Minecraft 26.3, Fabric Loader/API versions, GUI scale, client log, server log, and a short video for each check. Do not mark any item as game-tested until evidence is captured.
+
+
+## Premium UI, theme and HUD regression checks
+
+1. Open ClickGUI with Right Shift, open the HUD color popover, and cycle all six UI themes. Verify panel, hover, text and accent colors change while the separate HUD accent swatch remains unchanged.
+2. Select a theme, close Minecraft, relaunch and verify the theme is restored from `uiTheme`.
+3. Press **O** while in a world. Verify the floating Quick Panel opens without pausing the world and shows Auto Totem, Auto MLG, Fast Break, Auto Sprint, Entity ESP and Auto Eat.
+4. Toggle each Quick Panel tile and verify the matching module registry state and ClickGUI state update together.
+5. Drag the Quick Panel title bar to all four screen corners, release, close and reopen it. Verify the panel remains inside the viewport and its location persists after restart.
+6. Enable Compass HUD and Direction HUD together. Verify both widgets render independently, Direction displays block X/Z coordinates, and moving either widget in HUD Edit does not move the other.
+7. Enable several modules so the main HUD lists multiple rows. Verify the coordinates and FPS footer are inside the HUD background and the complete widget remains within the screen.
+8. Apply more than seven potion effects. Verify the Potion HUD renders at most seven rows and its backdrop remains sized to the visible content.
+9. At GUI widths below 20 units and at GUI scale 4, verify module descriptions/tooltips do not throw substring/index exceptions.
+10. Click the padding left of the first Multi-setting chip; verify no option changes. Click each chip itself and verify selection still toggles correctly.
+11. Open the color popover and click outside it. Verify the popover closes and the selected underlying control receives the new click normally.
+
+## Utility module pack — singleplayer and multiplayer
+
+Run all tests first in a disposable singleplayer world, then on a private multiplayer server where the operator has authorized client utility testing. Client-side state must be restored when a module is disabled, when a GUI opens, on respawn, and on world disconnect.
+
+1. **Auto Walk:** enable while in a world and verify the normal forward input is held. Open inventory/ClickGUI and verify input is released. Disable the module and verify forward input returns to the physical keyboard state after the next input poll. Check that a mounted, dead or spectator player is not forced to walk.
+2. **Zoom:** record the user's configured FOV, enable Zoom, verify the configured FOV (10–70) is applied, then disable and verify the original FOV is restored. Repeat after dimension change, disconnect and reconnect.
+3. **Container Finder:** place a chest, trapped chest, barrel and ender chest within configured range. Verify only containers in chunks already loaded by the client are listed, sorted by distance, with their coordinates. Walk across a chunk boundary and verify the list refreshes; disable and verify the overlay clears. Do not interpret absent markers as evidence that unloaded or hidden chunks contain no containers.
+4. **Auto Respawn:** enable, die in a disposable world and verify the client issues the normal vanilla respawn request. Repeat on the private server and record whether its rules accept the request. Confirm this module does not bypass death timers, permissions or server restrictions.
+5. **Low Health Alert:** configure a threshold, cross below it and verify one notification per low-health interval. Heal above the threshold and repeat; verify the next crossing generates a new notification. Confirm no repeated chat spam while remaining below threshold.
+6. **Armor Alert:** equip damageable armor and reduce durability below the configured threshold. Verify one notification while any equipped piece remains below threshold, recovery/replacement resets the alert, and empty/non-damageable slots are ignored.
+7. Verify all four new numeric settings reject NaN/infinite values and clamp out-of-range values through SkyOPSettingsSchemaTest.
+8. Switch between singleplayer and multiplayer while the new modules are enabled. Verify Zoom, Auto Walk and Container Finder restore/clear their client-side state on world change. Verify server-authoritative actions may be denied and do not cause the mod to claim success or bypass the server.
+
+CI passing does not replace these in-game checks. Record Minecraft/Fabric versions, GUI scale, server type, latest.log, and a short capture for each module.
+
+## Quick Panel
+
+1. Press O while in a world; verify the panel opens without pausing the game.
+2. Toggle each visible quick module and verify its status changes.
+3. Resize the scaled GUI viewport; verify the panel and card grid stay inside the screen and the visible module count adapts.
+4. Click the theme control; verify the UI theme cycles and persists.
+5. Click Full GUI; verify the full ClickGUI opens.
+6. Click Disable All; verify every module is disabled and temporary flight, zoom, gamma, item-use and movement state is restored.
+7. Drag the title bar, release, reopen and verify the panel position persists.
+
+## SkyOP 4.0 expansion checks
+
+1. Set KillAura field of view to 360 degrees. In a controlled local test world, confirm the target selector can choose loaded entities in front, behind, above and below within configured range.
+2. Disable the line-of-sight requirement and confirm the client scanner retains loaded entities behind blocks. Do not treat this as proof that a multiplayer server will accept attacks through blocks.
+3. Toggle World Info HUD; verify dimension, biome and current weather update with the world. This widget does not display a world-clock value.
+4. Toggle Chunk Info HUD; walk across chunk boundaries and confirm chunk and local block coordinates update.
+5. Toggle Performance HUD; verify FPS and JVM heap values update without a placeholder/static value.
+6. Toggle Session Timer; confirm elapsed time increments and resets on world/player context change.
+7. Open HUD Edit and drag each new widget; close/reopen the GUI and confirm saved positions persist.
+8. Check compact category navigation at 320x200 and 480x270; all nine category/filter rows must be visible and non-overlapping.
+9. Review the risk label on each module. Dangerous is a warning, not a compatibility guarantee or permission to violate server rules.
+
+## Additional player/item HUD verification
+
+1. Food HUD: change hunger and saturation by eating/sprinting; verify both values update.
+2. Air HUD: submerge and surface; verify current air ticks decrease and recover.
+3. Experience HUD: collect XP and level up; verify level and percentage update.
+4. Item Info HUD: select an empty hand, stackable item and damageable tool; verify name, count and durability.
+5. Offhand HUD: swap an item and a totem/shield into offhand; verify name and count.
+6. Block Info HUD: aim at different blocks and air; verify block name/coordinates and no-block state.
+7. Armor Detail HUD: equip and remove armor pieces, then take durability damage; verify all four slots and percentages.
+8. Drag all seven widgets in HUD Edit and reopen the GUI to verify their saved positions.
