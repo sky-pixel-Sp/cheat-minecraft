@@ -55,6 +55,16 @@ public final class SkyOPModuleManager {
         return MODULES.get(module);
     }
 
+    /** True when the module lifecycle has actually entered its enabled state. */
+    public static boolean isActive(SkyOPModuleId module) {
+        return module != null && ACTIVE.contains(module);
+    }
+
+    /** Number of modules whose enable lifecycle is currently active. */
+    public static int activeCount() {
+        return ACTIVE.size();
+    }
+
     public static List<SkyOPSetting<?>> settings(SkyOPModuleId module) {
         SkyOPModule runtime = MODULES.get(module);
         return runtime == null ? List.of() : runtime.settings();
