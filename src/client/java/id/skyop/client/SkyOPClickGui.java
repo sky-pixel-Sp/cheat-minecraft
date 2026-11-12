@@ -78,12 +78,7 @@ public final class SkyOPClickGui extends Screen {
 
     private void selectFirstModule() {
         for (SkyOPModuleId module : SkyOPModuleId.values()) {
-            boolean included = switch (selectedCategory) {
-                case FAVORITES -> SkyOPCore.isFavorite(module);
-                case SAFE -> !module.isDangerous();
-                case DANGEROUS -> module.isDangerous();
-                default -> module.category() == selectedCategory;
-            };
+            boolean included = selectedCategory.includes(module, SkyOPCore.isFavorite(module));
             if (included) {
                 selectedModule = module;
                 return;
@@ -547,12 +542,7 @@ public final class SkyOPClickGui extends Screen {
         List<SkyOPModuleId> modules = new ArrayList<>();
         String query = searchQuery.toLowerCase(java.util.Locale.ROOT);
         for (SkyOPModuleId module : SkyOPModuleId.values()) {
-            boolean inCategory = switch (selectedCategory) {
-                case FAVORITES -> SkyOPCore.isFavorite(module);
-                case SAFE -> !module.isDangerous();
-                case DANGEROUS -> module.isDangerous();
-                default -> module.category() == selectedCategory;
-            };
+            boolean inCategory = selectedCategory.includes(module, SkyOPCore.isFavorite(module));
             boolean matches = query.isEmpty()
                     || module.title().toLowerCase(java.util.Locale.ROOT).contains(query)
                     || module.description().toLowerCase(java.util.Locale.ROOT).contains(query);
@@ -564,12 +554,7 @@ public final class SkyOPClickGui extends Screen {
     private int countModules(SkyOPCategory category) {
         int count = 0;
         for (SkyOPModuleId module : SkyOPModuleId.values()) {
-            boolean included = switch (category) {
-                case FAVORITES -> SkyOPCore.isFavorite(module);
-                case SAFE -> !module.isDangerous();
-                case DANGEROUS -> module.isDangerous();
-                default -> module.category() == category;
-            };
+            boolean included = category.includes(module, SkyOPCore.isFavorite(module));
             if (included) count++;
         }
         return count;
