@@ -27,6 +27,7 @@ A green CI result proves compilation and packaging. It does not prove an in-game
 3. Select English from the in-client language control; verify categories, module titles/descriptions, setting labels, keybind labels, profile/hotbar controls and HUD hints change.
 4. Change language while ClickGUI remains open; verify setting titles and descriptions update without reopening the screen.
 5. Restart Minecraft; verify the chosen `language=id` or `language=en` setting is persisted.
+6. Verify every registered module has a non-empty Indonesian title and description; the automated `SkyOPLanguageTest` enforces translation-key coverage for all module IDs.
 
 ## ClickGUI and core
 
