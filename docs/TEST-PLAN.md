@@ -254,3 +254,14 @@ CI passing does not replace these in-game checks. Record Minecraft/Fabric versio
 7. Open HUD Edit and drag each new widget; close/reopen the GUI and confirm saved positions persist.
 8. Check compact category navigation at 320x200 and 480x270; all nine category/filter rows must be visible and non-overlapping.
 9. Review the risk label on each module. Dangerous is a warning, not a compatibility guarantee or permission to violate server rules.
+
+## Additional player/item HUD verification
+
+1. Food HUD: change hunger and saturation by eating/sprinting; verify both values update.
+2. Air HUD: submerge and surface; verify current air ticks decrease and recover.
+3. Experience HUD: collect XP and level up; verify level and percentage update.
+4. Item Info HUD: select an empty hand, stackable item and damageable tool; verify name, count and durability.
+5. Offhand HUD: swap an item and a totem/shield into offhand; verify name and count.
+6. Block Info HUD: aim at different blocks and air; verify block name/coordinates and no-block state.
+7. Armor Detail HUD: equip and remove armor pieces, then take durability damage; verify all four slots and percentages.
+8. Drag all seven widgets in HUD Edit and reopen the GUI to verify their saved positions.
