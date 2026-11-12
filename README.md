@@ -1,4 +1,4 @@
-# SkyOP Client 2.3.0-dev
+# SkyOP Client 4.0.0
 
 <p align="center">
   <strong>Premium-style Minecraft Java 26.3 Fabric client</strong><br>
@@ -12,7 +12,7 @@
   <img alt="Minecraft" src="https://img.shields.io/badge/Minecraft-Java%2026.3-3C8527?logo=minecraft&logoColor=white">
   <img alt="Fabric" src="https://img.shields.io/badge/Mod%20loader-Fabric-DBD0B4?logo=fabric&logoColor=222222">
   <img alt="Java" src="https://img.shields.io/badge/Java-25-ED8B00?logo=openjdk&logoColor=white">
-  <img alt="Version" src="https://img.shields.io/badge/SkyOP-2.3.0--dev-4BA3D9">
+  <img alt="Version" src="https://img.shields.io/badge/SkyOP-4.0.0-4BA3D9">
   <img alt="License" src="https://img.shields.io/badge/License-MIT-blue.svg">
 </p>
 
@@ -28,7 +28,7 @@
 
 ## SkyOP 4.0 expansion preview
 
-The `feature/skyop-4.0-complete-suite` branch builds on the earlier module and UI work. This is a development preview; the distributable's Fabric metadata still reports `2.3.0-dev`.
+The `feature/skyop-4.0-complete-suite` branch is the SkyOP 4.0.0 development line. The Gradle project version, output JAR filename and Fabric metadata are all set to `4.0.0`.
 
 - **62 registered modules:** every module has a concrete runtime factory entry and a category/risk classification.
 - **ClickGUI navigation:** Combat, Movement, Visual, World, Player, Inventory, Favorites, Safe and Dangerous. Favorites and risk labels are filters over the registered modules.
@@ -42,7 +42,7 @@ See [SkyOP 4.0 feature specification](docs/SKYOP-4.0-FEATURES.md) and the [compl
 
 The branch CI compiles with Java 25 and Gradle 9.7.1, executes JUnit tests, checks the installable JAR and uploads the artifact. A successful workflow proves build and packaging only; GUI interaction, HUD positioning, world behavior and multiplayer server acceptance still need manual testing.
 
-## 2.3.0 development branch additions
+## Historical 2.3.0 development additions
 
 The `feature/skyop-2.3.0-expansion` branch adds working client-side modules for Auto Hunt, Auto Bridge, Infinite Jump, Jump Boost, Item ESP, Waypoints and Mini Map, plus Night Vision using the local gamma setting. New gameplay settings are persisted and validated, new modules are available in ClickGUI, and V saves the player's current coordinates as a waypoint (up to 32).
 
@@ -212,7 +212,7 @@ Back up the config folder before experimenting with imported profiles.
 2. Confirm java -version reports Java 25 or newer.
 3. Clone or download this repository.
 4. Run BUILD-WINDOWS.bat.
-5. Find `skyop-client-2.3.0-dev.jar` under `build/libs/`.
+5. Find `skyop-client-4.0.0.jar` under `build/libs/`.
 
 The first build needs an internet connection to download Gradle and dependencies.
 
