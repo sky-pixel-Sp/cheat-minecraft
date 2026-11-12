@@ -989,6 +989,20 @@ public final class SkyOPClickGui extends Screen {
             previews.add(hudPreview(SkyOPModuleId.PERFORMANCE_HUD, sw - 158, 62, 150, 42, null, sw, sh));
         if (SkyOPCore.isEnabled(SkyOPModuleId.SESSION_TIMER_HUD))
             previews.add(hudPreview(SkyOPModuleId.SESSION_TIMER_HUD, sw / 2 - 75, sh - 114, 150, 29, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.FOOD_HUD))
+            previews.add(hudPreview(SkyOPModuleId.FOOD_HUD, 8, sh - 82, 140, 29, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.AIR_HUD))
+            previews.add(hudPreview(SkyOPModuleId.AIR_HUD, 8, sh - 48, 140, 29, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.EXPERIENCE_HUD))
+            previews.add(hudPreview(SkyOPModuleId.EXPERIENCE_HUD, sw / 2 - 75, sh - 150, 150, 29, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.ITEM_INFO_HUD))
+            previews.add(hudPreview(SkyOPModuleId.ITEM_INFO_HUD, sw / 2 - 110, sh - 112, 204, 40, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.OFFHAND_HUD))
+            previews.add(hudPreview(SkyOPModuleId.OFFHAND_HUD, sw - 190, 190, 182, 29, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.BLOCK_INFO_HUD))
+            previews.add(hudPreview(SkyOPModuleId.BLOCK_INFO_HUD, sw - 232, 112, 224, 40, null, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.ARMOR_DETAIL_HUD))
+            previews.add(hudPreview(SkyOPModuleId.ARMOR_DETAIL_HUD, sw - 218, sh - 144, 210, 62, null, sw, sh));
         return previews;
     }
 
