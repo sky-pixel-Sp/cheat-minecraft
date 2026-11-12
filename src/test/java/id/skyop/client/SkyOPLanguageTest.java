@@ -31,6 +31,22 @@ class SkyOPLanguageTest {
                     "Menampilkan blok yang ditargetkan dan koordinatnya.");
             assertModule(SkyOPModuleId.ARMOR_DETAIL_HUD, "Detail Armor",
                     "Menampilkan bagian armor yang dipakai dan sisa daya tahannya.");
+            assertModule(SkyOPModuleId.AUTO_HUNT, "Berburu Otomatis",
+                    "Menyerang mob agresif terdekat yang sudah dimuat tanpa menggerakkan kamera.");
+            assertModule(SkyOPModuleId.AUTO_BRIDGE, "Jembatan Otomatis",
+                    "Menempatkan blok hotbar terpilih di bawah pemain saat bergerak.");
+            assertModule(SkyOPModuleId.INFINITE_JUMP, "Lompat Berulang",
+                    "Memungkinkan satu lompatan tambahan saat tombol lompat ditekan kembali di udara.");
+            assertModule(SkyOPModuleId.JUMP_BOOST, "Peningkat Lompatan",
+                    "Mengatur pengali dorongan lompatan lokal.");
+            assertModule(SkyOPModuleId.ITEM_ESP, "ESP Item",
+                    "Memasukkan entitas item yang terjatuh ke filter sorotan Entity ESP.");
+            assertModule(SkyOPModuleId.WAYPOINTS, "Titik Koordinat",
+                    "Menampilkan koordinat tersimpan dan jarak; tekan V untuk menyimpan titik.");
+            assertModule(SkyOPModuleId.MINIMAP, "Peta Mini",
+                    "Menampilkan entitas sekitar yang sudah dimuat oleh klien.");
+            assertModule(SkyOPModuleId.NIGHT_VISION, "Penglihatan Malam",
+                    "Meningkatkan visibilitas lokal melalui pengaturan gamma klien.");
         } finally {
             SkyOPLanguage.set("id");
         }
