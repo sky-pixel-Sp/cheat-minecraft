@@ -10,7 +10,7 @@
 ## New World HUD modules
 | Module | Actual behavior | Data source |
 |---|---|---|
-| World Info HUD | Displays dimension, biome, world clock and weather | Local client world/player state |
+| World Info HUD | Displays dimension, biome and weather | Local client world/player state |
 | Chunk Info HUD | Displays chunk X/Z and local X/Y/Z coordinates | Local player block position |
 | Performance HUD | Displays FPS and JVM used/max heap | Minecraft client FPS + JVM Runtime |
 | Session Timer | Displays elapsed time in the current world session | Local elapsed time; resets on world/player context change |
