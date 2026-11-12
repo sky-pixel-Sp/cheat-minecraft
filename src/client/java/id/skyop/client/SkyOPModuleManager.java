@@ -187,8 +187,13 @@ public final class SkyOPModuleManager {
         if (SkyOPDiagnostics.shouldDisableAfterErrors(errors) && SkyOPCore.isEnabled(module.type())) {
             SkyOPDiagnostics.recordReason(module.type(),
                     "Auto-disabled after " + errors + " errors in " + phase);
-            ACTIVE.remove(module.type());
+            boolean wasActive = ACTIVE.contains(module.type());
             SkyOPCore.setEnabled(client, module.type(), false);
+            // A failing onEnable callback is not yet in ACTIVE, so it would not
+            // receive the normal lifecycle onDisable callback from syncAllStates.
+            if (!wasActive) {
+                invokeModule(module, client, "auto-disable cleanup", () -> module.onDisable(client));
+            }
             if (client != null && client.player != null) {
                 client.player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
                         "[SkyOP] " + module.type().name() + " disabled after 3 errors. See config/skyop-client/skyop.log."));
