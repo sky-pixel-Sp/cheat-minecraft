@@ -1,6 +1,7 @@
 package id.skyop.client;
 
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.Minecraft;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -32,6 +33,7 @@ public final class SkyOPDiagnostics {
         private String lastError = "";
         private Instant lastReasonAt;
         private Instant lastErrorAt;
+        private long lastLogMillis;
     }
 
     private SkyOPDiagnostics() { }
@@ -62,7 +64,11 @@ public final class SkyOPDiagnostics {
         if (reason.equals(state.lastReason)) return;
         state.lastReason = reason;
         state.lastReasonAt = Instant.now();
-        appendLog("INFO", module.name() + " / decision", reason);
+        long now = System.currentTimeMillis();
+        if (SkyOPAutomationRules.shouldWriteReasonLog(state.lastLogMillis, now)) {
+            state.lastLogMillis = now;
+            appendLog("INFO", module.name() + " / decision", reason);
+        }
     }
 
     /** Returns the number of failures observed for this module in its current enable session. */
@@ -94,6 +100,10 @@ public final class SkyOPDiagnostics {
         StringBuilder report = new StringBuilder(4096);
         report.append("SkyOP Client diagnostic report").append(System.lineSeparator());
         report.append("Created: ").append(Instant.now()).append(System.lineSeparator());
+        report.append("SkyOP: ").append(modVersion("skyop")).append(System.lineSeparator());
+        report.append("Minecraft: ").append(modVersion("minecraft")).append(System.lineSeparator());
+        Minecraft client = Minecraft.getInstance();
+        appendGameState(report, client);
         report.append("Java: ").append(System.getProperty("java.version", "unknown")).append(System.lineSeparator());
         report.append("OS: ").append(System.getProperty("os.name", "unknown")).append(" ")
                 .append(System.getProperty("os.version", "unknown")).append(System.lineSeparator());
@@ -103,12 +113,45 @@ public final class SkyOPDiagnostics {
             Snapshot snapshot = snapshot(module);
             report.append(module.name())
                     .append(" enabled=").append(SkyOPCore.isEnabled(module))
+                    .append(" ready=").append(readyOrUnknown(client, module))
                     .append(" errors=").append(snapshot.errorCount()).append("/3")
                     .append(System.lineSeparator());
             report.append("  reason: ").append(emptyAsDash(snapshot.lastReason())).append(System.lineSeparator());
             report.append("  error: ").append(emptyAsDash(snapshot.lastError())).append(System.lineSeparator());
         }
         return report.toString();
+    }
+
+    private static String modVersion(String modId) {
+        return FabricLoader.getInstance().getModContainer(modId)
+                .map(container -> container.getMetadata().getVersion().getFriendlyString())
+                .orElse("unknown");
+    }
+
+    private static void appendGameState(StringBuilder report, Minecraft client) {
+        report.append("World loaded: ").append(client != null && client.level != null)
+                .append(System.lineSeparator());
+        report.append("Singleplayer server: ")
+                .append(client != null && client.getSingleplayerServer() != null)
+                .append(System.lineSeparator());
+        if (client != null && client.player != null) {
+            var player = client.player;
+            report.append("Creative (instabuild): ").append(player.getAbilities().instabuild)
+                    .append(System.lineSeparator());
+            report.append("Spectator: ").append(player.isSpectator()).append(System.lineSeparator());
+            report.append("Health: ").append(player.getHealth()).append(System.lineSeparator());
+        } else {
+            report.append("Player: not in a world").append(System.lineSeparator());
+        }
+    }
+
+    private static String readyOrUnknown(Minecraft client, SkyOPModuleId module) {
+        if (client == null || client.player == null) return "n/a";
+        try {
+            return String.valueOf(SkyOPModuleManager.isReadyForDiagnostics(client, module));
+        } catch (RuntimeException error) {
+            return "error";
+        }
     }
 
     private static String emptyAsDash(String value) {

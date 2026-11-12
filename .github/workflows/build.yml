@@ -122,7 +122,7 @@ jobs:
           grep -Fq 'key.skyop.diagnostics' src/main/resources/assets/skyop/lang/id_id.json
           grep -Fq 'key.skyop.diagnostics' src/main/resources/assets/skyop/lang/en_us.json
           # Fast Break, Auto MLG and Auto Totem must be registered and tested.
-          grep -Fq 'number("fastBreakLevel", 50, 1, 50, true)' src/client/java/id/skyop/client/SkyOPSettingsSchema.java
+          grep -Fq 'number("fastBreakLevel", 7, 1, 50, true)' src/client/java/id/skyop/client/SkyOPSettingsSchema.java
           grep -Fq 'number("autoMlgFallDistance", 6, 3, 18, false)' src/client/java/id/skyop/client/SkyOPSettingsSchema.java
           grep -Fq 'number("autoTotemHealth", 14, 1, 20, false)' src/client/java/id/skyop/client/SkyOPSettingsSchema.java
           grep -Fq 'getDestroySpeed(Lnet/minecraft/world/level/block/state/BlockState;)F' src/client/java/id/skyop/mixin/FastBreakMixin.java

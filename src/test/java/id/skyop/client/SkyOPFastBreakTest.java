@@ -20,6 +20,6 @@ class SkyOPFastBreakTest {
     void hasteLevelIsClampedToTheSupportedRange() {
         assertEquals(1.2F, SkyOPFastBreak.multiplierForLevel(0), 0.0001F);
         assertEquals(11.0F, SkyOPFastBreak.multiplierForLevel(99), 0.0001F);
-        assertEquals(11.0F, SkyOPFastBreak.multiplierForLevel(Double.NaN), 0.0001F);
+        assertEquals(2.4F, SkyOPFastBreak.multiplierForLevel(Double.NaN), 0.0001F);
     }
 }

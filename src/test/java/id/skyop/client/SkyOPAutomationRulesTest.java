@@ -80,6 +80,13 @@ class SkyOPAutomationRulesTest {
     }
 
     @Test
+    void decisionLogIsThrottledToOneLinePerTwoSeconds() {
+        assertTrue(SkyOPAutomationRules.shouldWriteReasonLog(0L, 5_000L));
+        assertFalse(SkyOPAutomationRules.shouldWriteReasonLog(5_000L, 6_999L));
+        assertTrue(SkyOPAutomationRules.shouldWriteReasonLog(5_000L, 7_000L));
+    }
+
+    @Test
     void autoMlgThresholdCannotBeSetBelowThreeBlocksOrAboveEighteen() {
         assertFalse(SkyOPAutomationRules.shouldTriggerMlg(false, 2.9F, -0.8, 0));
         assertTrue(SkyOPAutomationRules.shouldTriggerMlg(false, 18.0F, -0.8, 99));

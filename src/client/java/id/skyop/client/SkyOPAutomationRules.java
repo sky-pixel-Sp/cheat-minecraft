@@ -37,6 +37,11 @@ public final class SkyOPAutomationRules {
                 velocityZ * 0.91D);
     }
 
+    /** At most one decision-log line per module every two seconds. */
+    public static boolean shouldWriteReasonLog(long lastLogMillis, long nowMillis) {
+        return lastLogMillis <= 0L || nowMillis - lastLogMillis >= 2000L;
+    }
+
     public static boolean shouldDisableAfterErrors(int errorCount) {
         return errorCount >= 3;
     }
