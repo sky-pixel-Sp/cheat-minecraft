@@ -114,6 +114,39 @@ public final class SkyOPLanguage {
         put("gui.drag_to_move", "DRAG TO MOVE");
         put("gui.info", "INFO");
 
+        put("gui.info", "INFO");
+
+        put("diagnostics.title", "SkyOP Diagnostics");
+        put("diagnostics.subtitle", "Runtime status, module errors and skipped-action reasons");
+        put("diagnostics.errors", "Errors");
+        put("diagnostics.last_reason", "Last reason");
+        put("diagnostics.last_error", "Last error");
+        put("diagnostics.module_disabled", "Module disabled");
+        put("diagnostics.copy", "COPY REPORT");
+        put("diagnostics.copied", "COPIED");
+        put("diagnostics.reason.cooldown", "Waiting for the action cooldown");
+        put("diagnostics.reason.creative_or_unsupported", "Auto MLG requires a normal Survival fall");
+        put("diagnostics.reason.offhand_occupied", "Offhand contains another item; it was not replaced");
+        put("diagnostics.reason.totem_already_equipped", "A totem is already in the offhand");
+        put("diagnostics.reason.health_above", "Health is above the configured threshold");
+        put("diagnostics.reason.container_open", "Close the chest or other container before inventory automation");
+        put("diagnostics.reason.totem_swap_waiting", "Waiting for the server-authoritative offhand update");
+        put("diagnostics.reason.totem_swap_confirmed", "Totem swap confirmed in the offhand");
+        put("diagnostics.reason.totem_swap_not_confirmed", "Totem swap was not confirmed; no success is assumed");
+        put("diagnostics.reason.no_totem", "No totem found in hotbar or main inventory");
+        put("diagnostics.reason.mlg_cooldown", "Auto MLG cooldown is active");
+        put("diagnostics.reason.not_falling", "Fall speed or fall distance has not reached the trigger");
+        put("diagnostics.reason.no_bucket", "No water bucket is available in the hotbar");
+        put("diagnostics.reason.no_landing", "No solid landing surface found in already-loaded chunks");
+        put("diagnostics.reason.out_of_reach", "Predicted landing point is outside 4.5-block vanilla reach");
+        put("diagnostics.reason.aim_mismatch", "Normal crosshair does not match the predicted block within vanilla reach");
+        put("diagnostics.reason.aim_sync_pending", "Aligning aim and waiting for the normal movement update");
+        put("diagnostics.reason.aim_cancelled", "Aim changed by player input; Auto MLG cancelled");
+        put("diagnostics.reason.action_cancelled", "Pending action cancelled after a player, menu or world change");
+        put("diagnostics.reason.mlg_interaction_sent", "One normal vanilla bucket-use request was sent; awaiting inventory confirmation");
+        put("diagnostics.reason.mlg_confirmed", "Bucket changed to an empty bucket; local placement was confirmed");
+        put("diagnostics.reason.mlg_not_confirmed", "Bucket use was not confirmed by the inventory update");
+
 
         put("category.combat", "Combat");
         put("category.movement", "Movement");
@@ -844,6 +877,41 @@ public final class SkyOPLanguage {
 
     private static Map.Entry<String, String> e(String key, String value) {
         return Map.entry(key, value);
+    }
+
+    static {
+        translate("id", Map.ofEntries(
+                e("diagnostics.title", "Diagnostik SkyOP"),
+                e("diagnostics.subtitle", "Status runtime, error modul, dan alasan aksi dilewati"),
+                e("diagnostics.errors", "Error"),
+                e("diagnostics.last_reason", "Alasan terakhir"),
+                e("diagnostics.last_error", "Error terakhir"),
+                e("diagnostics.module_disabled", "Modul nonaktif"),
+                e("diagnostics.copy", "SALIN LAPORAN"),
+                e("diagnostics.copied", "TERSALIN"),
+                e("diagnostics.reason.cooldown", "Menunggu jeda aksi"),
+                e("diagnostics.reason.creative_or_unsupported", "Auto MLG memerlukan kondisi jatuh Survival normal"),
+                e("diagnostics.reason.offhand_occupied", "Offhand berisi item lain; item tidak diganti"),
+                e("diagnostics.reason.totem_already_equipped", "Totem sudah berada di offhand"),
+                e("diagnostics.reason.health_above", "Health masih di atas ambang yang diatur"),
+                e("diagnostics.reason.container_open", "Tutup peti atau menu container sebelum otomasi inventaris"),
+                e("diagnostics.reason.totem_swap_waiting", "Menunggu pembaruan offhand dari server"),
+                e("diagnostics.reason.totem_swap_confirmed", "Perpindahan totem ke offhand terkonfirmasi"),
+                e("diagnostics.reason.totem_swap_not_confirmed", "Perpindahan totem tidak terkonfirmasi; tidak dianggap berhasil"),
+                e("diagnostics.reason.no_totem", "Totem tidak ditemukan di hotbar atau inventaris utama"),
+                e("diagnostics.reason.mlg_cooldown", "Jeda Auto MLG masih aktif"),
+                e("diagnostics.reason.not_falling", "Kecepatan atau jarak jatuh belum mencapai pemicu"),
+                e("diagnostics.reason.no_bucket", "Water bucket tidak ditemukan di hotbar"),
+                e("diagnostics.reason.no_landing", "Permukaan pendaratan padat tidak ditemukan di chunk yang sudah dimuat"),
+                e("diagnostics.reason.out_of_reach", "Titik pendaratan di luar jangkauan vanilla 4,5 blok"),
+                e("diagnostics.reason.aim_mismatch", "Crosshair normal tidak cocok dengan blok prediksi dalam jangkauan vanilla"),
+                e("diagnostics.reason.aim_sync_pending", "Mengatur arah bidik dan menunggu pembaruan gerakan normal"),
+                e("diagnostics.reason.aim_cancelled", "Arah bidik berubah karena input pemain; Auto MLG dibatalkan"),
+                e("diagnostics.reason.action_cancelled", "Aksi tertunda dibatalkan karena perubahan pemain, menu, atau dunia"),
+                e("diagnostics.reason.mlg_interaction_sent", "Satu permintaan penggunaan bucket vanilla dikirim; menunggu konfirmasi inventaris"),
+                e("diagnostics.reason.mlg_confirmed", "Bucket berubah menjadi bucket kosong; pemasangan lokal terkonfirmasi"),
+                e("diagnostics.reason.mlg_not_confirmed", "Penggunaan bucket tidak terkonfirmasi melalui pembaruan inventaris")
+        ));
     }
 
     private static void put(String key, String value) { EN.put(key, value); }
