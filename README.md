@@ -65,7 +65,7 @@ Minecraft 26.3 is unobfuscated, so this project uses Fabric Loom's non-remapping
 
 ## Download and install
 
-1. Open [Latest successful GitHub Actions builds](https://github.com/sky-pixel-Sp/cheat-minecraft/actions/workflows/build.yml?query=branch%3Amain).
+1. Open [Latest successful GitHub Actions builds](https://github.com/sky-pixel-Sp/cheat-minecraft/actions/workflows/build.yml?query=branch%3Afeature%2Fskyop-4.0-complete-suite).
 2. Choose the newest run with a green **Success** status.
 3. Scroll to **Artifacts** and download **SkyOP-Client-Minecraft-26.3**.
 4. Extract the downloaded ZIP archive.
