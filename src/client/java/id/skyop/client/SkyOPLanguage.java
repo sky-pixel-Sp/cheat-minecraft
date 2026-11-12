@@ -914,7 +914,23 @@ public final class SkyOPLanguage {
                 e("module.BLOCK_INFO_HUD.title", "Info Blok"),
                 e("module.BLOCK_INFO_HUD.description", "Menampilkan blok yang ditargetkan dan koordinatnya."),
                 e("module.ARMOR_DETAIL_HUD.title", "Detail Armor"),
-                e("module.ARMOR_DETAIL_HUD.description", "Menampilkan bagian armor yang dipakai dan sisa daya tahannya.")
+                e("module.ARMOR_DETAIL_HUD.description", "Menampilkan bagian armor yang dipakai dan sisa daya tahannya."),
+                e("module.AUTO_HUNT.title", "Berburu Otomatis"),
+                e("module.AUTO_HUNT.description", "Menyerang mob agresif terdekat yang sudah dimuat tanpa menggerakkan kamera."),
+                e("module.AUTO_BRIDGE.title", "Jembatan Otomatis"),
+                e("module.AUTO_BRIDGE.description", "Menempatkan blok hotbar terpilih di bawah pemain saat bergerak."),
+                e("module.INFINITE_JUMP.title", "Lompat Berulang"),
+                e("module.INFINITE_JUMP.description", "Memungkinkan satu lompatan tambahan saat tombol lompat ditekan kembali di udara."),
+                e("module.JUMP_BOOST.title", "Peningkat Lompatan"),
+                e("module.JUMP_BOOST.description", "Mengatur pengali dorongan lompatan lokal."),
+                e("module.ITEM_ESP.title", "ESP Item"),
+                e("module.ITEM_ESP.description", "Memasukkan entitas item yang terjatuh ke filter sorotan Entity ESP."),
+                e("module.WAYPOINTS.title", "Titik Koordinat"),
+                e("module.WAYPOINTS.description", "Menampilkan koordinat tersimpan dan jarak; tekan V untuk menyimpan titik."),
+                e("module.MINIMAP.title", "Peta Mini"),
+                e("module.MINIMAP.description", "Menampilkan entitas sekitar yang sudah dimuat oleh klien."),
+                e("module.NIGHT_VISION.title", "Penglihatan Malam"),
+                e("module.NIGHT_VISION.description", "Meningkatkan visibilitas lokal melalui pengaturan gamma klien.")
         ));
     }
 }
