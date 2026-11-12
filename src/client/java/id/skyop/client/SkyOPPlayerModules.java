@@ -66,7 +66,7 @@ public final class SkyOPPlayerModules {
 
         int threshold = (int) SkyOPMath.clamp(SkyOPState.armorAlertPercent, 1, 50);
         boolean lowDurability = false;
-        for (ItemStack stack : client.player.getArmorSlots()) {
+        for (ItemStack stack : client.player.getInventory().armor) {
             if (stack.isEmpty() || !stack.isDamageableItem()) continue;
             int maximum = Math.max(1, stack.getMaxDamage());
             int remaining = Math.max(0, maximum - stack.getDamageValue());
