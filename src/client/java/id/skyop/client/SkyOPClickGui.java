@@ -17,14 +17,26 @@ import java.util.List;
  * Responsive, two-column SkyOP module manager for Minecraft 26.3.
  */
 public final class SkyOPClickGui extends Screen {
-    private static final int PANEL = 0xF010141C;
-    private static final int PANEL_LIGHT = 0xFF1A202B;
-    private static final int PANEL_HOVER = 0xFF263343;
-    private static final int ACCENT = 0xFF55B8F4;
-    private static final int TEXT = 0xFFF3F6FA;
-    private static final int MUTED = 0xFF98A6B8;
-    private static final int GREEN = 0xFF64D6A4;
-    private static final int RED = 0xFFE07B83;
+    private static int PANEL = 0xF010141C;
+    private static int PANEL_LIGHT = 0xFF1A202B;
+    private static int PANEL_HOVER = 0xFF263343;
+    private static int ACCENT = 0xFF55B8F4;
+    private static int TEXT = 0xFFF3F6FA;
+    private static int MUTED = 0xFF98A6B8;
+    private static int GREEN = 0xFF64D6A4;
+    private static int RED = 0xFFE07B83;
+
+    static void applyTheme() {
+        SkyOPTheme.Palette palette = SkyOPTheme.palette(SkyOPState.uiTheme);
+        PANEL = palette.panel();
+        PANEL_LIGHT = palette.elevated();
+        PANEL_HOVER = palette.hover();
+        ACCENT = palette.accent();
+        TEXT = palette.text();
+        MUTED = palette.muted();
+        GREEN = palette.success();
+        RED = palette.danger();
+    }
 
     private SkyOPCategory selectedCategory = SkyOPCategory.COMBAT;
     private SkyOPModuleId selectedModule = SkyOPModuleId.KILL_AURA;
@@ -45,10 +57,12 @@ public final class SkyOPClickGui extends Screen {
 
     public SkyOPClickGui() {
         super(Component.literal("SkyOP Client"));
+        applyTheme();
     }
 
     @Override
     protected void init() {
+        applyTheme();
         calculateLayout();
         selectFirstModule();
         searchFocused = true;
@@ -593,13 +607,16 @@ public final class SkyOPClickGui extends Screen {
         } else if (setting instanceof MultiSetting multi) {
             int localX = (int) mouseX - (inspectorX + 15);
             int chipWidth = layout.compact() ? 54 : 64;
-            int index = Math.max(0, localX / chipWidth);
             List<String> options = multi.options().stream().sorted().toList();
-            if (index < options.size()) {
-                java.util.Set<String> selected = new java.util.LinkedHashSet<>(multi.value());
-                String option = options.get(index);
-                if (!selected.add(option)) selected.remove(option);
-                multi.set(selected);
+            // Ignore the left padding instead of accidentally toggling chip zero.
+            if (localX >= 0) {
+                int index = localX / chipWidth;
+                if (index < options.size()) {
+                    java.util.Set<String> selected = new java.util.LinkedHashSet<>(multi.value());
+                    String option = options.get(index);
+                    if (!selected.add(option)) selected.remove(option);
+                    multi.set(selected);
+                }
             }
         } else if (setting instanceof ColorSetting color) {
             colorPickerOpen = true;
@@ -650,7 +667,10 @@ public final class SkyOPClickGui extends Screen {
             }
         }
 
-        if (colorPickerOpen && handleColorPickerClick(mx, my)) return true;
+        if (colorPickerOpen) {
+            if (handleColorPickerClick(mx, my)) return true;
+            colorPickerOpen = false;
+        }
         if (hudEditMode) {
             HudPreview preview = hudPreviewAt(mx, my);
             if (preview != null) {
@@ -830,6 +850,11 @@ public final class SkyOPClickGui extends Screen {
                 return true;
             }
         }
+        if (inside(mx, my, x + 110, y + 4, 48, 14)) {
+            SkyOPCore.cycleUiTheme();
+            setProfileStatus(SkyOPLanguage.text("gui.theme") + ": " + SkyOPTheme.displayName(SkyOPState.uiTheme));
+            return true;
+        }
         if (inside(mx, my, x + 8, y + 76, 96, 22)) {
             editingHudColor = true;
             hexColorInput = "";
@@ -863,6 +888,12 @@ public final class SkyOPClickGui extends Screen {
         g.fill(x, y, x + 166, y + 104, 0xF0101726);
         g.outline(x, y, 166, 104, 0xFF40546B);
         g.text(font, Component.literal(SkyOPLanguage.text("gui.hud_color")), x + 8, y + 6, TEXT, true);
+        g.text(font, Component.literal(SkyOPTheme.displayName(SkyOPState.uiTheme)),
+                x + 78, y + 6, ACCENT, true);
+        boolean nextHovered = inside(mouseX, mouseY, x + 110, y + 4, 48, 14);
+        g.fill(x + 110, y + 4, x + 158, y + 18, nextHovered ? PANEL_HOVER : PANEL_LIGHT);
+        g.text(font, Component.literal(SkyOPLanguage.text("gui.next_theme")),
+                x + 115, y + 7, nextHovered ? TEXT : ACCENT, true);
         for (int row = 0; row < 2; row++) for (int col = 0; col < 3; col++) {
             int px = x + 8 + col * 28, py = y + 20 + row * 27;
             g.fill(px, py, px + 22, py + 22, colors[row][col]);
@@ -1096,7 +1127,10 @@ public final class SkyOPClickGui extends Screen {
     }
 
     private String trim(String text, int maxLength) {
-        return text.length() <= maxLength ? text : text.substring(0, maxLength - 3) + "...";
+        if (text == null || maxLength <= 0) return "";
+        if (text.length() <= maxLength) return text;
+        if (maxLength <= 3) return text.substring(0, maxLength);
+        return text.substring(0, maxLength - 3) + "...";
     }
 
     @Override

@@ -27,6 +27,7 @@ public final class SkyOPCore {
     private static final Identifier KEY_CATEGORY_ID = Identifier.fromNamespaceAndPath("skyop", "client");
     private static final KeyMapping.Category KEY_CATEGORY = KeyMapping.Category.register(KEY_CATEGORY_ID);
     private static final KeyMapping KEY_GUI = key("key.skyop.open_gui", InputConstants.KEY_RSHIFT);
+    private static final KeyMapping KEY_QUICK_PANEL = key("key.skyop.open_quick_panel", InputConstants.KEY_O);
     private static final KeyMapping KEY_HUD = key("key.skyop.toggle_hud", InputConstants.KEY_F4);
     private static final KeyMapping KEY_AUTO_CLICKER = key("key.skyop.toggle_autoclicker", InputConstants.KEY_F5);
     private static final KeyMapping KEY_SPRINT = key("key.skyop.toggle_sprint", InputConstants.KEY_F6);
@@ -220,6 +221,12 @@ public static void cycleLanguage() {
         saveConfig();
     }
 
+public static void cycleUiTheme() {
+        SkyOPState.uiTheme = SkyOPTheme.next(SkyOPState.uiTheme);
+        SkyOPClickGui.applyTheme();
+        saveConfig();
+    }
+
 public static void applyPreset(Minecraft client, SkyOPPreset preset) {
         SkyOPState.ENABLED.clear();
         SkyOPState.targetPlayers = false;
@@ -320,6 +327,12 @@ private static void ensureMouseCaptured(Minecraft client) {
     }
 
 private static void handleKeybinds(Minecraft client) {
+        if (KEY_QUICK_PANEL.consumeClick()) {
+            if (client.player != null && client.level != null && client.gui.screen() == null) {
+                client.gui.setScreen(new SkyOPFloatingPanel());
+                return;
+            }
+        }
         if (KEY_GUI.consumeClick()) client.gui.setScreen(new SkyOPClickGui());
         if (KEY_ADD_WAYPOINT.consumeClick()) {
             boolean added = SkyOPWaypointManager.addCurrent(client);
@@ -341,6 +354,9 @@ public static void saveConfig() {
             p.setProperty("module." + module.name(), Boolean.toString(isEnabled(module)));
         }
         p.setProperty("language", SkyOPLanguage.code());
+        p.setProperty("uiTheme", SkyOPTheme.normalize(SkyOPState.uiTheme));
+        p.setProperty("quickPanelX", Integer.toString(SkyOPState.quickPanelX));
+        p.setProperty("quickPanelY", Integer.toString(SkyOPState.quickPanelY));
         p.setProperty("targetPlayers", Boolean.toString(SkyOPState.targetPlayers));
         p.setProperty("targetMobs", Boolean.toString(SkyOPState.targetMobs));
         p.setProperty("auraRotate", Boolean.toString(SkyOPState.auraRotate));
@@ -395,6 +411,10 @@ private static void loadConfig() {
                     .resolve("skyop-client").resolve("backups");
             p = SkyOPConfigManager.load(SkyOPState.CONFIG_FILE, backupDirectory);
             SkyOPLanguage.set(p.getProperty("language", "id"));
+            SkyOPState.uiTheme = SkyOPTheme.normalize(p.getProperty("uiTheme", SkyOPState.uiTheme));
+            SkyOPState.quickPanelX = integer(p, "quickPanelX", SkyOPState.quickPanelX, -1, 10000);
+            SkyOPState.quickPanelY = integer(p, "quickPanelY", SkyOPState.quickPanelY, -1, 10000);
+            SkyOPClickGui.applyTheme();
             for (SkyOPModuleId module : SkyOPModuleId.values()) {
                 String value = p.getProperty("module." + module.name());
                 if (value != null) {

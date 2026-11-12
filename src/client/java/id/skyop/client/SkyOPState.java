@@ -65,6 +65,9 @@ public final class SkyOPState {
     public static int hudY = 8;
     public static int hudAccentColor = 0xFF61C7F2;
     public static String customHudText = "SkyOP Client • Have a great game!";
+    public static String uiTheme = "CYAN";
+    public static int quickPanelX = -1;
+    public static int quickPanelY = -1;
 
     static final int[] HUD_PALETTE = {
             0xFF61C7F2, 0xFF8B7CFF, 0xFFFFB45B, 0xFF57D69A, 0xFFFF7885, 0xFFF1F6FB
