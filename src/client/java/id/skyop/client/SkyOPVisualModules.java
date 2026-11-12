@@ -311,4 +311,48 @@ private static boolean shouldEsp(Entity entity) {
     public static final class TextHud extends SkyOPModule {
         public TextHud(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.TEXT_GUI, settings); }
     }
+
+    public static final class WorldInfoHud extends SkyOPModule {
+        public WorldInfoHud(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.WORLD_INFO_HUD, settings); }
+    }
+
+    public static final class ChunkInfoHud extends SkyOPModule {
+        public ChunkInfoHud(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.CHUNK_INFO_HUD, settings); }
+    }
+
+    public static final class PerformanceHud extends SkyOPModule {
+        public PerformanceHud(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.PERFORMANCE_HUD, settings); }
+    }
+
+    public static final class SessionTimerHud extends SkyOPModule {
+        public SessionTimerHud(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.SESSION_TIMER_HUD, settings); }
+    }
+
+    public static final class FoodHud extends SkyOPModule {
+        public FoodHud(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.FOOD_HUD, settings); }
+    }
+
+    public static final class AirHud extends SkyOPModule {
+        public AirHud(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.AIR_HUD, settings); }
+    }
+
+    public static final class ExperienceHud extends SkyOPModule {
+        public ExperienceHud(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.EXPERIENCE_HUD, settings); }
+    }
+
+    public static final class ItemInfoHud extends SkyOPModule {
+        public ItemInfoHud(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.ITEM_INFO_HUD, settings); }
+    }
+
+    public static final class OffhandHud extends SkyOPModule {
+        public OffhandHud(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.OFFHAND_HUD, settings); }
+    }
+
+    public static final class BlockInfoHud extends SkyOPModule {
+        public BlockInfoHud(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.BLOCK_INFO_HUD, settings); }
+    }
+
+    public static final class ArmorDetailHud extends SkyOPModule {
+        public ArmorDetailHud(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.ARMOR_DETAIL_HUD, settings); }
+    }
 }

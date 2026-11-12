@@ -431,7 +431,7 @@ private static void loadConfig() {
             SkyOPState.auraRotate = bool(p, "auraRotate", SkyOPState.auraRotate);
             SkyOPState.auraRequireLineOfSight = bool(p, "auraRequireLineOfSight", SkyOPState.auraRequireLineOfSight);
             SkyOPState.auraTargetLowestHealth = bool(p, "auraTargetLowestHealth", SkyOPState.auraTargetLowestHealth);
-            SkyOPState.auraFov = number(p, "auraFov", SkyOPState.auraFov, 30.0, 180.0);
+            SkyOPState.auraFov = number(p, "auraFov", SkyOPState.auraFov, 1.0, 360.0);
             SkyOPState.auraRotationSpeed = number(p, "auraRotationSpeed", SkyOPState.auraRotationSpeed, 0.10, 1.0);
             SkyOPState.auraRange = number(p, "auraRange", SkyOPState.auraRange, 2.5, 6.0);
             SkyOPState.auraDelayTicks = integer(p, "auraDelayTicks", SkyOPState.auraDelayTicks, 1, 20);

@@ -7,17 +7,17 @@
 
 <p align="center">
   <a href="https://github.com/sky-pixel-Sp/cheat-minecraft/actions/workflows/build.yml">
-    <img alt="Build status" src="https://github.com/sky-pixel-Sp/cheat-minecraft/actions/workflows/build.yml/badge.svg?branch=main">
+    <img alt="Build status" src="https://github.com/sky-pixel-Sp/cheat-minecraft/actions/workflows/build.yml/badge.svg?branch=feature%2Fskyop-4.0-complete-suite">
   </a>
   <img alt="Minecraft" src="https://img.shields.io/badge/Minecraft-Java%2026.3-3C8527?logo=minecraft&logoColor=white">
   <img alt="Fabric" src="https://img.shields.io/badge/Mod%20loader-Fabric-DBD0B4?logo=fabric&logoColor=222222">
   <img alt="Java" src="https://img.shields.io/badge/Java-25-ED8B00?logo=openjdk&logoColor=white">
-  <img alt="Version" src="https://img.shields.io/badge/SkyOP-2.2.1-4BA3D9">
+  <img alt="Version" src="https://img.shields.io/badge/SkyOP-2.3.0--dev-4BA3D9">
   <img alt="License" src="https://img.shields.io/badge/License-MIT-blue.svg">
 </p>
 
 <p align="center">
-  <a href="https://github.com/sky-pixel-Sp/cheat-minecraft/actions/workflows/build.yml?query=branch%3Amain">
+  <a href="https://github.com/sky-pixel-Sp/cheat-minecraft/actions/workflows/build.yml?query=branch%3Afeature%2Fskyop-4.0-complete-suite">
     <strong>⬇️ DOWNLOAD LATEST SUCCESSFUL BUILD</strong>
   </a>
   &nbsp;·&nbsp;
@@ -25,6 +25,22 @@
 </p>
 
 ---
+
+## SkyOP 4.0 expansion preview
+
+The `feature/skyop-4.0-complete-suite` branch builds on the earlier module and UI work. This is a development preview; the distributable's Fabric metadata still reports `2.3.0-dev`.
+
+- **62 registered modules:** every module has a concrete runtime factory entry and a category/risk classification.
+- **ClickGUI navigation:** Combat, Movement, Visual, World, Player, Inventory, Favorites, Safe and Dangerous. Favorites and risk labels are filters over the registered modules.
+- **Quick Panel:** press **O** in a world to open the floating panel. It provides up to eight module toggles, a saved theme cycle, Full GUI access and a Disable All cleanup action.
+- **11 additional HUDs:** World Info (dimension/biome/weather), Chunk Info, Performance, Session Timer, Food, Air, Experience, Item Info, Offhand, Block Info and Armor Detail. Each has an independent saved position in HUD Edit.
+- **KillAura targeting:** configurable target FOV from 1° to 360° (default 360°), with optional line-of-sight filtering. Normal Minecraft interactions and server authority still apply.
+- **Input restoration:** Auto Walk restores the user's physical forward-key state when disabled.
+- **Localization:** Indonesian titles and descriptions are present for all 62 registered modules. JUnit regression tests check both the previously missing module translations and full registry coverage.
+
+See [SkyOP 4.0 feature specification](docs/SKYOP-4.0-FEATURES.md) and the [complete manual test plan](docs/TEST-PLAN.md).
+
+The branch CI compiles with Java 25 and Gradle 9.7.1, executes JUnit tests, checks the installable JAR and uploads the artifact. A successful workflow proves build and packaging only; GUI interaction, HUD positioning, world behavior and multiplayer server acceptance still need manual testing.
 
 ## 2.3.0 development branch additions
 
@@ -49,7 +65,7 @@ Minecraft 26.3 is unobfuscated, so this project uses Fabric Loom's non-remapping
 
 ## Download and install
 
-1. Open [Latest successful GitHub Actions builds](https://github.com/sky-pixel-Sp/cheat-minecraft/actions/workflows/build.yml?query=branch%3Amain).
+1. Open [Latest successful GitHub Actions builds](https://github.com/sky-pixel-Sp/cheat-minecraft/actions/workflows/build.yml?query=branch%3Afeature%2Fskyop-4.0-complete-suite).
 2. Choose the newest run with a green **Success** status.
 3. Scroll to **Artifacts** and download **SkyOP-Client-Minecraft-26.3**.
 4. Extract the downloaded ZIP archive.

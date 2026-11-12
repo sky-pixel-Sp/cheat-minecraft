@@ -167,6 +167,7 @@ public final class SkyOPModuleManager {
         SkyOPPlayerModules.cleanup();
         SkyOPInventoryManager.stop(client);
         SkyOPTelemetry.reset();
+        SkyOPHudRenderer.resetSessionTimer();
         ACTIVE.clear();
     }
 
@@ -216,6 +217,17 @@ public final class SkyOPModuleManager {
             case FPS_HUD -> new SkyOPVisualModules.FpsHud(settings);
             case RADAR_HUD -> new SkyOPVisualModules.RadarHud(settings);
             case TEXT_GUI -> new SkyOPVisualModules.TextHud(settings);
+            case WORLD_INFO_HUD -> new SkyOPVisualModules.WorldInfoHud(settings);
+            case CHUNK_INFO_HUD -> new SkyOPVisualModules.ChunkInfoHud(settings);
+            case PERFORMANCE_HUD -> new SkyOPVisualModules.PerformanceHud(settings);
+            case SESSION_TIMER_HUD -> new SkyOPVisualModules.SessionTimerHud(settings);
+            case FOOD_HUD -> new SkyOPVisualModules.FoodHud(settings);
+            case AIR_HUD -> new SkyOPVisualModules.AirHud(settings);
+            case EXPERIENCE_HUD -> new SkyOPVisualModules.ExperienceHud(settings);
+            case ITEM_INFO_HUD -> new SkyOPVisualModules.ItemInfoHud(settings);
+            case OFFHAND_HUD -> new SkyOPVisualModules.OffhandHud(settings);
+            case BLOCK_INFO_HUD -> new SkyOPVisualModules.BlockInfoHud(settings);
+            case ARMOR_DETAIL_HUD -> new SkyOPVisualModules.ArmorDetailHud(settings);
 
             case AUTO_EAT -> new SkyOPInventoryModules.AutoEat(settings);
             case AUTO_ARMOR -> new SkyOPInventoryModules.AutoArmor(settings);
