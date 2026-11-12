@@ -226,3 +226,18 @@ Record Minecraft 26.3, Fabric Loader/API versions, GUI scale, client log, server
 9. At GUI widths below 20 units and at GUI scale 4, verify module descriptions/tooltips do not throw substring/index exceptions.
 10. Click the padding left of the first Multi-setting chip; verify no option changes. Click each chip itself and verify selection still toggles correctly.
 11. Open the color popover and click outside it. Verify the popover closes and the selected underlying control receives the new click normally.
+
+## Utility module pack — singleplayer and multiplayer
+
+Run all tests first in a disposable singleplayer world, then on a private multiplayer server where the operator has authorized client utility testing. Client-side state must be restored when a module is disabled, when a GUI opens, on respawn, and on world disconnect.
+
+1. **Auto Walk:** enable while in a world and verify the normal forward input is held. Open inventory/ClickGUI and verify input is released. Disable the module and verify forward input returns to the physical keyboard state after the next input poll. Check that a mounted, dead or spectator player is not forced to walk.
+2. **Zoom:** record the user's configured FOV, enable Zoom, verify the configured FOV (10–70) is applied, then disable and verify the original FOV is restored. Repeat after dimension change, disconnect and reconnect.
+3. **Container Finder:** place a chest, trapped chest, barrel and ender chest within configured range. Verify only containers in chunks already loaded by the client are listed, sorted by distance, with their coordinates. Walk across a chunk boundary and verify the list refreshes; disable and verify the overlay clears. Do not interpret absent markers as evidence that unloaded or hidden chunks contain no containers.
+4. **Auto Respawn:** enable, die in a disposable world and verify the client issues the normal vanilla respawn request. Repeat on the private server and record whether its rules accept the request. Confirm this module does not bypass death timers, permissions or server restrictions.
+5. **Low Health Alert:** configure a threshold, cross below it and verify one notification per low-health interval. Heal above the threshold and repeat; verify the next crossing generates a new notification. Confirm no repeated chat spam while remaining below threshold.
+6. **Armor Alert:** equip damageable armor and reduce durability below the configured threshold. Verify one notification while any equipped piece remains below threshold, recovery/replacement resets the alert, and empty/non-damageable slots are ignored.
+7. Verify all four new numeric settings reject NaN/infinite values and clamp out-of-range values through SkyOPSettingsSchemaTest.
+8. Switch between singleplayer and multiplayer while the new modules are enabled. Verify Zoom, Auto Walk and Container Finder restore/clear their client-side state on world change. Verify server-authoritative actions may be denied and do not cause the mod to claim success or bypass the server.
+
+CI passing does not replace these in-game checks. Record Minecraft/Fabric versions, GUI scale, server type, latest.log, and a short capture for each module.
