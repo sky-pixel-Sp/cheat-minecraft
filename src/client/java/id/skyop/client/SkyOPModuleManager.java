@@ -35,6 +35,9 @@ public final class SkyOPModuleManager {
             SkyOPModuleId.AUTO_EAT, SkyOPModuleId.AUTO_ARMOR, SkyOPModuleId.AUTO_TOTEM, SkyOPModuleId.AUTO_TOOL,
             SkyOPModuleId.AUTO_REFILL, SkyOPModuleId.INVENTORY_CLEANER, SkyOPModuleId.AUTO_FISH
     );
+    private static final List<SkyOPModuleId> PLAYER_TICK_ORDER = List.of(
+            SkyOPModuleId.LOW_HEALTH_ALERT, SkyOPModuleId.ARMOR_ALERT
+    );
 
     private SkyOPModuleManager() { }
 
@@ -123,6 +126,7 @@ public final class SkyOPModuleManager {
 
         tickModules(client, COMBAT_TICK_ORDER);
         tickModules(client, INVENTORY_TICK_ORDER);
+        tickModules(client, PLAYER_TICK_ORDER);
     }
 
     private static void tickModules(Minecraft client, List<SkyOPModuleId> order) {
@@ -156,6 +160,7 @@ public final class SkyOPModuleManager {
         for (SkyOPModule module : MODULES.values()) module.onWorldChange(client);
         SkyOPMovementModules.cleanup(client);
         SkyOPVisualModules.cleanup(client);
+        SkyOPPlayerModules.cleanup();
         SkyOPInventoryManager.stop(client);
         SkyOPTelemetry.reset();
         ACTIVE.clear();
@@ -172,8 +177,12 @@ public final class SkyOPModuleManager {
             case AUTO_BRIDGE -> new SkyOPMovementModules.AutoBridge(settings);
             case JUMP_BOOST -> new SkyOPMovementModules.JumpBoost(settings);
             case AUTO_MLG -> new SkyOPMovementModules.AutoMlg(settings);
+            case AUTO_WALK -> new SkyOPMovementModules.AutoWalk(settings);
             case INFINITE_JUMP -> new SkyOPMovementModules.InfiniteJump(settings);
             case NO_FALL -> new SkyOPMovementModules.NoFall(settings);
+            case AUTO_RESPAWN -> new SkyOPPlayerModules.AutoRespawn(settings);
+            case LOW_HEALTH_ALERT -> new SkyOPPlayerModules.LowHealthAlert(settings);
+            case ARMOR_ALERT -> new SkyOPPlayerModules.ArmorAlert(settings);
             case FAST_BREAK -> new SkyOPPlayerModules.FastBreak(settings);
 
             case KILL_AURA -> new SkyOPCombatModules.KillAura(settings);
@@ -183,6 +192,8 @@ public final class SkyOPModuleManager {
 
             case ENTITY_ESP -> new SkyOPVisualModules.EntityEsp(settings);
             case ITEM_ESP -> new SkyOPVisualModules.ItemEsp(settings);
+            case ZOOM -> new SkyOPVisualModules.Zoom(settings);
+            case CONTAINER_FINDER -> new SkyOPVisualModules.ContainerFinder(settings);
             case GAMMA_BOOST -> new SkyOPVisualModules.GammaBoost(settings);
             case NIGHT_VISION -> new SkyOPVisualModules.NightVision(settings);
             case WAYPOINTS -> new SkyOPVisualModules.Waypoints(settings);
@@ -262,6 +273,14 @@ public final class SkyOPModuleManager {
                     () -> (double) SkyOPState.autoClickerCps, value -> SkyOPState.autoClickerCps = value.intValue()));
             case AUTO_HUNT -> settings.add(number("autoHuntRange", "setting.hunt_range", "setting.hunt_range_desc",
                     () -> SkyOPState.autoHuntRange, value -> SkyOPState.autoHuntRange = value));
+            case ZOOM -> settings.add(number("zoomFov", "setting.zoom_fov", "setting.zoom_fov_desc",
+                    () -> (double) SkyOPState.zoomFov, value -> SkyOPState.zoomFov = value.intValue()));
+            case CONTAINER_FINDER -> settings.add(number("containerFinderRange", "setting.container_range", "setting.container_range_desc",
+                    () -> (double) SkyOPState.containerFinderRange, value -> SkyOPState.containerFinderRange = value.intValue()));
+            case LOW_HEALTH_ALERT -> settings.add(number("lowHealthAlertThreshold", "setting.low_health_threshold", "setting.low_health_desc",
+                    () -> (double) SkyOPState.lowHealthAlertThreshold, value -> SkyOPState.lowHealthAlertThreshold = value.intValue()));
+            case ARMOR_ALERT -> settings.add(number("armorAlertPercent", "setting.armor_alert_percent", "setting.armor_alert_desc",
+                    () -> (double) SkyOPState.armorAlertPercent, value -> SkyOPState.armorAlertPercent = value.intValue()));
             case FAST_BREAK -> settings.add(number("fastBreakLevel", "setting.fast_break_level", "setting.fast_break_level_desc",
                     () -> SkyOPState.fastBreakLevel, value -> SkyOPState.fastBreakLevel = value));
             case AUTO_MLG -> settings.add(number("autoMlgFallDistance", "setting.auto_mlg_fall", "setting.auto_mlg_fall_desc",
