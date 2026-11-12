@@ -210,6 +210,26 @@ class SkyOPGuiLayoutTest {
     }
 
     @Test
+    void compactCategoryRailFitsAllCategoriesAndRiskFilters() {
+        for (int[] viewport : new int[][]{{320, 200}, {480, 270}}) {
+            SkyOPGuiLayout layout = SkyOPGuiLayout.calculate(viewport[0], viewport[1]);
+            assertTrue(layout.compact());
+            int previousBottom = layout.sidebarY();
+            for (int index = 0; index < SkyOPCategory.values().length; index++) {
+                int y = layout.categoryRowY(index);
+                int height = layout.categoryButtonHeight();
+                assertTrue(y >= previousBottom, viewport[0] + "x" + viewport[1] + " category " + index);
+                assertTrue(y + height <= layout.footerY(),
+                        viewport[0] + "x" + viewport[1] + " category " + index + " must fit above footer");
+                previousBottom = y + height;
+            }
+        }
+        assertTrue(SkyOPCategory.SAFE.isRiskFilter());
+        assertTrue(SkyOPCategory.DANGEROUS.isRiskFilter());
+        assertTrue(!SkyOPCategory.WORLD.isRiskFilter());
+    }
+
+    @Test
     void moduleAndSettingRowsUseCompactSpacing() {
         SkyOPGuiLayout layout = SkyOPGuiLayout.calculate(480, 270);
 
