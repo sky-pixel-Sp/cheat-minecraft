@@ -982,7 +982,7 @@ public final class SkyOPClickGui extends Screen {
         if (SkyOPCore.isEnabled(SkyOPModuleId.CPS_HUD))
             previews.add(hudPreview(SkyOPModuleId.CPS_HUD, sw / 2 - 48, sh - 66, 96, 24, null, sw, sh));
         if (SkyOPCore.isEnabled(SkyOPModuleId.WORLD_INFO_HUD))
-            previews.add(hudPreview(SkyOPModuleId.WORLD_INFO_HUD, 8, 112, 220, 51, null, sw, sh));
+            previews.add(hudPreview(SkyOPModuleId.WORLD_INFO_HUD, 8, 112, 220, 40, null, sw, sh));
         if (SkyOPCore.isEnabled(SkyOPModuleId.CHUNK_INFO_HUD))
             previews.add(hudPreview(SkyOPModuleId.CHUNK_INFO_HUD, 8, 166, 184, 40, null, sw, sh));
         if (SkyOPCore.isEnabled(SkyOPModuleId.PERFORMANCE_HUD))
