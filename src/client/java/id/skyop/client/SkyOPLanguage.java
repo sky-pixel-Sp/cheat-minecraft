@@ -47,6 +47,8 @@ public final class SkyOPLanguage {
         put("gui.favorites", "FAVORITES");
         put("gui.search", "SEARCH MODULES");
         put("gui.hud_color", "HUD COLOR");
+        put("gui.theme", "THEME");
+        put("gui.next_theme", "NEXT");
         put("gui.apply", "APPLY");
         put("gui.hud_layout", "HUD LAYOUT");
         put("gui.drag_hud", "Drag each panel to reposition");
@@ -275,6 +277,7 @@ public final class SkyOPLanguage {
         translate("id", Map.ofEntries(
                 e("gui.control_center", "PUSAT KONTROL MODUL"), e("gui.subtitle", "Profil • Modul • Pengaturan langsung"),
                 e("gui.ready", "KLIEN SIAP"), e("gui.categories", "KATEGORI"), e("gui.active_modules", "MODUL AKTIF"),
+                e("gui.theme", "TEMA"), e("gui.next_theme", "GANTI"),
                 e("gui.inspector", "PENGATURAN MODUL"), e("gui.select_module", "Pilih modul"), e("gui.modules", "MODUL"),
                 e("gui.left_toggle_right_inspect", "Klik kiri: aktif/nonaktif • Klik kanan: pengaturan"),
                 e("gui.no_extra_settings", "Tidak ada pengaturan tambahan"), e("gui.enabled", "AKTIF"),

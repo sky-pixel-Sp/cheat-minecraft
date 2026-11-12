@@ -26,16 +26,16 @@ public final class SkyOPHudRenderer {
         int screenHeight = client.getWindow().getGuiScaledHeight();
 
         if (SkyOPCore.isEnabled(SkyOPModuleId.HUD)) {
-            int width = 184, lineHeight = 12;
+            int width = 190, lineHeight = 12;
             int activeCount = 0;
             for (SkyOPModuleId module : SkyOPModuleId.values()) {
                 if (module != SkyOPModuleId.HUD && SkyOPCore.isEnabled(module)) activeCount++;
             }
             int height = 44 + activeCount * lineHeight;
             int fullHeight = height + 26;
-            int x = SkyOPCore.hudXFor(SkyOPModuleId.HUD, SkyOPState.hudX, screenWidth, 190);
+            int x = SkyOPCore.hudXFor(SkyOPModuleId.HUD, SkyOPState.hudX, screenWidth, width);
             int y = SkyOPCore.hudYFor(SkyOPModuleId.HUD, SkyOPState.hudY, screenHeight, fullHeight);
-            graphics.fill(x, y, x + width, y + height, 0xC5101726);
+            graphics.fill(x, y, x + width, y + fullHeight, 0xC5101726);
             graphics.fill(x, y, x + width, y + 2, SkyOPState.hudAccentColor);
             graphics.text(client.font, Component.literal("SKYOP  /  CLIENT"), x + 10, y + 8, SkyOPState.hudAccentColor, true);
             graphics.text(client.font, Component.literal("26.3  •  " + activeCount + " " + SkyOPLanguage.text("gui.active")),
@@ -103,9 +103,11 @@ public final class SkyOPHudRenderer {
         }
 
         if (SkyOPCore.isEnabled(SkyOPModuleId.POTION_HUD)) {
+            int visibleEffects = Math.min(7, client.player.getActiveEffects().size());
+            int panelHeight = 8 + visibleEffects * 11;
             int x = SkyOPCore.hudXFor(SkyOPModuleId.POTION_HUD, screenWidth - 198, screenWidth, 190);
-            int y = SkyOPCore.hudYFor(SkyOPModuleId.POTION_HUD, 76, screenHeight, 96);
-            graphics.fill(x, y, x + 190, y + 8 + client.player.getActiveEffects().size() * 11, 0xC5101726);
+            int y = SkyOPCore.hudYFor(SkyOPModuleId.POTION_HUD, 76, screenHeight, panelHeight);
+            graphics.fill(x, y, x + 190, y + panelHeight, 0xC5101726);
             graphics.text(client.font, Component.literal("EFFECTS"), x + 8, y + 4, SkyOPState.hudAccentColor, true);
             int row = 0;
             for (var effect : client.player.getActiveEffects()) {
@@ -132,13 +134,28 @@ public final class SkyOPHudRenderer {
             }
         }
 
-        if (SkyOPCore.isEnabled(SkyOPModuleId.COMPASS_HUD) || SkyOPCore.isEnabled(SkyOPModuleId.DIRECTION_HUD)) {
-            int x = SkyOPCore.hudXFor(SkyOPModuleId.COMPASS_HUD, screenWidth / 2 - 48, screenWidth, 96);
+        if (SkyOPCore.isEnabled(SkyOPModuleId.COMPASS_HUD)) {
+            int widgetWidth = 104;
+            int x = SkyOPCore.hudXFor(SkyOPModuleId.COMPASS_HUD, screenWidth / 2 - 52, screenWidth, widgetWidth);
             int y = SkyOPCore.hudYFor(SkyOPModuleId.COMPASS_HUD, 8, screenHeight, 23);
             String direction = SkyOPMath.compassDirection(client.player.getYRot());
-            graphics.fill(x, y, x + 96, y + 23, 0xC5101726);
+            graphics.fill(x, y, x + widgetWidth, y + 23, 0xC5101726);
+            graphics.fill(x, y, x + widgetWidth, y + 2, SkyOPState.hudAccentColor);
             graphics.text(client.font, Component.literal(direction + "  " + Math.round(client.player.getYRot()) + "°"),
                     x + 8, y + 8, SkyOPState.hudAccentColor, true);
+        }
+
+        if (SkyOPCore.isEnabled(SkyOPModuleId.DIRECTION_HUD)) {
+            int widgetWidth = 164;
+            int x = SkyOPCore.hudXFor(SkyOPModuleId.DIRECTION_HUD, screenWidth / 2 - 82, screenWidth, widgetWidth);
+            int y = SkyOPCore.hudYFor(SkyOPModuleId.DIRECTION_HUD, 36, screenHeight, 24);
+            String direction = SkyOPMath.compassDirection(client.player.getYRot());
+            String coordinates = "X " + client.player.blockPosition().getX()
+                    + "  Z " + client.player.blockPosition().getZ();
+            graphics.fill(x, y, x + widgetWidth, y + 24, 0xC5101726);
+            graphics.fill(x, y, x + widgetWidth, y + 2, SkyOPState.hudAccentColor);
+            graphics.text(client.font, Component.literal(direction + "  •  " + coordinates),
+                    x + 8, y + 9, 0xFFF1F6FB, true);
         }
 
         if (SkyOPCore.isEnabled(SkyOPModuleId.PING_HUD)) {

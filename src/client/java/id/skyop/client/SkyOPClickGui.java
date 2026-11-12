@@ -929,11 +929,13 @@ public final class SkyOPClickGui extends Screen {
             previews.add(hudPreview(SkyOPModuleId.POTION_HUD, sw - 198, 76, 190, 96, null, sw, sh));
         if (SkyOPCore.isEnabled(SkyOPModuleId.DURABILITY_HUD))
             previews.add(hudPreview(SkyOPModuleId.DURABILITY_HUD, sw / 2 - 82, sh - 94, 164, 24, null, sw, sh));
-        if (SkyOPCore.isEnabled(SkyOPModuleId.COMPASS_HUD)
-                || SkyOPCore.isEnabled(SkyOPModuleId.DIRECTION_HUD)) {
-            String label = SkyOPCore.isEnabled(SkyOPModuleId.COMPASS_HUD)
-                    ? SkyOPLanguage.text("gui.compass_direction") : SkyOPModuleId.DIRECTION_HUD.title();
-            previews.add(hudPreview(SkyOPModuleId.COMPASS_HUD, sw / 2 - 48, 8, 96, 23, label, sw, sh));
+        if (SkyOPCore.isEnabled(SkyOPModuleId.COMPASS_HUD)) {
+            previews.add(hudPreview(SkyOPModuleId.COMPASS_HUD, sw / 2 - 52, 8, 104, 23,
+                    SkyOPLanguage.text("gui.compass_direction"), sw, sh));
+        }
+        if (SkyOPCore.isEnabled(SkyOPModuleId.DIRECTION_HUD)) {
+            previews.add(hudPreview(SkyOPModuleId.DIRECTION_HUD, sw / 2 - 82, 36, 164, 24,
+                    SkyOPModuleId.DIRECTION_HUD.title(), sw, sh));
         }
         if (SkyOPCore.isEnabled(SkyOPModuleId.PING_HUD))
             previews.add(hudPreview(SkyOPModuleId.PING_HUD, sw - 100, 8, 92, 22, null, sw, sh));
