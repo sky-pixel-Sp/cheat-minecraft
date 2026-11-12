@@ -144,7 +144,8 @@ public record SkyOPGuiLayout(
 
     private int compactCategoryRowStep() {
         int available = Math.max(1, footerY - sidebarY);
-        return available >= 6 * 27 ? 27 : Math.max(1, available / 6);
+        int categoryCount = SkyOPCategory.values().length;
+        return available >= categoryCount * 27 ? 27 : Math.max(1, available / categoryCount);
     }
 
     public int categoryButtonWidth() {
