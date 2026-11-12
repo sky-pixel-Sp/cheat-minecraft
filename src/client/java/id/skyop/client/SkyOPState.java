@@ -37,9 +37,10 @@ public final class SkyOPState {
     public static boolean targetPlayers = false;
     public static boolean targetMobs = true;
     public static boolean auraRotate = true;
-    public static boolean auraRequireLineOfSight = true;
+    // OFF scans already-loaded entities behind blocks; it does not bypass server checks.
+    public static boolean auraRequireLineOfSight = false;
     public static boolean auraTargetLowestHealth = false;
-    public static double auraFov = 110.0;
+    public static double auraFov = 360.0;
     public static double auraRotationSpeed = 0.42;
     public static double auraRange = 4.2;
     public static int auraDelayTicks = 8;
