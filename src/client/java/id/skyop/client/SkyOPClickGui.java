@@ -653,7 +653,7 @@ public final class SkyOPClickGui extends Screen {
         if (button == InputConstants.MOUSE_BUTTON_LEFT && !layout.compact()) {
             int diagnosticsX = panelX + panelWidth - 172;
             if (inside(mx, my, diagnosticsX, panelY + 13, 104, 22)) {
-                Minecraft.getInstance().setScreen(new SkyOPDiagnosticsScreen(this));
+                Minecraft.getInstance().gui.setScreen(new SkyOPDiagnosticsScreen(this));
                 return true;
             }
         }
