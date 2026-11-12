@@ -7,6 +7,16 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class SkyOPSettingsSchemaTest {
     @Test
+    void validatesFullCircleAuraFieldOfView() {
+        var rule = SkyOPSettingsSchema.rule("auraFov");
+        assertNotNull(rule);
+        assertEquals(1.0, rule.validate(0));
+        assertEquals(360.0, rule.validate(720));
+        assertEquals(360.0, rule.validate(Double.NaN));
+        assertEquals(360.0, rule.defaultValue());
+    }
+
+    @Test
     void validatesAutoHuntRange() {
         var rule = SkyOPSettingsSchema.rule("autoHuntRange");
         assertNotNull(rule);
