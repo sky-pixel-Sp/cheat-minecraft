@@ -20,7 +20,7 @@ public final class SkyOPSettingsSchema {
 
     static {
         number("auraRange", 4.2, 2.5, 6.0, false);
-        number("auraFov", 110, 30, 180, true);
+        number("auraFov", 360, 1, 360, true);
         number("auraRotationSpeed", 0.42, 0.10, 1.0, false);
         number("auraDelayTicks", 8, 1, 20, true);
         number("triggerDelayTicks", 3, 1, 12, true);
