@@ -76,7 +76,6 @@ public final class SkyOPDiagnosticsScreen extends Screen {
         drawHeader(graphics, mouseX, mouseY, palette, online, idLanguage);
         drawMetrics(graphics, client, palette, idLanguage);
         drawRuntimePanel(graphics, client, palette, idLanguage);
-        drawModuleHealth(graphics, client, palette, idLanguage);
         drawFooter(graphics, mouseX, mouseY, palette, idLanguage);
     }
 
@@ -386,7 +385,7 @@ public final class SkyOPDiagnosticsScreen extends Screen {
     }
 
     private void returnToParent() {
-        Minecraft.getInstance().setScreen(parent);
+        Minecraft.getInstance().gui.setScreen(parent);
     }
 
     private static String formatPing(int ping) {
