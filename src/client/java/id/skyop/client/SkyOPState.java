@@ -59,6 +59,10 @@ public final class SkyOPState {
     public static double autoMlgFallDistance = 6.0;
     public static double autoTotemHealth = 14.0;
     public static int bridgeDelayTicks = 2;
+    public static int zoomFov = 20;
+    public static int containerFinderRange = 16;
+    public static int lowHealthAlertThreshold = 8;
+    public static int armorAlertPercent = 15;
     public static int autoEatThreshold = 14;
     public static int autoRefillThreshold = 2;
     public static int hudX = 8;
