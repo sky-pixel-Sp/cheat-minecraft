@@ -888,4 +888,33 @@ public final class SkyOPLanguage {
         return text("module." + name + ".description").equals("module." + name + ".description")
                 ? fallback : text("module." + name + ".description");
     }
+
+    
+    // Indonesian translations for the eleven SkyOP 4.0 HUD modules.
+    static {
+        translate("id", Map.ofEntries(
+                e("module.WORLD_INFO_HUD.title", "Info Dunia"),
+                e("module.WORLD_INFO_HUD.description", "Menampilkan dimensi, bioma, dan kondisi cuaca saat ini."),
+                e("module.CHUNK_INFO_HUD.title", "Info Chunk"),
+                e("module.CHUNK_INFO_HUD.description", "Menampilkan koordinat chunk dan koordinat blok lokal."),
+                e("module.PERFORMANCE_HUD.title", "HUD Performa"),
+                e("module.PERFORMANCE_HUD.description", "Menampilkan FPS dan penggunaan memori JVM secara langsung."),
+                e("module.SESSION_TIMER_HUD.title", "Timer Sesi"),
+                e("module.SESSION_TIMER_HUD.description", "Menampilkan lama waktu sesi di dunia saat ini."),
+                e("module.FOOD_HUD.title", "HUD Makanan"),
+                e("module.FOOD_HUD.description", "Menampilkan tingkat lapar dan saturasi saat ini."),
+                e("module.AIR_HUD.title", "HUD Udara"),
+                e("module.AIR_HUD.description", "Menampilkan sisa pasokan udara."),
+                e("module.EXPERIENCE_HUD.title", "HUD Pengalaman"),
+                e("module.EXPERIENCE_HUD.description", "Menampilkan level pengalaman dan progres."),
+                e("module.ITEM_INFO_HUD.title", "Info Item"),
+                e("module.ITEM_INFO_HUD.description", "Menampilkan nama item tangan utama, jumlah, dan daya tahan."),
+                e("module.OFFHAND_HUD.title", "Info Offhand"),
+                e("module.OFFHAND_HUD.description", "Menampilkan item dan jumlah di tangan kedua."),
+                e("module.BLOCK_INFO_HUD.title", "Info Blok"),
+                e("module.BLOCK_INFO_HUD.description", "Menampilkan blok yang ditargetkan dan koordinatnya."),
+                e("module.ARMOR_DETAIL_HUD.title", "Detail Armor"),
+                e("module.ARMOR_DETAIL_HUD.description", "Menampilkan bagian armor yang dipakai dan sisa daya tahannya.")
+        ));
+    }
 }
