@@ -30,7 +30,11 @@ public record SkyOPGuiLayout(
         int inspectorWidth,
         int inspectorHeight,
         int footerY
-) {
+ ) {
+    // Shared main source set cannot depend on client-only SkyOPCategory.
+    // Keep this count in sync with the nine ClickGUI navigation entries.
+    private static final int CATEGORY_COUNT = 9;
+
     public static SkyOPGuiLayout calculate(int screenWidth, int screenHeight) {
         int safeScreenWidth = Math.max(1, screenWidth);
         int safeScreenHeight = Math.max(1, screenHeight);
@@ -144,8 +148,7 @@ public record SkyOPGuiLayout(
 
     private int compactCategoryRowStep() {
         int available = Math.max(1, footerY - sidebarY);
-        int categoryCount = SkyOPCategory.values().length;
-        return available >= categoryCount * 27 ? 27 : Math.max(1, available / categoryCount);
+        return available >= CATEGORY_COUNT * 27 ? 27 : Math.max(1, available / CATEGORY_COUNT);
     }
 
     public int categoryButtonWidth() {
