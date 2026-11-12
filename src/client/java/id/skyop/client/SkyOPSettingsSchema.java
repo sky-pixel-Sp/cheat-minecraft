@@ -38,6 +38,10 @@ public final class SkyOPSettingsSchema {
         number("autoMlgFallDistance", 6, 3, 18, false);
         number("autoTotemHealth", 14, 1, 20, false);
         number("bridgeDelayTicks", 2, 1, 10, true);
+        number("zoomFov", 20, 10, 70, true);
+        number("containerFinderRange", 16, 4, 24, true);
+        number("lowHealthAlertThreshold", 8, 1, 20, true);
+        number("armorAlertPercent", 15, 1, 50, true);
     }
 
     private SkyOPSettingsSchema() { }
