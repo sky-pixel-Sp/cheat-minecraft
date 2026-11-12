@@ -274,19 +274,15 @@ public final class SkyOPHudRenderer {
 
         if (SkyOPCore.isEnabled(SkyOPModuleId.WORLD_INFO_HUD)) {
             var position = client.player.blockPosition();
-            String dimension = client.level.dimension().location().toString();
+            String dimension = client.level.dimension().toString();
             String biome = client.level.getBiome(position).unwrapKey()
-                    .map(key -> key.location().toString()).orElse("unknown");
-            long dayTime = Math.floorMod(client.level.getDayTime(), 24000L);
-            int hour = (int) ((dayTime / 1000L + 6L) % 24L);
-            int minute = (int) ((dayTime % 1000L) * 60L / 1000L);
+                    .map(key -> key.toString()).orElse("unknown");
             String weather = client.level.isThundering() ? "Storm"
                     : client.level.isRaining() ? "Rain" : "Clear";
             int x = SkyOPCore.hudXFor(SkyOPModuleId.WORLD_INFO_HUD, 8, screenWidth, 220);
-            int y = SkyOPCore.hudYFor(SkyOPModuleId.WORLD_INFO_HUD, 112, screenHeight, 51);
+            int y = SkyOPCore.hudYFor(SkyOPModuleId.WORLD_INFO_HUD, 112, screenHeight, 40);
             drawInfoPanel(client, graphics, x, y, 220, "WORLD INTEL",
-                    List.of(trimText(dimension, 30), trimText(biome, 30),
-                            String.format(java.util.Locale.ROOT, "%02d:%02d  •  %s", hour, minute, weather)));
+                    List.of(trimText(dimension, 30), trimText(biome, 30), "Weather: " + weather));
         }
 
         if (SkyOPCore.isEnabled(SkyOPModuleId.CHUNK_INFO_HUD)) {
