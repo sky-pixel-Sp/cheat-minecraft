@@ -290,8 +290,24 @@ static void restoreFlight(Minecraft client) {
         if (!SkyOPCore.isEnabled(SkyOPModuleId.INFINITE_JUMP)) jumpKeyWasDown = client.options.keyJump.isDown();
     }
 
+    static void restoreAutoWalk(Minecraft client) {
+        if (client != null && client.options != null) {
+            client.options.keyUp.setDown(false);
+        }
+    }
+
+    static void tickAutoWalk(Minecraft client) {
+        if (client.player == null || !client.player.isAlive() || client.player.isPassenger()
+                || client.player.isSpectator() || client.gui.screen() != null) {
+            restoreAutoWalk(client);
+            return;
+        }
+        client.options.keyUp.setDown(true);
+    }
+
     static void cleanup(Minecraft client) {
         restoreFlight(client);
+        restoreAutoWalk(client);
         autoJumpCooldown = 0;
         stepAssistCooldown = 0;
         bridgeCooldown = 0;
@@ -303,7 +319,13 @@ static void restoreFlight(Minecraft client) {
     public static final class AutoSprint extends SkyOPModule {
         public AutoSprint(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.AUTO_SPRINT, settings); }
         @Override public void onTick(Minecraft client) { tickAutoSprint(client); }
-        
+    }
+
+    public static final class AutoWalk extends SkyOPModule {
+        public AutoWalk(List<SkyOPSetting<?>> settings) { super(SkyOPModuleId.AUTO_WALK, settings); }
+        @Override public void onTick(Minecraft client) { tickAutoWalk(client); }
+        @Override public void onDisable(Minecraft client) { restoreAutoWalk(client); }
+        @Override public void onWorldChange(Minecraft client) { restoreAutoWalk(client); }
     }
 
     public static final class Speed extends SkyOPModule {
