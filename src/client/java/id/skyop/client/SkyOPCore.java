@@ -315,6 +315,7 @@ private static void onClientTick(Minecraft client) {
         SkyOPTelemetry.update(client);
         if (client.gui.screen() != null) {
             SkyOPInventoryManager.stop(client);
+            SkyOPMovementModules.restoreAutoWalk(client);
             return;
         }
 
