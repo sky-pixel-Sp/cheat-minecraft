@@ -290,10 +290,13 @@ static void restoreFlight(Minecraft client) {
         if (!SkyOPCore.isEnabled(SkyOPModuleId.INFINITE_JUMP)) jumpKeyWasDown = client.options.keyJump.isDown();
     }
 
+    private static Boolean autoWalkOriginalKeyState;
+
     static void restoreAutoWalk(Minecraft client) {
-        if (client != null && client.options != null) {
-            client.options.keyUp.setDown(false);
+        if (client != null && client.options != null && autoWalkOriginalKeyState != null) {
+            client.options.keyUp.setDown(autoWalkOriginalKeyState);
         }
+        autoWalkOriginalKeyState = null;
     }
 
     static void tickAutoWalk(Minecraft client) {
@@ -301,6 +304,9 @@ static void restoreFlight(Minecraft client) {
                 || client.player.isSpectator() || client.gui.screen() != null) {
             restoreAutoWalk(client);
             return;
+        }
+        if (autoWalkOriginalKeyState == null) {
+            autoWalkOriginalKeyState = client.options.keyUp.isDown();
         }
         client.options.keyUp.setDown(true);
     }
