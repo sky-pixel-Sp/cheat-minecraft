@@ -179,27 +179,58 @@ public final class SkyOPInventoryManager {
     }
 
     static void tickAutoTotem(Minecraft client) {
-        if (totemDelay > 0) { totemDelay--; return; }
+        if (client == null || client.player == null || client.gameMode == null) return;
+        if (totemDelay > 0) {
+            totemDelay--;
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_TOTEM,
+                    SkyOPLanguage.text("diagnostics.reason.cooldown"));
+            return;
+        }
+
         var player = client.player;
-        if (!SkyOPAutomationRules.shouldEquipTotem(
-                !player.getOffhandItem().isEmpty(), player.getHealth(), SkyOPState.autoTotemHealth)) return;
+        if (player.getAbilities().instabuild) {
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_TOTEM,
+                    SkyOPLanguage.text("diagnostics.reason.creative"));
+            return;
+        }
+
+        if (!player.getOffhandItem().isEmpty()) {
+            String reason = player.getOffhandItem().is(Items.TOTEM_OF_UNDYING)
+                    ? SkyOPLanguage.text("diagnostics.reason.totem_already_equipped")
+                    : SkyOPLanguage.text("diagnostics.reason.offhand_occupied");
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_TOTEM, reason);
+            return;
+        }
+
+        double threshold = SkyOPSettingsSchema.rule("autoTotemHealth")
+                .validate(SkyOPState.autoTotemHealth);
+        if (player.getHealth() > threshold) {
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_TOTEM,
+                    SkyOPLanguage.text("diagnostics.reason.health_above")
+                            + " (" + player.getHealth() + " > " + threshold + ")");
+            return;
+        }
 
         var inventory = player.getInventory();
-        // Only main inventory + hotbar are eligible. Armor (36-39) and offhand (40)
-        // are not source slots for this automation.
+        // Search only main inventory and hotbar. Armor (36-39) and offhand (40)
+        // must never be treated as source slots.
         for (int inventorySlot = 0; inventorySlot <= 35; inventorySlot++) {
             if (!inventory.getItem(inventorySlot).is(Items.TOTEM_OF_UNDYING)) continue;
             int menuSlot = SkyOPAutomationRules.playerInventorySlotToMenuSlot(inventorySlot);
             if (menuSlot < 0) continue;
 
             // Vanilla inventory SWAP button 40 maps to the offhand slot.
-            // The server validates this ordinary container action.
             client.gameMode.handleContainerInput(
                     player.inventoryMenu.containerId, menuSlot, 40, ContainerInput.SWAP, player
             );
             totemDelay = 10;
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_TOTEM,
+                    SkyOPLanguage.text("diagnostics.reason.totem_swap_sent"));
             return;
         }
+
+        SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_TOTEM,
+                SkyOPLanguage.text("diagnostics.reason.no_totem"));
     }
 
     static void tickAutoArmor(Minecraft client) {

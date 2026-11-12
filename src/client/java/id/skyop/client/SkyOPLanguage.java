@@ -111,6 +111,31 @@ public final class SkyOPLanguage {
         put("gui.compass_direction", "Compass / Direction");
         put("gui.drag_to_move", "DRAG TO MOVE");
         put("gui.info", "INFO");
+        put("diagnostics.title", "SkyOP Diagnostics");
+        put("diagnostics.subtitle", "Module readiness, skipped actions and runtime errors");
+        put("diagnostics.ready", "READY");
+        put("diagnostics.not_ready", "NOT READY");
+        put("diagnostics.errors", "Errors");
+        put("diagnostics.last_reason", "Last reason");
+        put("diagnostics.last_error", "Last error");
+        put("diagnostics.copy", "COPY REPORT");
+        put("diagnostics.copied", "REPORT COPIED");
+        put("diagnostics.back", "BACK");
+        put("diagnostics.module_disabled", "Module is disabled");
+        put("diagnostics.reason.cooldown", "Swap cooldown is active");
+        put("diagnostics.reason.creative", "Skipped in Creative mode");
+        put("diagnostics.reason.totem_already_equipped", "A totem is already in the offhand");
+        put("diagnostics.reason.offhand_occupied", "Offhand is occupied; the item was preserved");
+        put("diagnostics.reason.health_above", "Health is above the Auto Totem threshold");
+        put("diagnostics.reason.totem_swap_sent", "Vanilla offhand swap request was sent");
+        put("diagnostics.reason.no_totem", "No totem found in hotbar or main inventory");
+        put("diagnostics.reason.mlg_cooldown", "Auto MLG cooldown is active");
+        put("diagnostics.reason.not_falling", "Not falling past the configured trigger threshold");
+        put("diagnostics.reason.no_bucket", "No water bucket is available in the hotbar");
+        put("diagnostics.reason.no_landing", "No solid landing surface found in loaded chunks");
+        put("diagnostics.reason.out_of_reach", "Predicted landing surface is outside 4.5-block vanilla reach");
+        put("diagnostics.reason.aim_mismatch", "Predicted landing surface is not under the downward crosshair yet");
+        put("diagnostics.reason.mlg_attempt", "Vanilla water-bucket interaction request was sent");
 
 
         put("category.combat", "Combat");
@@ -155,7 +180,7 @@ public final class SkyOPLanguage {
         put("module.NO_FALL.title", "NoFall");
         put("module.NO_FALL.description", "Clears the local fall-distance accumulator.");
         put("module.FAST_BREAK.title", "Fast Break");
-        put("module.FAST_BREAK.description", "Boosts local mining speed with a Haste I–VII equivalent.");
+        put("module.FAST_BREAK.description", "Boosts local mining speed with a Haste I–L (level 50) equivalent.");
         put("module.AUTO_MLG.title", "Auto MLG");
         put("module.AUTO_MLG.description", "Attempts a normal water-bucket placement while falling toward a valid block.");
         put("module.AUTO_TOTEM.title", "Auto Totem");
@@ -779,9 +804,36 @@ public final class SkyOPLanguage {
         ));
         translate("id", Map.ofEntries(
                 e("module.FAST_BREAK.title", "Hancur Cepat"),
-                e("module.FAST_BREAK.description", "Meningkatkan kecepatan mining lokal setara Haste I–VII."),
+                e("module.FAST_BREAK.description", "Meningkatkan kecepatan mining lokal setara Haste I–L (level 50)."),
                 e("setting.fast_break_level", "Level Haste"),
-                e("setting.fast_break_level_desc", "Haste VII setara pengali kecepatan mining lokal 2,4x; aturan server tetap berlaku.")
+                e("setting.fast_break_level_desc", "Level 50 setara pengali kecepatan hancur lokal 11x; server multiplayer tetap berwenang.")
+        ));
+        translate("id", Map.ofEntries(
+                e("diagnostics.title", "Diagnostik SkyOP"),
+                e("diagnostics.subtitle", "Kesiapan modul, alasan dilewati, dan error runtime"),
+                e("diagnostics.ready", "SIAP"),
+                e("diagnostics.not_ready", "BELUM SIAP"),
+                e("diagnostics.errors", "Error"),
+                e("diagnostics.last_reason", "Alasan terakhir"),
+                e("diagnostics.last_error", "Error terakhir"),
+                e("diagnostics.copy", "SALIN LAPORAN"),
+                e("diagnostics.copied", "LAPORAN DISALIN"),
+                e("diagnostics.back", "KEMBALI"),
+                e("diagnostics.module_disabled", "Modul sedang nonaktif"),
+                e("diagnostics.reason.cooldown", "Jeda pertukaran masih aktif"),
+                e("diagnostics.reason.creative", "Dilewati dalam mode Creative"),
+                e("diagnostics.reason.totem_already_equipped", "Totem sudah berada di offhand"),
+                e("diagnostics.reason.offhand_occupied", "Offhand terisi; item tidak diubah"),
+                e("diagnostics.reason.health_above", "HP masih di atas ambang Auto Totem"),
+                e("diagnostics.reason.totem_swap_sent", "Permintaan pertukaran vanilla ke offhand telah dikirim"),
+                e("diagnostics.reason.no_totem", "Totem tidak ditemukan di hotbar atau inventory utama"),
+                e("diagnostics.reason.mlg_cooldown", "Jeda Auto MLG masih aktif"),
+                e("diagnostics.reason.not_falling", "Belum jatuh melewati ambang pemicu"),
+                e("diagnostics.reason.no_bucket", "Water bucket tidak tersedia di hotbar"),
+                e("diagnostics.reason.no_landing", "Tidak ditemukan permukaan mendarat solid di chunk yang dimuat"),
+                e("diagnostics.reason.out_of_reach", "Permukaan pendaratan prediksi di luar jangkauan vanilla 4,5 blok"),
+                e("diagnostics.reason.aim_mismatch", "Permukaan pendaratan prediksi belum sejajar dengan crosshair ke bawah"),
+                e("diagnostics.reason.mlg_attempt", "Permintaan interaksi water bucket vanilla telah dikirim")
         ));
     }
 

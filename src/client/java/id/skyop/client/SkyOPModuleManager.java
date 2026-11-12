@@ -64,11 +64,12 @@ public final class SkyOPModuleManager {
         for (SkyOPModule module : MODULES.values()) {
             SkyOPModuleId type = module.type();
             boolean enabled = SkyOPCore.isEnabled(type);
-            if (enabled && !ACTIVE.contains(type) && module.isReady(client)) {
+            if (enabled && !ACTIVE.contains(type) && isModuleReady(module, client)) {
+                SkyOPDiagnostics.beginModuleSession(type);
                 ACTIVE.add(type);
-                module.onEnable(client);
+                invokeModule(module, client, "onEnable", () -> module.onEnable(client));
             } else if (!enabled && ACTIVE.remove(type)) {
-                module.onDisable(client);
+                invokeModule(module, client, "onDisable", () -> module.onDisable(client));
             }
         }
     }
@@ -99,17 +100,32 @@ public final class SkyOPModuleManager {
     public static void tick(Minecraft client) {
         if (client == null || client.player == null || client.level == null) return;
         if (client.gameMode == null) {
-            SkyOPInventoryManager.stop(client);
+            try {
+                SkyOPInventoryManager.stop(client);
+            } catch (Throwable error) {
+                rethrowFatal(error);
+                SkyOPDiagnostics.recordServiceError("stop inventory without game mode", error);
+            }
             return;
         }
         syncAllStates(client);
-        SkyOPMovementModules.trackDisabledJumpInputs(client);
+        try {
+            SkyOPMovementModules.trackDisabledJumpInputs(client);
+        } catch (Throwable error) {
+            rethrowFatal(error);
+            SkyOPDiagnostics.recordServiceError("track disabled jump inputs", error);
+        }
 
         tickModules(client, MOVEMENT_TICK_ORDER);
         tickModule(client, SkyOPModuleId.NO_FALL);
 
-        // ESP and gamma share client-owned temporary state and are applied once per tick.
-        SkyOPVisualModules.tickShared(client);
+        // Shared visual state is isolated from every registered module callback.
+        try {
+            SkyOPVisualModules.tickShared(client);
+        } catch (Throwable error) {
+            rethrowFatal(error);
+            SkyOPDiagnostics.recordServiceError("shared visual tick", error);
+        }
 
         tickModules(client, COMBAT_TICK_ORDER);
         tickModules(client, INVENTORY_TICK_ORDER);
@@ -121,32 +137,108 @@ public final class SkyOPModuleManager {
 
     private static void tickModule(Minecraft client, SkyOPModuleId type) {
         SkyOPModule module = MODULES.get(type);
-        if (module != null && SkyOPCore.isEnabled(type) && module.isReady(client)) {
-            module.onTick(client);
+        if (module != null && SkyOPCore.isEnabled(type) && isModuleReady(module, client)) {
+            invokeModule(module, client, "onTick", () -> module.onTick(client));
         }
+    }
+
+    public static boolean isReadyForDiagnostics(Minecraft client, SkyOPModuleId type) {
+        SkyOPModule module = MODULES.get(type);
+        return module != null && isModuleReady(module, client);
+    }
+
+    private static boolean isModuleReady(SkyOPModule module, Minecraft client) {
+        try {
+            boolean ready = module.isReady(client);
+            if (!ready && SkyOPCore.isEnabled(module.type())) {
+                SkyOPDiagnostics.recordReason(module.type(),
+                        SkyOPModuleDependencies.missingRequirement(client, module.type()));
+            }
+            return ready;
+        } catch (Throwable error) {
+            rethrowFatal(error);
+            recordModuleError(module, client, "isReady", error);
+            return false;
+        }
+    }
+
+    private static void invokeModule(SkyOPModule module, Minecraft client,
+                                    String phase, Runnable callback) {
+        try {
+            callback.run();
+        } catch (Throwable error) {
+            rethrowFatal(error);
+            recordModuleError(module, client, phase, error);
+        }
+    }
+
+    private static void recordModuleError(SkyOPModule module, Minecraft client,
+                                          String phase, Throwable error) {
+        int errors = SkyOPDiagnostics.recordError(module.type(), phase, error);
+        if (SkyOPDiagnostics.shouldDisableAfterErrors(errors) && SkyOPCore.isEnabled(module.type())) {
+            SkyOPDiagnostics.recordReason(module.type(),
+                    "Auto-disabled after " + errors + " errors in " + phase);
+            SkyOPCore.setEnabled(client, module.type(), false);
+            if (client != null && client.player != null) {
+                client.player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+                        "[SkyOP] " + module.type().name() + " disabled after 3 errors. See skyop.log."));
+            }
+        }
+    }
+
+    private static void rethrowFatal(Throwable error) {
+        if (error instanceof VirtualMachineError fatal) throw fatal;
+        if (error instanceof ThreadDeath death) throw death;
     }
 
     public static void render2D(Minecraft client, GuiGraphicsExtractor graphics) {
         if (client == null || graphics == null || !MODULES.containsKey(SkyOPModuleId.HUD)) return;
-        SkyOPHudRenderer.render(client, graphics);
+        try {
+            SkyOPHudRenderer.render(client, graphics);
+        } catch (Throwable error) {
+            rethrowFatal(error);
+            SkyOPDiagnostics.recordServiceError("HUD renderer", error);
+        }
         for (SkyOPModule module : MODULES.values()) {
-            if (SkyOPCore.isEnabled(module.type())) module.onRender2D(client, graphics);
+            if (SkyOPCore.isEnabled(module.type()) && isModuleReady(module, client)) {
+                invokeModule(module, client, "onRender2D",
+                        () -> module.onRender2D(client, graphics));
+            }
         }
     }
 
     public static void render3D(Minecraft client, Object renderContext) {
+        if (client == null) return;
         for (SkyOPModule module : MODULES.values()) {
-            if (SkyOPCore.isEnabled(module.type()) && module.isReady(client)) {
-                module.onRender3D(client, renderContext);
+            if (SkyOPCore.isEnabled(module.type()) && isModuleReady(module, client)) {
+                invokeModule(module, client, "onRender3D",
+                        () -> module.onRender3D(client, renderContext));
             }
         }
     }
 
     public static void onWorldChange(Minecraft client) {
-        for (SkyOPModule module : MODULES.values()) module.onWorldChange(client);
-        SkyOPMovementModules.cleanup(client);
-        SkyOPVisualModules.cleanup(client);
-        SkyOPInventoryManager.stop(client);
+        for (SkyOPModule module : MODULES.values()) {
+            invokeModule(module, client, "onWorldChange", () -> module.onWorldChange(client));
+        }
+        try {
+            SkyOPMovementModules.cleanup(client);
+        } catch (Throwable error) {
+            rethrowFatal(error);
+            SkyOPDiagnostics.recordServiceError("movement cleanup", error);
+        }
+        try {
+            SkyOPVisualModules.cleanup(client);
+        } catch (Throwable error) {
+            rethrowFatal(error);
+            SkyOPDiagnostics.recordServiceError("visual cleanup", error);
+        }
+        try {
+            SkyOPInventoryManager.stop(client);
+        } catch (Throwable error) {
+            rethrowFatal(error);
+            SkyOPDiagnostics.recordServiceError("inventory cleanup", error);
+        }
         SkyOPTelemetry.reset();
         ACTIVE.clear();
     }

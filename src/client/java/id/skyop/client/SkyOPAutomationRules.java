@@ -22,6 +22,30 @@ public final class SkyOPAutomationRules {
                 && localPlayerUuid.equals(serverPlayerUuid);
     }
 
+    /** One vanilla-style air movement step used by Auto MLG trajectory prediction. */
+    public record FallMotion(double x, double y, double z,
+                             double velocityX, double velocityY, double velocityZ) { }
+
+    public static FallMotion advanceFall(double x, double y, double z,
+                                          double velocityX, double velocityY, double velocityZ) {
+        double nextX = x + velocityX;
+        double nextY = y + velocityY;
+        double nextZ = z + velocityZ;
+        return new FallMotion(nextX, nextY, nextZ,
+                velocityX * 0.91D,
+                (velocityY - 0.08D) * 0.98D,
+                velocityZ * 0.91D);
+    }
+
+    /** At most one decision-log line per module every two seconds. */
+    public static boolean shouldWriteReasonLog(long lastLogMillis, long nowMillis) {
+        return lastLogMillis <= 0L || nowMillis - lastLogMillis >= 2000L;
+    }
+
+    public static boolean shouldDisableAfterErrors(int errorCount) {
+        return errorCount >= 3;
+    }
+
     public static boolean shouldEquipTotem(boolean offhandOccupied,
                                            float health, double healthThreshold) {
         double threshold = SkyOPSettingsSchema.rule("autoTotemHealth").validate(healthThreshold);

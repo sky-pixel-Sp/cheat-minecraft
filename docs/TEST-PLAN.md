@@ -211,3 +211,40 @@ These checks are required in a disposable singleplayer world and a private test 
 3. Disable Fast Break and confirm vanilla mining speed is restored in both local and integrated-server paths.
 
 Record Minecraft 26.3, Fabric Loader/API versions, GUI scale, client log, server log, and a short video for each check. Do not mark any item as game-tested until evidence is captured.
+
+
+## Fase A — diagnostic and Survival regression
+
+Run all checks in a disposable **Survival** world. Do not use Creative for acceptance testing; Creative is deliberately skipped by Auto Totem and Auto MLG. Diagnostics opens with the configurable **Home** key (Controls → SkyOP Client → Open SkyOP Diagnostics).
+
+### Runtime diagnostics
+
+- Log file: `.minecraft/config/skyop-client/skyop.log`; previous file rotates to `skyop.log.1` after approximately 1 MiB.
+- The Diagnostics screen lists module readiness, enabled state, error count (0–3), last decision reason, and last error.
+- **Copy Report** copies a local report to the clipboard. The report includes no network upload and stays on the local client.
+- Every module lifecycle/tick/render callback is isolated. Three caught errors in one enable session automatically disable only that module. Manually enabling it starts a fresh error counter.
+- Fatal VM errors and thread termination are not swallowed.
+- Fast Break range is now level 1–50. The local destroy-speed factor is `1 + 0.2 × level`; level 50 is 11×. Multiplayer servers remain authoritative and may reject or correct the result.
+
+### Survival test checklist
+
+1. Launch Minecraft 26.3 in Survival and open Diagnostics with Home. Confirm the screen opens and every module has a readiness row.
+2. Enable Auto Totem while health is above its configured threshold. Confirm the last reason says HP is above the threshold and no item moves.
+3. Keep offhand empty, reduce health below threshold, and put a totem in hotbar slot 1. Confirm swap request, then repeat for hotbar slots 2–9.
+4. Repeat with the totem in main-inventory slots 10–36. Confirm the correct totem moves to offhand and armor slots are untouched.
+5. Equip a shield or another item in offhand and lower health. Confirm Diagnostics reports occupied offhand and never overwrites it.
+6. Remove every totem from hotbar and main inventory. Confirm Diagnostics reports no totem found; equip a totem already in offhand and confirm it is not swapped.
+7. Switch to Creative briefly and confirm Auto Totem and Auto MLG report Creative skip; return to Survival before continuing.
+8. Enable Auto MLG while falling past its threshold without a water bucket. Confirm the no-bucket reason and that pitch/hotbar stay unchanged.
+9. Fall toward a void/no-solid area or unloaded chunk. Confirm no landing surface is predicted and no action is attempted.
+10. Fall toward a solid surface with the predicted hit farther than 4.5 blocks from the eye. Confirm out-of-reach reason and no interaction.
+11. Fall toward a solid surface within vanilla reach, first looking forward/up and then down. Confirm a predicted point is found, current downward pick aligns, and normal bucket interaction is attempted; server validation still applies.
+12. Repeat Auto MLG while drifting horizontally. Confirm the prediction follows the current horizontal velocity and the action waits when the predicted surface and crosshair disagree.
+13. In singleplayer Survival, test Fast Break at levels 1, 7 and 50. Compare the client mining progress and report anomalies; then disable it and check vanilla client speed returns.
+14. Test Fast Break with a different UUID in a remote multiplayer test environment; confirm it does not apply the multiplier to remote players.
+15. Do not deliberately crash a normal play session. If a development-only failing test module is available, verify the third callback exception disables only that module and records a stack trace.
+16. Disconnect/reconnect, respawn, change dimension, resize the game window, and reopen Diagnostics. Confirm no stale module state, held pitch, selected slot, or missing screen.
+17. Use **Copy Report** after reproducing a failure and paste the full report. Also preserve `latest.log` and `config/skyop-client/skyop.log`.
+
+Record: Minecraft version, Fabric Loader/API versions, launcher, Survival world/server type, steps to reproduce, expected vs actual behavior, and report/log timestamps. Never mark a check passed solely because CI is green.
+
