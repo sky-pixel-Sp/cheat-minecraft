@@ -42,7 +42,7 @@ package id.skyop.client;
         RADAR_HUD("Nearby Entity Radar", "Lists nearby entities already loaded by the client.", SkyOPCategory.VISUAL),
         TEXT_GUI("Text GUI", "Displays a configurable custom HUD message.", SkyOPCategory.VISUAL),
 
-        WORLD_INFO_HUD("World Info HUD", "Displays dimension, biome and local world time.", SkyOPCategory.WORLD),
+        WORLD_INFO_HUD("World Info HUD", "Displays dimension, biome and current weather.", SkyOPCategory.WORLD),
         CHUNK_INFO_HUD("Chunk Info HUD", "Displays chunk coordinates and local block coordinates.", SkyOPCategory.WORLD),
         PERFORMANCE_HUD("Performance HUD", "Displays live FPS and JVM memory use.", SkyOPCategory.WORLD),
         SESSION_TIMER_HUD("Session Timer", "Displays elapsed time in the current world session.", SkyOPCategory.WORLD),
