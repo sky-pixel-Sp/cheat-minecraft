@@ -1,4 +1,4 @@
-# SkyOP Client 2.3.0 development test plan
+# SkyOP Client 4.0.0 development test plan
 
 ## Automated CI checks
 
