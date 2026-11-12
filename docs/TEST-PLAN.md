@@ -31,7 +31,8 @@ A green CI result proves compilation and packaging. It does not prove an in-game
 ## ClickGUI and core
 
 1. Press Right Shift and verify the GUI opens.
-2. Verify Combat, Movement, Visual, Player, Inventory and Favorites categories.
+2. Verify Combat, Movement, Visual, World, Player, Inventory, Favorites, Safe and Dangerous categories.
+3. Verify Safe and Dangerous are filters over registered modules and each module inspector shows the correct risk label.
 3. Search by a module name and a description term.
 4. Add/remove Favorites using the star; verify the Favorites category updates.
 5. Scroll the module panel and the settings panel independently.
@@ -241,3 +242,15 @@ Run all tests first in a disposable singleplayer world, then on a private multip
 8. Switch between singleplayer and multiplayer while the new modules are enabled. Verify Zoom, Auto Walk and Container Finder restore/clear their client-side state on world change. Verify server-authoritative actions may be denied and do not cause the mod to claim success or bypass the server.
 
 CI passing does not replace these in-game checks. Record Minecraft/Fabric versions, GUI scale, server type, latest.log, and a short capture for each module.
+
+## SkyOP 4.0 expansion checks
+
+1. Set KillAura field of view to 360 degrees. In a controlled local test world, confirm the target selector can choose loaded entities in front, behind, above and below within configured range.
+2. Disable the line-of-sight requirement and confirm the client scanner retains loaded entities behind blocks. Do not treat this as proof that a multiplayer server will accept attacks through blocks.
+3. Toggle World Info HUD; verify dimension, biome, world clock and weather update with the world.
+4. Toggle Chunk Info HUD; walk across chunk boundaries and confirm chunk and local block coordinates update.
+5. Toggle Performance HUD; verify FPS and JVM heap values update without a placeholder/static value.
+6. Toggle Session Timer; confirm elapsed time increments and resets on world/player context change.
+7. Open HUD Edit and drag each new widget; close/reopen the GUI and confirm saved positions persist.
+8. Check compact category navigation at 320x200 and 480x270; all nine category/filter rows must be visible and non-overlapping.
+9. Review the risk label on each module. Dangerous is a warning, not a compatibility guarantee or permission to violate server rules.
