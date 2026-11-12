@@ -1,14 +1,19 @@
 package id.skyop.client;
 
-/** UI module categories. */
+/** Navigation groups and risk filters for the ClickGUI. SAFE and DANGEROUS are filters, not module types. */
 public enum SkyOPCategory {
-    COMBAT("Combat"), MOVEMENT("Movement"), VISUAL("Visual"), PLAYER("Player"),
-    INVENTORY("Inventory"), FAVORITES("Favorites");
+    COMBAT("Combat"), MOVEMENT("Movement"), VISUAL("Visual"), WORLD("World"),
+    PLAYER("Player"), INVENTORY("Inventory"), FAVORITES("Favorites"),
+    SAFE("Safe"), DANGEROUS("Dangerous");
 
     private final String fallbackTitle;
 
     SkyOPCategory(String fallbackTitle) {
         this.fallbackTitle = fallbackTitle;
+    }
+
+    public boolean isRiskFilter() {
+        return this == SAFE || this == DANGEROUS;
     }
 
     public String title() {
