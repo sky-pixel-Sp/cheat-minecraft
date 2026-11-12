@@ -10,16 +10,32 @@ import net.minecraft.network.chat.Component;
 
 import java.util.List;
 
-/** Non-pausing, draggable in-world quick switcher for six frequently used modules. */
+/**
+ * Responsive in-world quick switcher. Every control maps to a real SkyOP action:
+ * module toggles, theme cycling, opening the full ClickGUI, and disabling all modules.
+ */
 public final class SkyOPFloatingPanel extends Screen {
-    private static final int PANEL_WIDTH = 286;
-    private static final int PANEL_HEIGHT = 246;
+    private static final int MAX_PANEL_WIDTH = 310;
+    private static final int MAX_PANEL_HEIGHT = 292;
+    private static final int HEADER_HEIGHT = 38;
+    private static final int CARD_TOP = 46;
+    private static final int CARD_HEIGHT = 40;
+    private static final int CARD_STEP = 44;
+    private static final int FOOTER_HEIGHT = 30;
+
     private static final List<SkyOPModuleId> QUICK_MODULES = List.of(
-            SkyOPModuleId.AUTO_TOTEM, SkyOPModuleId.AUTO_MLG, SkyOPModuleId.FAST_BREAK,
-            SkyOPModuleId.AUTO_SPRINT, SkyOPModuleId.ENTITY_ESP, SkyOPModuleId.AUTO_EAT
+            SkyOPModuleId.AUTO_TOTEM,
+            SkyOPModuleId.AUTO_MLG,
+            SkyOPModuleId.FAST_BREAK,
+            SkyOPModuleId.AUTO_SPRINT,
+            SkyOPModuleId.ENTITY_ESP,
+            SkyOPModuleId.AUTO_EAT,
+            SkyOPModuleId.ZOOM,
+            SkyOPModuleId.ARMOR_ALERT
     );
 
-    private int panelX, panelY, dragOffsetX, dragOffsetY;
+    private int panelX, panelY, panelWidth, panelHeight, columns, visibleCount, cardWidth;
+    private int dragOffsetX, dragOffsetY;
     private boolean dragging;
 
     public SkyOPFloatingPanel() {
@@ -28,78 +44,161 @@ public final class SkyOPFloatingPanel extends Screen {
 
     @Override
     protected void init() {
-        panelX = SkyOPState.quickPanelX < 0 ? Math.max(8, width - PANEL_WIDTH - 24) : SkyOPState.quickPanelX;
-        panelY = SkyOPState.quickPanelY < 0 ? Math.max(8, (height - PANEL_HEIGHT) / 2) : SkyOPState.quickPanelY;
+        calculatePanelSize();
+        panelX = SkyOPState.quickPanelX < 0
+                ? Math.max(8, width - panelWidth - 16) : SkyOPState.quickPanelX;
+        panelY = SkyOPState.quickPanelY < 0
+                ? Math.max(8, (height - panelHeight) / 2) : SkyOPState.quickPanelY;
         clampPanel();
     }
 
+    private void calculatePanelSize() {
+        panelWidth = Math.max(1, Math.min(MAX_PANEL_WIDTH, width - 16));
+        panelHeight = Math.max(1, Math.min(MAX_PANEL_HEIGHT, height - 16));
+        columns = panelWidth >= 270 ? 2 : 1;
+        cardWidth = Math.max(1, (panelWidth - 24 - (columns - 1) * 8) / columns);
+        int availableCardHeight = Math.max(0, panelHeight - CARD_TOP - FOOTER_HEIGHT - 8);
+        int visibleRows = Math.max(1, availableCardHeight / CARD_STEP);
+        visibleCount = Math.min(QUICK_MODULES.size(), visibleRows * columns);
+    }
+
     private void clampPanel() {
-        panelX = SkyOPMath.clamp(panelX, 0, Math.max(0, width - PANEL_WIDTH));
-        panelY = SkyOPMath.clamp(panelY, 0, Math.max(0, height - PANEL_HEIGHT));
+        panelX = SkyOPMath.clamp(panelX, 0, Math.max(0, width - panelWidth));
+        panelY = SkyOPMath.clamp(panelY, 0, Math.max(0, height - panelHeight));
+    }
+
+    private int footerY() {
+        return panelY + panelHeight - FOOTER_HEIGHT;
+    }
+
+    private int cardX(int index) {
+        return panelX + 12 + (index % columns) * (cardWidth + 8);
+    }
+
+    private int cardY(int index) {
+        return panelY + CARD_TOP + (index / columns) * CARD_STEP;
     }
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
         super.extractRenderState(graphics, mouseX, mouseY, delta);
+        calculatePanelSize();
+        clampPanel();
+
         SkyOPTheme.Palette palette = SkyOPTheme.palette(SkyOPState.uiTheme);
         boolean idLanguage = "id".equals(SkyOPLanguage.code());
         graphics.fill(0, 0, width, height, 0x48000000);
-        graphics.fill(panelX - 2, panelY - 2, panelX + PANEL_WIDTH + 2, panelY + PANEL_HEIGHT + 2, palette.hover());
-        graphics.fill(panelX, panelY, panelX + PANEL_WIDTH, panelY + PANEL_HEIGHT, palette.panel());
-        graphics.fill(panelX, panelY, panelX + PANEL_WIDTH, panelY + 3, palette.accent());
-        graphics.fill(panelX, panelY + 3, panelX + PANEL_WIDTH, panelY + 38, palette.elevated());
+        graphics.fill(panelX - 2, panelY - 2, panelX + panelWidth + 2, panelY + panelHeight + 2,
+                palette.hover());
+        graphics.fill(panelX, panelY, panelX + panelWidth, panelY + panelHeight, palette.panel());
+        graphics.fill(panelX, panelY, panelX + panelWidth, panelY + 3, palette.accent());
+        graphics.fill(panelX, panelY + 3, panelX + panelWidth, panelY + HEADER_HEIGHT,
+                palette.elevated());
 
-        String title = idLanguage ? "SKYOP  /  PANEL CEPAT" : "SKYOP  /  QUICK PANEL";
-        graphics.text(font, Component.literal(title), panelX + 14, panelY + 14, palette.text(), true);
-        int closeX = panelX + PANEL_WIDTH - 27;
-        boolean closeHovered = inside(mouseX, mouseY, closeX, panelY + 8, 19, 19);
-        graphics.fill(closeX, panelY + 8, closeX + 19, panelY + 27, closeHovered ? palette.hover() : palette.panel());
+        String title = idLanguage ? "SKYOP  /  PANEL CEPAT" : "SKYOP  /  QUICK ACCESS";
+        graphics.text(font, Component.literal(title), panelX + 12, panelY + 14, palette.text(), true);
+        String count = visibleCount + "/" + QUICK_MODULES.size();
+        int closeX = panelX + panelWidth - 25;
+        int themeX = closeX - 34;
+        graphics.text(font, Component.literal(count), Math.max(panelX + 104, themeX - font.width(count) - 7),
+                panelY + 15, palette.muted(), false);
+
+        boolean themeHovered = inside(mouseX, mouseY, themeX, panelY + 8, 28, 20);
+        graphics.fill(themeX, panelY + 8, themeX + 28, panelY + 28,
+                themeHovered ? palette.hover() : palette.panel());
+        graphics.text(font, Component.literal("◐"), themeX + 9, panelY + 13, palette.accent(), true);
+
+        boolean closeHovered = inside(mouseX, mouseY, closeX, panelY + 8, 19, 20);
+        graphics.fill(closeX, panelY + 8, closeX + 19, panelY + 28,
+                closeHovered ? palette.hover() : palette.panel());
         graphics.text(font, Component.literal("×"), closeX + 6, panelY + 12, palette.text(), true);
 
-        for (int index = 0; index < QUICK_MODULES.size(); index++) {
+        for (int index = 0; index < visibleCount; index++) {
             SkyOPModuleId module = QUICK_MODULES.get(index);
-            int x = panelX + 12 + (index % 2) * 131;
-            int y = panelY + 48 + (index / 2) * 54;
+            int x = cardX(index), y = cardY(index);
             boolean enabled = SkyOPCore.isEnabled(module);
-            boolean hovered = inside(mouseX, mouseY, x, y, 125, 46);
-            graphics.fill(x, y, x + 125, y + 46, hovered ? palette.hover() : palette.elevated());
-            graphics.fill(x, y, x + 3, y + 46, enabled ? palette.accent() : palette.muted());
-            graphics.text(font, Component.literal(trim(module.title(), 17)), x + 10, y + 9, palette.text(), true);
+            boolean hovered = inside(mouseX, mouseY, x, y, cardWidth, CARD_HEIGHT);
+            graphics.fill(x, y, x + cardWidth, y + CARD_HEIGHT,
+                    hovered ? palette.hover() : palette.elevated());
+            graphics.fill(x, y, x + 3, y + CARD_HEIGHT,
+                    enabled ? palette.accent() : palette.muted());
+            String label = trim(module.title(), Math.max(9, (cardWidth - 52) / 6));
+            graphics.text(font, Component.literal(label), x + 9, y + 8, palette.text(), true);
             String status = enabled ? (idLanguage ? "AKTIF" : "ON") : (idLanguage ? "MATI" : "OFF");
-            graphics.text(font, Component.literal(status), x + 10, y + 27,
+            int statusX = x + 9;
+            graphics.text(font, Component.literal(status), statusX, y + 24,
                     enabled ? palette.success() : palette.muted(), true);
+            int indicatorX = x + cardWidth - 18;
+            graphics.fill(indicatorX, y + 14, indicatorX + 8, y + 22,
+                    enabled ? palette.success() : palette.muted());
         }
 
-        String hint = idLanguage ? "Geser judul untuk memindahkan  •  ESC untuk menutup"
-                : "Drag the title to move  •  ESC to close";
-        graphics.text(font, Component.literal(hint), panelX + 12,
-                panelY + PANEL_HEIGHT - 17, palette.muted(), true);
+        int footer = footerY();
+        graphics.fill(panelX + 10, footer - 7, panelX + panelWidth - 10, footer - 7 + 1,
+                palette.hover());
+        int buttonGap = 8;
+        int buttonWidth = Math.max(1, (panelWidth - 32 - buttonGap) / 2);
+        int leftX = panelX + 12;
+        int rightX = leftX + buttonWidth + buttonGap;
+        boolean guiHovered = inside(mouseX, mouseY, leftX, footer, buttonWidth, 22);
+        boolean disableHovered = inside(mouseX, mouseY, rightX, footer, buttonWidth, 22);
+        graphics.fill(leftX, footer, leftX + buttonWidth, footer + 22,
+                guiHovered ? palette.hover() : palette.elevated());
+        graphics.fill(rightX, footer, rightX + buttonWidth, footer + 22,
+                disableHovered ? palette.danger() : palette.elevated());
+        String fullGui = idLanguage ? "BUKA GUI" : "FULL GUI";
+        String disable = idLanguage ? "MATIKAN SEMUA" : "DISABLE ALL";
+        graphics.text(font, Component.literal(trim(fullGui, Math.max(6, (buttonWidth - 8) / 6))),
+                leftX + 5, footer + 7, palette.text(), true);
+        graphics.text(font, Component.literal(trim(disable, Math.max(6, (buttonWidth - 8) / 6))),
+                rightX + 5, footer + 7, disableHovered ? 0xFFFFFFFF : palette.danger(), true);
     }
 
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         if (event.input() != InputConstants.MOUSE_BUTTON_LEFT) return super.mouseClicked(event, doubleClick);
         int mx = (int) event.x(), my = (int) event.y();
-        int closeX = panelX + PANEL_WIDTH - 27;
-        if (inside(mx, my, closeX, panelY + 8, 19, 19)) {
+
+        int closeX = panelX + panelWidth - 25;
+        int themeX = closeX - 34;
+        if (inside(mx, my, closeX, panelY + 8, 19, 20)) {
             onClose();
             return true;
         }
-        if (inside(mx, my, panelX, panelY, PANEL_WIDTH, 38)) {
+        if (inside(mx, my, themeX, panelY + 8, 28, 20)) {
+            SkyOPCore.cycleUiTheme();
+            return true;
+        }
+
+        int footer = footerY();
+        int buttonGap = 8;
+        int buttonWidth = Math.max(1, (panelWidth - 32 - buttonGap) / 2);
+        int leftX = panelX + 12;
+        int rightX = leftX + buttonWidth + buttonGap;
+        if (inside(mx, my, leftX, footer, buttonWidth, 22)) {
+            Minecraft.getInstance().gui.setScreen(new SkyOPClickGui());
+            return true;
+        }
+        if (inside(mx, my, rightX, footer, buttonWidth, 22)) {
+            SkyOPCore.disableAll(Minecraft.getInstance());
+            return true;
+        }
+
+        for (int index = 0; index < visibleCount; index++) {
+            int x = cardX(index), y = cardY(index);
+            if (inside(mx, my, x, y, cardWidth, CARD_HEIGHT)) {
+                SkyOPCore.toggle(Minecraft.getInstance(), QUICK_MODULES.get(index));
+                return true;
+            }
+        }
+
+        if (inside(mx, my, panelX, panelY, panelWidth, HEADER_HEIGHT)) {
             dragging = true;
             dragOffsetX = mx - panelX;
             dragOffsetY = my - panelY;
             return true;
         }
-        for (int index = 0; index < QUICK_MODULES.size(); index++) {
-            int x = panelX + 12 + (index % 2) * 131;
-            int y = panelY + 48 + (index / 2) * 54;
-            if (inside(mx, my, x, y, 125, 46)) {
-                SkyOPCore.toggle(Minecraft.getInstance(), QUICK_MODULES.get(index));
-                return true;
-            }
-        }
-        return inside(mx, my, panelX, panelY, PANEL_WIDTH, PANEL_HEIGHT)
+        return inside(mx, my, panelX, panelY, panelWidth, panelHeight)
                 || super.mouseClicked(event, doubleClick);
     }
 
