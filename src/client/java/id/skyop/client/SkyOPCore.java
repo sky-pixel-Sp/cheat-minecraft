@@ -27,6 +27,7 @@ public final class SkyOPCore {
     private static final Identifier KEY_CATEGORY_ID = Identifier.fromNamespaceAndPath("skyop", "client");
     private static final KeyMapping.Category KEY_CATEGORY = KeyMapping.Category.register(KEY_CATEGORY_ID);
     private static final KeyMapping KEY_GUI = key("key.skyop.open_gui", InputConstants.KEY_RSHIFT);
+    private static final KeyMapping KEY_DIAGNOSTICS = key("key.skyop.diagnostics", InputConstants.KEY_HOME);
     private static final KeyMapping KEY_QUICK_PANEL = key("key.skyop.open_quick_panel", InputConstants.KEY_O);
     private static final KeyMapping KEY_HUD = key("key.skyop.toggle_hud", InputConstants.KEY_F4);
     private static final KeyMapping KEY_AUTO_CLICKER = key("key.skyop.toggle_autoclicker", InputConstants.KEY_F5);
@@ -331,6 +332,10 @@ private static void ensureMouseCaptured(Minecraft client) {
     }
 
 private static void handleKeybinds(Minecraft client) {
+        if (KEY_DIAGNOSTICS.consumeClick()
+                && !(client.gui.screen() instanceof SkyOPDiagnosticsScreen)) {
+            client.gui.setScreen(new SkyOPDiagnosticsScreen(client.gui.screen()));
+        }
         if (KEY_QUICK_PANEL.consumeClick()) {
             if (client.player != null && client.level != null && client.gui.screen() == null) {
                 client.gui.setScreen(new SkyOPFloatingPanel());
