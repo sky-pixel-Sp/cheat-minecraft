@@ -2,6 +2,7 @@ package id.skyop.client;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import id.skyop.common.SkyOPDiagnostics;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -80,11 +81,16 @@ public final class SkyOPModuleManager {
         for (SkyOPModule module : MODULES.values()) {
             SkyOPModuleId type = module.type();
             boolean enabled = SkyOPCore.isEnabled(type);
-            if (enabled && !ACTIVE.contains(type) && module.isReady(client)) {
-                ACTIVE.add(type);
-                module.onEnable(client);
+            if (enabled && !ACTIVE.contains(type)) {
+                if (isReadySafely(client, module)) {
+                    ACTIVE.add(type);
+                    if (!invokeSafely(client, module, "onEnable", () -> module.onEnable(client))
+                            && ACTIVE.remove(type)) {
+                        invokeCleanupSafely(client, module);
+                    }
+                }
             } else if (!enabled && ACTIVE.remove(type)) {
-                module.onDisable(client);
+                invokeSafely(client, module, "onDisable", () -> module.onDisable(client));
             }
         }
     }
@@ -139,29 +145,114 @@ public final class SkyOPModuleManager {
 
     private static void tickModule(Minecraft client, SkyOPModuleId type) {
         SkyOPModule module = MODULES.get(type);
-        if (module != null && SkyOPCore.isEnabled(type) && module.isReady(client)) {
-            module.onTick(client);
+        if (module == null || !SkyOPCore.isEnabled(type) || !ACTIVE.contains(type)) return;
+        if (isReadySafely(client, module)) {
+            invokeSafely(client, module, "onTick", () -> module.onTick(client));
+        }
+    }
+
+    public static boolean isReadyForDiagnostics(Minecraft client, SkyOPModuleId type) {
+        SkyOPModule module = MODULES.get(type);
+        return module != null && isReadySafely(client, module);
+    }
+
+    private static boolean isReadySafely(Minecraft client, SkyOPModule module) {
+        try {
+            boolean ready = module.isReady(client);
+            if (!ready) {
+                String reason = SkyOPModuleDependencies.missingRequirement(client, module.type());
+                SkyOPClientDiagnostics.get().recordReason(module.type().name(), "not_ready",
+                        reason == null || reason.isBlank()
+                                ? "Module runtime requirements are not met." : reason);
+            }
+            return ready;
+        } catch (VirtualMachineError | ThreadDeath fatal) {
+            throw fatal;
+        } catch (Throwable error) {
+            handleCallbackFailure(client, module, "isReady", error);
+            return false;
+        }
+    }
+
+    private static boolean invokeSafely(Minecraft client, SkyOPModule module,
+                                        String callback, Runnable action) {
+        try {
+            action.run();
+            if ("onTick".equals(callback)) {
+                SkyOPClientDiagnostics.get().recordSuccess(module.type().name());
+            }
+            return true;
+        } catch (VirtualMachineError | ThreadDeath fatal) {
+            throw fatal;
+        } catch (Throwable error) {
+            handleCallbackFailure(client, module, callback, error);
+            return false;
+        }
+    }
+
+    private static void invokeCleanupSafely(Minecraft client, SkyOPModule module) {
+        try {
+            module.onDisable(client);
+        } catch (VirtualMachineError | ThreadDeath fatal) {
+            throw fatal;
+        } catch (Throwable error) {
+            SkyOPClientDiagnostics.get().recordError(module.type().name(), error);
+        }
+    }
+
+    private static void handleCallbackFailure(Minecraft client, SkyOPModule module,
+                                              String callback, Throwable error) {
+        SkyOPDiagnostics diagnostics = SkyOPClientDiagnostics.get();
+        int consecutive = diagnostics.recordError(module.type().name(),
+                new IllegalStateException(callback + " failed", error));
+        diagnostics.recordReason(module.type().name(), "callback_error",
+                callback + " failed: " + error.getClass().getSimpleName()
+                        + (error.getMessage() == null ? "" : " — " + error.getMessage()));
+        if (consecutive < SkyOPDiagnostics.ERROR_DISABLE_THRESHOLD
+                || !SkyOPState.ENABLED.contains(module.type())) return;
+
+        boolean wasActive = ACTIVE.remove(module.type());
+        SkyOPState.ENABLED.remove(module.type());
+        if (wasActive) invokeCleanupSafely(client, module);
+        diagnostics.recordReason(module.type().name(), "error_disabled",
+                "Disabled automatically after three consecutive callback errors.");
+        SkyOPCore.saveConfig();
+        if (client != null && client.player != null) {
+            client.player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+                    "[SkyOP] " + module.type().title()
+                            + " disabled after 3 consecutive errors. See config/skyop-client/skyop.log."));
         }
     }
 
     public static void render2D(Minecraft client, GuiGraphicsExtractor graphics) {
         if (client == null || graphics == null || !MODULES.containsKey(SkyOPModuleId.HUD)) return;
-        SkyOPHudRenderer.render(client, graphics);
+        SkyOPModule hud = MODULES.get(SkyOPModuleId.HUD);
+        if (hud != null) {
+            invokeSafely(client, hud, "renderHud", () -> SkyOPHudRenderer.render(client, graphics));
+        }
         for (SkyOPModule module : MODULES.values()) {
-            if (SkyOPCore.isEnabled(module.type())) module.onRender2D(client, graphics);
+            if (SkyOPCore.isEnabled(module.type()) && ACTIVE.contains(module.type())
+                    && isReadySafely(client, module)) {
+                invokeSafely(client, module, "onRender2D",
+                        () -> module.onRender2D(client, graphics));
+            }
         }
     }
 
     public static void render3D(Minecraft client, Object renderContext) {
         for (SkyOPModule module : MODULES.values()) {
-            if (SkyOPCore.isEnabled(module.type()) && module.isReady(client)) {
-                module.onRender3D(client, renderContext);
+            if (SkyOPCore.isEnabled(module.type()) && ACTIVE.contains(module.type())
+                    && isReadySafely(client, module)) {
+                invokeSafely(client, module, "onRender3D",
+                        () -> module.onRender3D(client, renderContext));
             }
         }
     }
 
     public static void onWorldChange(Minecraft client) {
-        for (SkyOPModule module : MODULES.values()) module.onWorldChange(client);
+        for (SkyOPModule module : MODULES.values()) {
+            invokeSafely(client, module, "onWorldChange", () -> module.onWorldChange(client));
+        }
         SkyOPMovementModules.cleanup(client);
         SkyOPVisualModules.cleanup(client);
         SkyOPPlayerModules.cleanup();

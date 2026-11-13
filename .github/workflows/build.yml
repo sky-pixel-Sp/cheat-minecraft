@@ -163,7 +163,26 @@ jobs:
           grep -Fq 'playerInventorySlotsMapToVanillaMenuSlots' src/test/java/id/skyop/client/SkyOPAutomationRulesTest.java
           grep -Fq 'SkyOP 3.0 review feedback' docs/TEST-PLAN.md
 
+          # Dual-side bootstrap and local diagnostic services.
+          test -s src/main/java/id/skyop/common/SkyOPDiagnostics.java
+          test -s src/main/java/id/skyop/common/SkyOPLandingPrediction.java
+          test -s src/main/java/id/skyop/server/SkyOPServer.java
+          grep -Fq '"environment": "*"' src/main/resources/fabric.mod.json
+          grep -Fq '"server": [' src/main/resources/fabric.mod.json
+          grep -Fq '"id.skyop.server.SkyOPServer"' src/main/resources/fabric.mod.json
+          grep -Fq 'SkyOPModuleManager.isReadyForDiagnostics(client, id)' src/client/java/id/skyop/client/SkyOPDiagnosticsScreen.java
+          grep -Fq 'keyboardHandler.setClipboard(SkyOPClientDiagnostics.buildReport())' src/client/java/id/skyop/client/SkyOPDiagnosticsScreen.java
+          grep -Fq 'SkyOPDiagnostics.ERROR_DISABLE_THRESHOLD' src/client/java/id/skyop/client/SkyOPModuleManager.java
+          grep -Fq 'if ("onTick".equals(callback))' src/client/java/id/skyop/client/SkyOPModuleManager.java
+          grep -Fq 'playerInventorySlotToMenuSlot(slot)' src/client/java/id/skyop/client/SkyOPInventoryManager.java
+          grep -Fq 'SkyOPLandingPrediction.predict(' src/client/java/id/skyop/client/SkyOPMovementModules.java
+          grep -Fq 'number("fastBreakLevel", 7, 1, 7, true)' src/client/java/id/skyop/client/SkyOPSettingsSchema.java
+
           JAR_ENTRIES="$(jar tf "$JAR_PATH")"
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/server/SkyOPServer.class$'
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/common/SkyOPDiagnostics.class$'
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/common/SkyOPLandingPrediction.class$'
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPClientDiagnostics.class$'
           printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPClient.class$'
           printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/mixin/SkyOPFishingHookAccessor.class$'
           printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/mixin/InputConstantsMixin.class$'

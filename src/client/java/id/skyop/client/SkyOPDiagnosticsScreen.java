@@ -230,14 +230,18 @@ public final class SkyOPDiagnosticsScreen extends Screen {
             boolean enabled = SkyOPCore.isEnabled(id);
             boolean active = SkyOPModuleManager.isActive(id);
             SkyOPModule module = SkyOPModuleManager.get(id);
-            boolean ready = module != null && module.isReady(client);
+            boolean ready = module != null && SkyOPModuleManager.isReadyForDiagnostics(client, id);
             String state = active
                     ? (idLanguage ? "AKTIF" : "ACTIVE")
                     : (enabled && !ready ? (idLanguage ? "MENUNGGU" : "WAITING")
                     : enabled ? (idLanguage ? "SINKRON" : "SYNCING")
                     : ready ? (idLanguage ? "SIAP" : "STANDBY")
                     : (idLanguage ? "KONTEKS" : "CONTEXT"));
-            int stateColor = active ? p.success() : enabled && !ready ? p.danger() : p.muted();
+            SkyOPDiagnostics.ModuleSnapshot diagnostics = SkyOPClientDiagnostics.get().snapshot(id.name());
+            String stateLabel = diagnostics.errorCount() > 0
+                    ? state + " / ERR " + diagnostics.errorCount() : state;
+            int stateColor = diagnostics.consecutiveErrors() > 0 ? p.danger()
+                    : active ? p.success() : enabled && !ready ? p.danger() : p.muted();
 
             g.fill(cardX, cardY, cardX + cardWidth, cardY + cardHeight,
                     p.elevated());
@@ -246,12 +250,14 @@ public final class SkyOPDiagnosticsScreen extends Screen {
             int labelWidth = Math.max(8, (cardWidth - 92) / 6);
             g.text(font, Component.literal(trim(id.title(), labelWidth)),
                     cardX + 8, cardY + 5, p.text(), true);
-            g.text(font, Component.literal(state),
-                    cardX + cardWidth - font.width(state) - 7, cardY + 5,
+            g.text(font, Component.literal(stateLabel),
+                    cardX + cardWidth - font.width(stateLabel) - 7, cardY + 5,
                     stateColor, true);
             if (!compact() && cardHeight >= 30) {
-                String category = id.category().title();
-                g.text(font, Component.literal(category), cardX + 8, cardY + 18, p.muted(), false);
+                String detail = diagnostics.lastReasonText().isBlank()
+                        ? id.category().title() : diagnostics.lastReasonText();
+                g.text(font, Component.literal(trim(detail, Math.max(8, (cardWidth - 16) / 5))),
+                        cardX + 8, cardY + 18, p.muted(), false);
             }
         }
     }
@@ -260,19 +266,35 @@ public final class SkyOPDiagnosticsScreen extends Screen {
                             SkyOPTheme.Palette p, boolean idLanguage) {
         int y = panelY + panelHeight - FOOTER_HEIGHT + 6;
         int backX = panelX + 16;
-        String backLabel = idLanguage ? "KEMBALI KE CLICKGUI" : "BACK TO CLICKGUI";
-        drawButton(g, mouseX, mouseY, backX, y, compact() ? 126 : 174, 24,
-                backLabel, p);
+        int backWidth = compact() ? 68 : 174;
+        String backLabel = compact() ? (idLanguage ? "KEMBALI" : "BACK")
+                : (idLanguage ? "KEMBALI KE CLICKGUI" : "BACK TO CLICKGUI");
+        drawButton(g, mouseX, mouseY, backX, y, backWidth, 24, backLabel, p);
+
+        int copyX = panelX + (compact() ? 90 : 206);
+        int copyWidth = compact() ? 88 : 132;
+        String copyLabel = compact() ? (idLanguage ? "SALIN" : "COPY")
+                : (idLanguage ? "SALIN LAPORAN" : "COPY REPORT");
+        drawButton(g, mouseX, mouseY, copyX, y, copyWidth, 24, copyLabel, p);
 
         int perPage = pageSize();
         int pageCount = Math.max(1, (SkyOPModuleId.values().length + perPage - 1) / perPage);
         String pageLabel = (page + 1) + " / " + pageCount;
-        int pagerX = panelX + panelWidth - 138;
-        g.text(font, Component.literal(pageLabel), pagerX + 48, y + 8, p.muted(), true);
-        drawButton(g, mouseX, mouseY, pagerX, y, 40, 24,
-                idLanguage ? "SEBLM" : "PREV", p, page == 0);
-        drawButton(g, mouseX, mouseY, pagerX + 88, y, 40, 24,
-                idLanguage ? "LANJ" : "NEXT", p, page >= pageCount - 1);
+        if (compact()) {
+            int pagerX = panelX + panelWidth - 92;
+            drawButton(g, mouseX, mouseY, pagerX, y, 24, 24,
+                    idLanguage ? "<" : "<", p, page == 0);
+            g.text(font, Component.literal(pageLabel), pagerX + 27, y + 8, p.muted(), true);
+            drawButton(g, mouseX, mouseY, pagerX + 62, y, 24, 24,
+                    ">", p, page >= pageCount - 1);
+        } else {
+            int pagerX = panelX + panelWidth - 138;
+            g.text(font, Component.literal(pageLabel), pagerX + 48, y + 8, p.muted(), true);
+            drawButton(g, mouseX, mouseY, pagerX, y, 40, 24,
+                    "PREV", p, page == 0);
+            drawButton(g, mouseX, mouseY, pagerX + 88, y, 40, 24,
+                    "NEXT", p, page >= pageCount - 1);
+        }
     }
 
     private void drawButton(GuiGraphicsExtractor g, int mouseX, int mouseY,
@@ -296,7 +318,7 @@ public final class SkyOPDiagnosticsScreen extends Screen {
         for (SkyOPModuleId id : SkyOPModuleId.values()) {
             if (!SkyOPCore.isEnabled(id)) continue;
             SkyOPModule module = SkyOPModuleManager.get(id);
-            if (module == null || !module.isReady(client)) waiting++;
+            if (module == null || !SkyOPModuleManager.isReadyForDiagnostics(client, id)) waiting++;
         }
         return waiting;
     }
@@ -311,24 +333,48 @@ public final class SkyOPDiagnosticsScreen extends Screen {
         int mx = (int) event.x();
         int my = (int) event.y();
         int closeX = panelX + panelWidth - 42;
+        int footerY = panelY + panelHeight - FOOTER_HEIGHT + 6;
+        int backWidth = compact() ? 68 : 174;
         if (inside(mx, my, closeX, panelY + 10, 28, 24)
-                || inside(mx, my, panelX + 16, panelY + panelHeight - FOOTER_HEIGHT + 6,
-                compact() ? 126 : 174, 24)) {
+                || inside(mx, my, panelX + 16, footerY, backWidth, 24)) {
             returnToParent();
+            return true;
+        }
+
+        int copyX = panelX + (compact() ? 90 : 206);
+        int copyWidth = compact() ? 88 : 132;
+        if (inside(mx, my, copyX, footerY, copyWidth, 24)) {
+            Minecraft.getInstance().keyboardHandler.setClipboard(SkyOPClientDiagnostics.buildReport());
+            if (Minecraft.getInstance().player != null) {
+                Minecraft.getInstance().player.sendSystemMessage(Component.literal(
+                        "SkyOP diagnostics report copied locally; no data was transmitted."));
+            }
             return true;
         }
 
         int perPage = pageSize();
         int pageCount = Math.max(1, (SkyOPModuleId.values().length + perPage - 1) / perPage);
-        int pagerY = panelY + panelHeight - FOOTER_HEIGHT + 6;
-        int pagerX = panelX + panelWidth - 138;
-        if (inside(mx, my, pagerX, pagerY, 40, 24) && page > 0) {
-            page--;
-            return true;
-        }
-        if (inside(mx, my, pagerX + 88, pagerY, 40, 24) && page < pageCount - 1) {
-            page++;
-            return true;
+        int pagerY = footerY;
+        if (compact()) {
+            int pagerX = panelX + panelWidth - 92;
+            if (inside(mx, my, pagerX, pagerY, 24, 24) && page > 0) {
+                page--;
+                return true;
+            }
+            if (inside(mx, my, pagerX + 62, pagerY, 24, 24) && page < pageCount - 1) {
+                page++;
+                return true;
+            }
+        } else {
+            int pagerX = panelX + panelWidth - 138;
+            if (inside(mx, my, pagerX, pagerY, 40, 24) && page > 0) {
+                page--;
+                return true;
+            }
+            if (inside(mx, my, pagerX + 88, pagerY, 40, 24) && page < pageCount - 1) {
+                page++;
+                return true;
+            }
         }
 
         int top = panelY + (compact() ? 122 : 134);

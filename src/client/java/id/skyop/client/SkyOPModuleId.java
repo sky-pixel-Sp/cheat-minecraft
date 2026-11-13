@@ -1,5 +1,7 @@
 package id.skyop.client;
 
+import id.skyop.common.SkyOPRuntimeSide;
+
 /** Stable identifier, title and category metadata for all registered modules. */
     public enum SkyOPModuleId {
         KILL_AURA("KillAura", "Prioritises a nearby configured target.", SkyOPCategory.COMBAT),
@@ -84,6 +86,9 @@ package id.skyop.client;
         public String title() { return SkyOPLanguage.moduleTitle(name(), title); }
         public String description() { return SkyOPLanguage.moduleDescription(name(), description); }
         public SkyOPCategory category() { return category; }
+
+        /** All currently implemented registry entries execute from the client source set. */
+        public SkyOPRuntimeSide runtimeSide() { return SkyOPRuntimeSide.CLIENT; }
 
         /** Marks automated or movement/combat-altering modules that can violate server rules. */
         public boolean isDangerous() {

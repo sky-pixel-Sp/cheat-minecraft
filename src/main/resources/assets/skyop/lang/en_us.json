@@ -54,5 +54,6 @@
   "key.skyop.module.container_finder": "Container Finder",
   "key.skyop.module.auto_respawn": "Auto Respawn",
   "key.skyop.module.low_health_alert": "Low Health Alert",
-  "key.skyop.module.armor_alert": "Armor Alert"
+  "key.skyop.module.armor_alert": "Armor Alert",
+  "key.skyop.diagnostics.copy_report": "Copy Diagnostics Report"
 }

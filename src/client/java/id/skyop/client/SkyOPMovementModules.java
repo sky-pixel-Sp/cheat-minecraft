@@ -1,6 +1,7 @@
 package id.skyop.client;
 
 import net.minecraft.client.Minecraft;
+import id.skyop.common.SkyOPLandingPrediction;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -195,7 +196,10 @@ public final class SkyOPMovementModules {
 
 
     static void tickAutoMlg(Minecraft client) {
+        var diagnostics = SkyOPClientDiagnostics.get();
+        String module = SkyOPModuleId.AUTO_MLG.name();
         if (autoMlgCooldown > 0) {
+            diagnostics.recordReason(module, "cooldown", "Menunggu jeda Auto MLG.");
             autoMlgCooldown--;
             return;
         }
@@ -206,14 +210,32 @@ public final class SkyOPMovementModules {
             boolean waterUsed = autoMlgBucketSlot >= 0
                     && !inventory.getItem(autoMlgBucketSlot).is(net.minecraft.world.item.Items.WATER_BUCKET);
             if (player.onGround() || waterUsed) {
+                diagnostics.recordReason(module, "restored_slot",
+                        player.onGround() ? "Pemain sudah mendarat; slot hotbar dipulihkan."
+                                : "Bucket sudah digunakan; slot hotbar dipulihkan.");
                 restoreAutoMlgSlot(client);
                 return;
             }
         }
 
-        if (!SkyOPAutomationRules.shouldTriggerMlg(
-                player.onGround(), player.fallDistance, player.getDeltaMovement().y,
-                SkyOPState.autoMlgFallDistance)) return;
+        if (player.isCreative() || player.isSpectator()) {
+            diagnostics.recordReason(module, "creative_skipped", "Mode creative/spectator dilewati.");
+            return;
+        }
+        if (player.onGround()) {
+            diagnostics.recordReason(module, "not_falling", "Pemain sedang berada di tanah.");
+            return;
+        }
+        if (player.fallDistance < SkyOPState.autoMlgFallDistance) {
+            diagnostics.recordReason(module, "threshold_not_reached",
+                    "Jarak jatuh belum mencapai ambang " + SkyOPState.autoMlgFallDistance + ".");
+            return;
+        }
+        if (player.getDeltaMovement().y >= -0.55D) {
+            diagnostics.recordReason(module, "not_falling_fast_enough",
+                    "Kecepatan vertikal belum cukup untuk aktivasi Auto MLG.");
+            return;
+        }
 
         int bucketSlot = -1;
         for (int slot = 0; slot < net.minecraft.world.entity.player.Inventory.SELECTION_SIZE; slot++) {
@@ -222,33 +244,83 @@ public final class SkyOPMovementModules {
                 break;
             }
         }
-        if (bucketSlot < 0) return;
+        if (bucketSlot < 0) {
+            diagnostics.recordReason(module, "no_bucket", "Tidak ada water bucket di hotbar.");
+            return;
+        }
+
+        boolean[] unloadedChunkSeen = {false};
+        var motion = player.getDeltaMovement();
+        var prediction = SkyOPLandingPrediction.predict(
+                player.getX(), player.getY(), player.getZ(),
+                motion.x, motion.y, motion.z, 24,
+                (blockX, blockY, blockZ) -> {
+                    BlockPos position = new BlockPos(blockX, blockY, blockZ);
+                    if (!client.level.hasChunkAt(position)) {
+                        unloadedChunkSeen[0] = true;
+                        return false;
+                    }
+                    return client.level.getBlockState(position).isSolid();
+                }
+        );
+        if (prediction.isEmpty()) {
+            diagnostics.recordReason(module, unloadedChunkSeen[0] ? "unloaded_chunk" : "no_loaded_landing_surface",
+                    unloadedChunkSeen[0]
+                            ? "Prediksi memasuki chunk yang belum dimuat; tidak memaksa pemuatan chunk."
+                            : "Tidak ditemukan permukaan solid pada lintasan prediksi.");
+            return;
+        }
+
+        var landing = prediction.get();
+        if (landing.ticks() <= 1) {
+            diagnostics.recordReason(module, "late",
+                    "Prediksi pendaratan tinggal satu tick; jendela aksi terlalu sempit.");
+            return;
+        }
+        Vec3 predictedPoint = new Vec3(landing.x(), landing.y(), landing.z());
+        if (predictedPoint.distanceTo(player.getEyePosition()) > 4.5D) {
+            diagnostics.recordReason(module, "out_of_reach",
+                    "Titik pendaratan diprediksi " + landing.ticks()
+                            + " tick lagi dan berada di luar jangkauan vanilla 4,5 blok.");
+            return;
+        }
 
         float originalPitch = player.getXRot();
+        boolean actionSubmitted = false;
         try {
-            // Temporarily aim straight down, then calculate a fresh block hit from that view.
-            // This also lets the module work when the player's camera was not already looking down.
+            // Aim down only for the ordinary client ray-pick; restore immediately below.
             player.setXRot(90.0F);
             HitResult rayHit = player.pick(4.5D, 1.0F, false);
             if (rayHit.getType() != HitResult.Type.BLOCK
-                    || !(rayHit instanceof BlockHitResult hit)
-                    || hit.getBlockPos().getY() >= Math.floor(player.getY())) {
+                    || !(rayHit instanceof BlockHitResult hit)) {
+                diagnostics.recordReason(module, "out_of_reach",
+                        "Ray-pick vanilla 4,5 blok tidak menemukan permukaan yang dapat ditarget.");
+                return;
+            }
+
+            BlockPos predictedBlock = new BlockPos(landing.blockX(), landing.blockY(), landing.blockZ());
+            if (!hit.getBlockPos().equals(predictedBlock)) {
+                diagnostics.recordReason(module, "aim_prediction_mismatch",
+                        "Bidikan vanilla tidak cocok dengan blok pendaratan yang diprediksi.");
                 return;
             }
 
             autoMlgOriginalSlot = inventory.getSelectedSlot();
             autoMlgBucketSlot = bucketSlot;
             inventory.setSelectedSlot(bucketSlot);
+            diagnostics.recordReason(module, "attempting_bucket",
+                    "Mencoba item-use vanilla pada blok " + predictedBlock
+                            + "; estimasi pendaratan " + landing.ticks() + " tick.");
 
-            // Block-targeted interaction is attempted first. BucketItem overrides use(...),
-            // not useOn(...), so also submit the ordinary item-use path.
+            // BucketItem resolves through use(...); submit ordinary targeted and generic use paths.
             client.gameMode.useItemOn(player, InteractionHand.MAIN_HAND, hit);
             player.swing(InteractionHand.MAIN_HAND, SwingAnimation.DEFAULT, true);
             client.gameMode.useItem(player, InteractionHand.MAIN_HAND);
+            actionSubmitted = true;
             autoMlgCooldown = 5;
         } finally {
-            // Pitch restoration is synchronous, including early return and exception paths.
             player.setXRot(originalPitch);
+            if (!actionSubmitted) restoreAutoMlgSlot(client);
         }
     }
 
