@@ -345,7 +345,7 @@ private static void handleKeybinds(Minecraft client) {
                 return;
             }
         }
-        if (KEY_GUI.consumeClick()) client.gui.setScreen(new SkyOPClickGui());
+        if (KEY_GUI.consumeClick()) client.gui.setScreen(new SkyOPControlCenterScreen());
         if (KEY_ADD_WAYPOINT.consumeClick()) {
             boolean added = SkyOPWaypointManager.addCurrent(client);
             if (client.player != null) client.player.sendSystemMessage(Component.literal(

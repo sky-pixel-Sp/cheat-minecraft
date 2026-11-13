@@ -48,16 +48,16 @@ jobs:
             exit 1
           fi
 
-          # Enforce the SkyOP 4.0.1 release identity in Gradle, filename and
+          # Enforce the SkyOP 4.1.0 release identity in Gradle, filename and
           # embedded Fabric metadata. This prevents an old version from
           # being uploaded from the current feature branch.
-          grep -Fq 'mod_version=4.0.1' gradle.properties
-          EXPECTED_JAR="build/libs/skyop-client-4.0.1.jar"
+          grep -Fq 'mod_version=4.1.0' gradle.properties
+          EXPECTED_JAR="build/libs/skyop-client-4.1.0.jar"
           if [[ "$JAR_PATH" != "$EXPECTED_JAR" ]]; then
             echo "Expected $EXPECTED_JAR but produced $JAR_PATH." >&2
             exit 1
           fi
-          unzip -p "$JAR_PATH" fabric.mod.json | grep -Fq '"version": "4.0.1"'
+          unzip -p "$JAR_PATH" fabric.mod.json | grep -Fq '"version": "4.1.0"'
 
           # Minecraft 26.3 SDL keyboard-state regression guard.
           grep -Fq 'SDL_SCANCODE_COUNT = 512' src/main/java/id/skyop/client/SkyOPSdlKeyboardIndex.java
@@ -97,6 +97,16 @@ jobs:
           grep -Fq 'SkyOPTheme.palette(SkyOPState.uiTheme)' src/client/java/id/skyop/client/SkyOPFloatingPanel.java
           grep -Fq 'SkyOPCore.cycleUiTheme();' src/client/java/id/skyop/client/SkyOPClickGui.java
           grep -Fq 'new SkyOPDiagnosticsScreen(this)' src/client/java/id/skyop/client/SkyOPClickGui.java
+          # Control Center wiring and responsive layout contract.
+          grep -Fq 'new SkyOPControlCenterScreen()' src/client/java/id/skyop/client/SkyOPCore.java
+          grep -Fq 'SkyOPControlCenterLayout.calculate(width, height)' src/client/java/id/skyop/client/SkyOPControlCenterScreen.java
+          test -f src/test/java/id/skyop/client/SkyOPControlCenterLayoutTest.java
+          grep -Fq 'new Preset("CYAN", "Graphite"' src/main/java/id/skyop/client/SkyOPTheme.java
+          grep -Fq 'new Preset("AMETHYST", "Midnight"' src/main/java/id/skyop/client/SkyOPTheme.java
+          grep -Fq 'new Preset("ROSE", "Crimson"' src/main/java/id/skyop/client/SkyOPTheme.java
+          grep -Fq 'new Preset("EMERALD", "Emerald"' src/main/java/id/skyop/client/SkyOPTheme.java
+          grep -Fq 'new Preset("ICE", "Mono"' src/main/java/id/skyop/client/SkyOPTheme.java
+          grep -Fq 'new Preset("AMBER", "Sunset"' src/main/java/id/skyop/client/SkyOPTheme.java
           grep -Fq 'SkyOPModuleManager.activeCount()' src/client/java/id/skyop/client/SkyOPDiagnosticsScreen.java
           grep -Fq 'SkyOPModuleManager.isActive(id)' src/client/java/id/skyop/client/SkyOPDiagnosticsScreen.java
           # Utility modules must be registered, dispatched and use vanilla/client-visible state.

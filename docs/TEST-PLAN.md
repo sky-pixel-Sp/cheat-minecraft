@@ -29,9 +29,32 @@ A green CI result proves compilation and packaging. It does not prove an in-game
 5. Restart Minecraft; verify the chosen `language=id` or `language=en` setting is persisted.
 6. Verify every registered module has a non-empty Indonesian title and description; the automated `SkyOPLanguageTest` enforces translation-key coverage for all module IDs.
 
+## Control Center 4.1.0
+
+1. Press Right Shift and verify the Control Center opens in the Overview page.
+2. Verify the seven navigation pages are reachable: Overview, Modules, Profiles, Waypoints, Appearance, Diagnostics and Connection.
+3. Verify Overview reads registered/enabled/active module counts and FPS from the running client; it must not display sample values.
+4. Open Modules and verify the existing ClickGUI opens with search, categories, module cards and dynamic settings.
+5. Save configuration slots 1–3, change settings, load each slot and verify the original values are restored.
+6. Export configuration JSON, inspect the exact file path shown in the status footer, then import it after creating a backup.
+7. Save and load hotbar layouts 1–3 in a disposable world with the player inventory context open; verify invalid contexts report the manager's error.
+8. Add a waypoint, verify coordinates and distance, copy the coordinates to the clipboard and clear the local waypoint list.
+9. Cycle all six palettes (Graphite, Midnight, Crimson, Emerald, Mono, Sunset); restart the client and verify the existing persisted theme ID still resolves.
+10. Switch Indonesian/English and verify navigation, actions and page labels update.
+11. Open Diagnostics and verify the screen displays actual runtime/module health data.
+12. Use Disable All and verify the existing cleanup path restores temporary movement, visual and inventory state.
+13. Open Connection and verify status/ping are live values. A server-issued kick/ban must never trigger reconnect attempts or be bypassed.
+14. Check Escape closes the screen and returns mouse control normally.
+
+## Control Center layout
+
+1. Run `SkyOPControlCenterLayoutTest` at standard 1920×1080, compact 854×480 and micro viewport dimensions.
+2. Confirm no forced minimum panel width/height and no negative or out-of-screen panel bounds.
+3. Verify sidebar navigation and action hitboxes use the same computed layout bounds as rendering.
+
 ## ClickGUI and core
 
-1. Press Right Shift and verify the GUI opens.
+1. Open the Control Center with Right Shift, choose Modules and verify the ClickGUI opens.
 2. Verify Combat, Movement, Visual, World, Player, Inventory, Favorites, Safe and Dangerous categories.
 3. Verify Safe and Dangerous are filters over registered modules and each module inspector shows the correct risk label.
 3. Search by a module name and a description term.

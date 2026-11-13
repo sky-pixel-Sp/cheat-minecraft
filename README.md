@@ -1,4 +1,4 @@
-# SkyOP Client 4.0.1
+# SkyOP Client 4.1.0
 
 <p align="center">
   <strong>Premium-style Minecraft Java 26.3 Fabric client</strong><br>
@@ -7,17 +7,17 @@
 
 <p align="center">
   <a href="https://github.com/sky-pixel-Sp/cheat-minecraft/actions/workflows/build.yml">
-    <img alt="Build status" src="https://github.com/sky-pixel-Sp/cheat-minecraft/actions/workflows/build.yml/badge.svg?branch=feature%2Fskyop-premium-ui-and-fixes">
+    <img alt="Build status" src="https://github.com/sky-pixel-Sp/cheat-minecraft/actions/workflows/build.yml/badge.svg?branch=feature%2F4.1.0-control-center-ui">
   </a>
   <img alt="Minecraft" src="https://img.shields.io/badge/Minecraft-Java%2026.3-3C8527?logo=minecraft&logoColor=white">
   <img alt="Fabric" src="https://img.shields.io/badge/Mod%20loader-Fabric-DBD0B4?logo=fabric&logoColor=222222">
   <img alt="Java" src="https://img.shields.io/badge/Java-25-ED8B00?logo=openjdk&logoColor=white">
-  <img alt="Version" src="https://img.shields.io/badge/SkyOP-4.0.1-4BA3D9">
+  <img alt="Version" src="https://img.shields.io/badge/SkyOP-4.1.0-4BA3D9">
   <img alt="License" src="https://img.shields.io/badge/License-MIT-blue.svg">
 </p>
 
 <p align="center">
-  <a href="https://github.com/sky-pixel-Sp/cheat-minecraft/actions/workflows/build.yml?query=branch%3Afeature%2Fskyop-premium-ui-and-fixes">
+  <a href="https://github.com/sky-pixel-Sp/cheat-minecraft/actions/workflows/build.yml?query=branch%3Afeature%2F4.1.0-control-center-ui">
     <strong>⬇️ DOWNLOAD LATEST SUCCESSFUL BUILD</strong>
   </a>
   &nbsp;·&nbsp;
@@ -26,11 +26,15 @@
 
 ---
 
-## SkyOP 4.0 expansion preview
+## SkyOP 4.1.0 Control Center
 
-The active premium UI branch now carries the complete SkyOP 4.0.1 feature set. Gradle, the output JAR filename and the Fabric metadata all use version `4.0.1`.
+The 4.1.0 branch adds a multi-page Control Center on top of the existing 62 registered client modules. Gradle, the output JAR filename and embedded Fabric metadata all use version `4.1.0`. This is a UI and theme upgrade; it does not claim the 159-module specification or the 600-feature target is already implemented.
 
 - **62 registered modules:** every module has a concrete runtime factory entry and a category/risk classification.
+- **Control Center:** Right Shift opens a dashboard with Overview, Modules, Profiles, Waypoints, Appearance, Diagnostics and Connection pages. Its buttons call the existing module/profile/waypoint/diagnostic managers.
+- **Profiles and hotbar:** three config slots, JSON import/export, backup, and three hotbar save/load slots from the same Control Center.
+- **Waypoints:** save the current location, view stored coordinates and distance, copy coordinates to clipboard, and clear the local list.
+- **Themes:** six specification palettes (Graphite, Midnight, Crimson, Emerald, Mono and Sunset). Historical config IDs are retained so existing settings remain readable.
 - **ClickGUI navigation:** Combat, Movement, Visual, World, Player, Inventory, Favorites, Safe and Dangerous. Favorites and risk labels are filters over the registered modules.
 - **Quick Panel:** press **O** in a world to open the floating panel. It provides up to eight module toggles, a saved theme cycle, Full GUI access and a Disable All cleanup action.
 - **11 additional HUDs:** World Info (dimension/biome/weather), Chunk Info, Performance, Session Timer, Food, Air, Experience, Item Info, Offhand, Block Info and Armor Detail. Each has an independent saved position in HUD Edit.
@@ -38,7 +42,7 @@ The active premium UI branch now carries the complete SkyOP 4.0.1 feature set. G
 - **Input restoration:** Auto Walk restores the user's physical forward-key state when disabled.
 - **Localization:** Indonesian titles and descriptions are present for all 62 registered modules. JUnit regression tests check both the previously missing module translations and full registry coverage.
 
-See [SkyOP 4.0 feature specification](docs/SKYOP-4.0-FEATURES.md) and the [complete manual test plan](docs/TEST-PLAN.md).
+See the [4.1.0 Control Center implementation notes](docs/UI-CONTROL-CENTER-4.1.md), [feature specification](docs/SKYOP-4.0-FEATURES.md), [600+ feature engineering prompt](docs/PROMPT-600-FEATURES.md) and [manual test plan](docs/TEST-PLAN.md).
 
 The branch CI compiles with Java 25 and Gradle 9.7.1, executes JUnit tests, checks the installable JAR and uploads the artifact. A successful workflow proves build and packaging only; GUI interaction, HUD positioning, world behavior and multiplayer server acceptance still need manual testing.
 
@@ -65,7 +69,7 @@ Minecraft 26.3 is unobfuscated, so this project uses Fabric Loom's non-remapping
 
 ## Download and install
 
-1. Open [Latest successful GitHub Actions builds](https://github.com/sky-pixel-Sp/cheat-minecraft/actions/workflows/build.yml?query=branch%3Afeature%2Fskyop-4.0-complete-suite).
+1. Open [Latest successful GitHub Actions builds](https://github.com/sky-pixel-Sp/cheat-minecraft/actions/workflows/build.yml?query=branch%3Afeature%2F4.1.0-control-center-ui).
 2. Choose the newest run with a green **Success** status.
 3. Scroll to **Artifacts** and download **SkyOP-Client-Minecraft-26.3**.
 4. Extract the downloaded ZIP archive.
@@ -87,9 +91,9 @@ GitHub Actions artifacts expire after 30 days. Use the latest successful run for
 
 Use Fabric, not Forge or NeoForge. Install the mod in the same game directory as Fabric API.
 
-## Open and use the ClickGUI
+## Open and use the Control Center + ClickGUI
 
-Press **Right Shift** in-game.
+Press **Right Shift** in-game to open the Control Center. Open **Modules** to reach the full existing ClickGUI and dynamic setting inspector.
 
 | Control | Action |
 |---|---|
@@ -212,7 +216,7 @@ Back up the config folder before experimenting with imported profiles.
 2. Confirm java -version reports Java 25 or newer.
 3. Clone or download this repository.
 4. Run BUILD-WINDOWS.bat.
-5. Find `skyop-client-4.0.1.jar` under `build/libs/`.
+5. Find `skyop-client-4.1.0.jar` under `build/libs/`.
 
 The first build needs an internet connection to download Gradle and dependencies.
 
