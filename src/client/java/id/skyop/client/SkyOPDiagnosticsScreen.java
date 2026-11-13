@@ -7,6 +7,7 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import id.skyop.common.SkyOPDiagnostics;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -136,8 +137,8 @@ public final class SkyOPDiagnosticsScreen extends Screen {
     private void drawRuntimePanel(GuiGraphicsExtractor g, Minecraft client,
                                   SkyOPTheme.Palette p, boolean idLanguage) {
         int top = panelY + (compact() ? 122 : 134);
-        int footerY = panelY + panelHeight - FOOTER_HEIGHT;
-        int bodyHeight = Math.max(1, footerY - top - 9);
+        int contentBottom = panelY + panelHeight - FOOTER_HEIGHT;
+        int bodyHeight = Math.max(1, contentBottom - top - 9);
         int leftWidth = compact() ? Math.max(116, Math.min(174, panelWidth / 3))
                 : Math.min(238, Math.max(190, panelWidth / 4));
         int x = panelX + 16;
@@ -378,8 +379,8 @@ public final class SkyOPDiagnosticsScreen extends Screen {
         }
 
         int top = panelY + (compact() ? 122 : 134);
-        int footerY = panelY + panelHeight - FOOTER_HEIGHT;
-        int bodyHeight = Math.max(1, footerY - top - 9);
+        int contentBottom = panelY + panelHeight - FOOTER_HEIGHT;
+        int bodyHeight = Math.max(1, contentBottom - top - 9);
         int leftWidth = compact() ? Math.max(116, Math.min(174, panelWidth / 3))
                 : Math.min(238, Math.max(190, panelWidth / 4));
         int rightX = panelX + 16 + leftWidth + 12;
