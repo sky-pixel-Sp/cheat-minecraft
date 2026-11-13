@@ -1,9 +1,9 @@
-# SkyOP Client 4.0.1 — Implemented Module & UI Specification
+# SkyOP Client 4.1.0 — Implemented Module & UI Specification
 
 ## Build identity
-- Project/mod version: `4.0.1`
-- Installable JAR: `skyop-client-4.0.1.jar`
-- Fabric metadata version is expanded from Gradle `mod_version` and must report `4.0.1`.
+- Project/mod version: `4.1.0`
+- Installable JAR: `skyop-client-4.1.0.jar`
+- Fabric metadata version is expanded from Gradle `mod_version` and must report `4.1.0`.
 - Target: Minecraft Java 26.3, Fabric Loader 0.20.1+, Java 25+.
 
 ## Navigation
