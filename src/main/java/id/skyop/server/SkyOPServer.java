@@ -8,7 +8,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import java.nio.file.Path;
 
 /**
- * Dedicated/integrated server bootstrap. This entrypoint deliberately has no
+ * Dedicated-server bootstrap. This entrypoint deliberately has no
  * client, renderer, input, GLFW or Minecraft-client references.
  */
 public final class SkyOPServer implements DedicatedServerModInitializer {
