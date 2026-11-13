@@ -1,4 +1,4 @@
-# SkyOP Client 4.0.0 development test plan
+# SkyOP Client 4.0.1 development test plan
 
 ## Automated CI checks
 
@@ -10,7 +10,7 @@ A green CI result proves compilation and packaging. It does not prove an in-game
 
 1. Create a separate Minecraft Java 26.3 Fabric instance.
 2. Install Fabric Loader 0.20.1 and Fabric API 0.165.2+26.3.
-3. Add skyop-client-2.3.0-dev.jar to that instance's mods folder.
+3. Add skyop-client-4.0.1.jar to that instance's mods folder.
 4. Launch to the title screen and confirm no mixin or resource errors appear.
 5. Join a local single-player world and wait for the loading screen to close; verify no IndexOutOfBoundsException occurs when Minecraft restores all key states. Confirm the InputConstantsMixin applies to the Minecraft 26.3 `isKeyDown(int)` method and does not report a missing injection target.
 6. Repeat with SkyOP module keybinds left unassigned; verify unbound keys do not crash world loading or mouse capture; the vanilla UNKNOWN key uses SDL scancode 0, and invalid negative indexes must be rejected before ByteBuffer access.

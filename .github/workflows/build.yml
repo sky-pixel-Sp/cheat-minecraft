@@ -48,15 +48,16 @@ jobs:
             exit 1
           fi
 
-          # Enforce the SkyOP 4.0.0 release identity in both filename and
+          # Enforce the SkyOP 4.0.1 release identity in Gradle, filename and
           # embedded Fabric metadata. This prevents an old version from
           # being uploaded from the current feature branch.
-          EXPECTED_JAR="build/libs/skyop-client-4.0.0.jar"
+          grep -Fq 'mod_version=4.0.1' gradle.properties
+          EXPECTED_JAR="build/libs/skyop-client-4.0.1.jar"
           if [[ "$JAR_PATH" != "$EXPECTED_JAR" ]]; then
             echo "Expected $EXPECTED_JAR but produced $JAR_PATH." >&2
             exit 1
           fi
-          unzip -p "$JAR_PATH" fabric.mod.json | grep -Fq '"version": "4.0.0"'
+          unzip -p "$JAR_PATH" fabric.mod.json | grep -Fq '"version": "4.0.1"'
 
           # Minecraft 26.3 SDL keyboard-state regression guard.
           grep -Fq 'SDL_SCANCODE_COUNT = 512' src/main/java/id/skyop/client/SkyOPSdlKeyboardIndex.java
