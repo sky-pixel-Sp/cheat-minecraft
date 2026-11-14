@@ -118,13 +118,25 @@ public final class SkyOPModuleManager {
             return;
         }
         syncAllStates(client);
-        SkyOPMovementModules.trackDisabledJumpInputs(client);
+        try {
+            SkyOPMovementModules.trackDisabledJumpInputs(client);
+        } catch (VirtualMachineError | LinkageError fatal) {
+            throw fatal;
+        } catch (Throwable error) {
+            SkyOPDiagnostics.recordSystemError("disabled jump input tracking", error);
+        }
 
         tickModules(client, MOVEMENT_TICK_ORDER);
         tickModule(client, SkyOPModuleId.NO_FALL);
 
-        // ESP and gamma share client-owned temporary state and are applied once per tick.
-        SkyOPVisualModules.tickShared(client);
+        // Shared visual state must not prevent isolated module callbacks from running.
+        try {
+            SkyOPVisualModules.tickShared(client);
+        } catch (VirtualMachineError | LinkageError fatal) {
+            throw fatal;
+        } catch (Throwable error) {
+            SkyOPDiagnostics.recordSystemError("shared visual tick", error);
+        }
         tickModules(client, VISUAL_TICK_ORDER);
 
         tickModules(client, COMBAT_TICK_ORDER);

@@ -230,7 +230,8 @@ public final class SkyOPDiagnosticsScreen extends Screen {
             boolean enabled = SkyOPCore.isEnabled(id);
             boolean active = SkyOPModuleManager.isActive(id);
             SkyOPModule module = SkyOPModuleManager.get(id);
-            boolean ready = module != null && module.isReady(client);
+            Boolean readySnapshot = SkyOPDiagnostics.readinessSnapshot(id);
+            boolean ready = Boolean.TRUE.equals(readySnapshot);
             String state = active
                     ? (idLanguage ? "AKTIF" : "ACTIVE")
                     : (enabled && !ready ? (idLanguage ? "MENUNGGU" : "WAITING")
@@ -304,9 +305,7 @@ public final class SkyOPDiagnosticsScreen extends Screen {
     private int waitingModuleCount(Minecraft client) {
         int waiting = 0;
         for (SkyOPModuleId id : SkyOPModuleId.values()) {
-            if (!SkyOPCore.isEnabled(id)) continue;
-            SkyOPModule module = SkyOPModuleManager.get(id);
-            if (module == null || !module.isReady(client)) waiting++;
+            if (SkyOPCore.isEnabled(id) && !SkyOPModuleManager.isActive(id)) waiting++;
         }
         return waiting;
     }

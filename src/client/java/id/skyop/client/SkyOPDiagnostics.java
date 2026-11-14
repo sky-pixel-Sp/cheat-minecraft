@@ -85,6 +85,13 @@ public final class SkyOPDiagnostics {
         write("WARN", id.name(), "Auto-disabled after 3 consecutive callback errors", null);
     }
 
+    public static Boolean readinessSnapshot(SkyOPModuleId id) {
+        ModuleState state = state(id);
+        synchronized (state) {
+            return state.readyKnown ? Boolean.valueOf(state.ready) : null;
+        }
+    }
+
     public static void retry(SkyOPModuleId id) {
         if (id == null) return;
         ModuleState s = state(id);
@@ -94,6 +101,9 @@ public final class SkyOPDiagnostics {
 
     public static String buildReport(Minecraft client) {
         String version = client == null ? "unknown" : client.getLaunchedVersion();
+        String modVersion = FabricLoader.getInstance().getModContainer("skyop")
+                .map(container -> container.getMetadata().getVersion().getFriendlyString())
+                .orElse("unknown");
         StringBuilder b = new StringBuilder(12000);
         b.append("SkyOP Diagnostics\nGenerated: ").append(Instant.now()).append('\n');
         b.append("SkyOP version: ").append(version).append("\nMinecraft version: ").append(version).append('\n');
