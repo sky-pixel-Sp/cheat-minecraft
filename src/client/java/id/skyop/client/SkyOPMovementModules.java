@@ -261,9 +261,19 @@ public final class SkyOPMovementModules {
             return;
         }
 
+        var look = SkyOPLandingPredictor.lookAngles(
+                eye.x, eye.y, eye.z, target.x, target.y, target.z);
+        if (look == null) {
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_MLG, "invalid_aim_vector",
+                    "Predicted landing point produced an invalid view direction");
+            return;
+        }
+
+        float originalYaw = player.getYRot();
         float originalPitch = player.getXRot();
         try {
-            player.setXRot(90.0F);
+            player.setYRot(look.yaw());
+            player.setXRot(look.pitch());
             HitResult result = player.pick(4.5D, 1.0F, false);
             if (result.getType() != HitResult.Type.BLOCK || !(result instanceof BlockHitResult hit)) {
                 SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_MLG, "aim_mismatch", "Downward vanilla pick did not hit a block");
@@ -284,6 +294,7 @@ public final class SkyOPMovementModules {
             SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_MLG, "placement_attempted",
                     "Normal vanilla water-bucket interaction attempted");
         } finally {
+            player.setYRot(originalYaw);
             player.setXRot(originalPitch);
         }
     }

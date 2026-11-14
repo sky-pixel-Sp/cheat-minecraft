@@ -9,6 +9,7 @@ public final class SkyOPLandingPredictor {
     }
 
     public record Landing(int ticks, double x, double y, double z) { }
+    public record LookAngles(float yaw, float pitch) { }
 
     private SkyOPLandingPredictor() { }
 
@@ -39,5 +40,20 @@ public final class SkyOPLandingPredictor {
             x = nx; y = ny; z = nz;
         }
         return null;
+    }
+
+    /** Computes vanilla entity yaw/pitch from the eye position to a target point. */
+    public static LookAngles lookAngles(double eyeX, double eyeY, double eyeZ,
+                                        double targetX, double targetY, double targetZ) {
+        if (!Double.isFinite(eyeX) || !Double.isFinite(eyeY) || !Double.isFinite(eyeZ)
+                || !Double.isFinite(targetX) || !Double.isFinite(targetY) || !Double.isFinite(targetZ)) return null;
+        double dx = targetX - eyeX;
+        double dy = targetY - eyeY;
+        double dz = targetZ - eyeZ;
+        double horizontal = Math.sqrt(dx*dx + dz*dz);
+        if (horizontal < 1.0E-8D && Math.abs(dy) < 1.0E-8D) return null;
+        float yaw = (float) (Math.toDegrees(Math.atan2(dz, dx)) - 90.0D);
+        float pitch = (float) -Math.toDegrees(Math.atan2(dy, horizontal));
+        return new LookAngles(yaw, pitch);
     }
 }

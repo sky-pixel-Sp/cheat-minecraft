@@ -1,40 +1,48 @@
 package id.skyop.client;
 
-public final class SkyOPModuleHealth {
-    public record Snapshot(int errorCount, int consecutiveErrors, boolean autoDisabled, String lastError) { }
+import java.util.HashMap;
+import java.util.Map;
 
+public final class SkyOPModuleHealth {
+    public record Snapshot(int errorCount, int consecutiveErrors,
+                           boolean autoDisabled, String lastError, String lastFailingCallback) { }
+
+    private final Map<String, Integer> failuresByCallback = new HashMap<>();
     private int errorCount;
-    private int consecutiveErrors;
-    private int consecutiveSuccesses;
     private boolean autoDisabled;
     private String lastError = "";
+    private String lastFailingCallback = "";
 
-    public synchronized boolean recordError(String message) {
+    /** The third consecutive failure of the same callback phase requests module auto-disable. */
+    public synchronized boolean recordError(String callback, String message) {
+        String key = normalize(callback);
+        int failures = failuresByCallback.merge(key, 1, Integer::sum);
         errorCount++;
-        consecutiveErrors++;
-        consecutiveSuccesses = 0;
+        lastFailingCallback = key;
         lastError = message == null ? "Unknown error" : message;
-        return consecutiveErrors >= 3;
+        return failures >= 3;
     }
 
-    public synchronized void recordSuccess() {
-        if (consecutiveErrors == 0 || autoDisabled) return;
-        consecutiveSuccesses++;
-        if (consecutiveSuccesses >= 100) {
-            consecutiveErrors = 0;
-            consecutiveSuccesses = 0;
-        }
+    /** A successful callback resets only its own consecutive failure streak. */
+    public synchronized void recordSuccess(String callback) {
+        if (!autoDisabled) failuresByCallback.remove(normalize(callback));
     }
 
     public synchronized void markAutoDisabled() { autoDisabled = true; }
 
+    /** Manual retry starts a new session and preserves the historical error count. */
     public synchronized void retry() {
-        consecutiveErrors = 0;
-        consecutiveSuccesses = 0;
+        failuresByCallback.clear();
         autoDisabled = false;
     }
 
     public synchronized Snapshot snapshot() {
-        return new Snapshot(errorCount, consecutiveErrors, autoDisabled, lastError);
+        int maximumStreak = failuresByCallback.values().stream()
+                .mapToInt(Integer::intValue).max().orElse(0);
+        return new Snapshot(errorCount, maximumStreak, autoDisabled, lastError, lastFailingCallback);
+    }
+
+    private static String normalize(String callback) {
+        return callback == null || callback.isBlank() ? "unknown" : callback;
     }
 }

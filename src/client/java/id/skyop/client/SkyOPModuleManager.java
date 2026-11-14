@@ -158,6 +158,7 @@ public final class SkyOPModuleManager {
     private static boolean isModuleReady(Minecraft client, SkyOPModule module) {
         try {
             boolean ready = module.isReady(client);
+            SkyOPDiagnostics.recordSuccess(module.type(), "isReady");
             SkyOPDiagnostics.recordReadiness(module.type(), ready,
                     ready ? "Ready" : SkyOPModuleDependencies.missingRequirement(client, module.type()));
             return ready;
@@ -172,7 +173,7 @@ public final class SkyOPModuleManager {
     private static boolean invoke(Minecraft client, SkyOPModule module, String phase, Runnable callback) {
         try {
             callback.run();
-            SkyOPDiagnostics.recordSuccess(module.type());
+            SkyOPDiagnostics.recordSuccess(module.type(), phase);
             return true;
         } catch (VirtualMachineError | LinkageError fatal) {
             throw fatal;

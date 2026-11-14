@@ -37,9 +37,23 @@ public final class SkyOPDiagnostics {
 
     public static void recordReadiness(SkyOPModuleId id, boolean ready, String reason) {
         ModuleState s = state(id);
-        synchronized (s) { s.readyKnown = true; s.ready = ready; }
-        recordReason(id, ready ? "ready" : "not_ready",
-                ready ? "Ready" : (reason == null || reason.isBlank() ? "Module dependency is not ready" : reason));
+        boolean wasKnown;
+        boolean wasReady;
+        synchronized (s) {
+            wasKnown = s.readyKnown;
+            wasReady = s.ready;
+            s.readyKnown = true;
+            s.ready = ready;
+        }
+
+        // Readiness is sampled by tick and render dispatch. Do not overwrite a
+        // module-specific onTick reason on every render frame while it remains ready.
+        if (!ready) {
+            recordReason(id, "not_ready",
+                    reason == null || reason.isBlank() ? "Module dependency is not ready" : reason);
+        } else if (!wasKnown || !wasReady) {
+            recordReason(id, "ready", "Ready");
+        }
     }
 
     public static void recordReason(SkyOPModuleId id, String key, String message) {
@@ -61,7 +75,7 @@ public final class SkyOPDiagnostics {
         boolean disable;
         synchronized (s) {
             s.lastError = shortError;
-            disable = s.health.recordError(shortError);
+            disable = s.health.recordError(phase, shortError);
             s.reasonKey = "error";
             s.reasonText = phase + ": " + shortError;
         }
@@ -73,7 +87,9 @@ public final class SkyOPDiagnostics {
         write("ERROR", context, concise(error), stack(error));
     }
 
-    public static void recordSuccess(SkyOPModuleId id) { state(id).health.recordSuccess(); }
+    public static void recordSuccess(SkyOPModuleId id, String phase) {
+        state(id).health.recordSuccess(phase);
+    }
 
     public static void markAutoDisabled(SkyOPModuleId id) {
         ModuleState s = state(id);
