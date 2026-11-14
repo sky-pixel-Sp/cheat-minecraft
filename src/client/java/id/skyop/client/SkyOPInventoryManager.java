@@ -179,27 +179,40 @@ public final class SkyOPInventoryManager {
     }
 
     static void tickAutoTotem(Minecraft client) {
-        if (totemDelay > 0) { totemDelay--; return; }
-        var player = client.player;
-        if (!SkyOPAutomationRules.shouldEquipTotem(
-                !player.getOffhandItem().isEmpty(), player.getHealth(), SkyOPState.autoTotemHealth)) return;
-
-        var inventory = player.getInventory();
-        // Only main inventory + hotbar are eligible. Armor (36-39) and offhand (40)
-        // are not source slots for this automation.
-        for (int inventorySlot = 0; inventorySlot <= 35; inventorySlot++) {
-            if (!inventory.getItem(inventorySlot).is(Items.TOTEM_OF_UNDYING)) continue;
-            int menuSlot = SkyOPAutomationRules.playerInventorySlotToMenuSlot(inventorySlot);
-            if (menuSlot < 0) continue;
-
-            // Vanilla inventory SWAP button 40 maps to the offhand slot.
-            // The server validates this ordinary container action.
-            client.gameMode.handleContainerInput(
-                    player.inventoryMenu.containerId, menuSlot, 40, ContainerInput.SWAP, player
-            );
-            totemDelay = 10;
+        if (totemDelay > 0) {
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_TOTEM, "cooldown", "Waiting for inventory swap cooldown");
+            totemDelay--;
             return;
         }
+        var player = client.player;
+        if (player.isCreative() || player.isSpectator()) {
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_TOTEM, "creative_skipped", "Creative/spectator mode is skipped");
+            return;
+        }
+        if (player.getOffhandItem().is(Items.TOTEM_OF_UNDYING)) {
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_TOTEM, "already_equipped", "Totem is already in offhand");
+            return;
+        }
+        if (!player.getOffhandItem().isEmpty()) {
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_TOTEM, "offhand_occupied", "Offhand contains another item");
+            return;
+        }
+        if (player.getHealth() > SkyOPState.autoTotemHealth) {
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_TOTEM, "hp_above_threshold", "Health is above configured threshold");
+            return;
+        }
+        var inventory = player.getInventory();
+        for (int inventorySlot = 0; inventorySlot <= 35; inventorySlot++) {
+            if (!inventory.getItem(inventorySlot).is(Items.TOTEM_OF_UNDYING)) continue;
+            int menu = SkyOPAutomationRules.playerInventorySlotToMenuSlot(inventorySlot);
+            if (menu < 0) continue;
+            client.gameMode.handleContainerInput(player.inventoryMenu.containerId, menu, 40, ContainerInput.SWAP, player);
+            totemDelay = 10;
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_TOTEM, "swap_requested",
+                    "Requested ordinary vanilla SWAP from inventory slot " + inventorySlot + " to offhand");
+            return;
+        }
+        SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_TOTEM, "no_carried_totem", "No totem in main inventory or hotbar");
     }
 
     static void tickAutoArmor(Minecraft client) {
@@ -214,8 +227,10 @@ public final class SkyOPInventoryManager {
             if (equippable == null || !ARMOR_SLOTS.contains(equippable.slot())) continue;
             if (!player.getItemBySlot(equippable.slot()).isEmpty()) continue;
 
+            int menuSlot = SkyOPAutomationRules.playerInventorySlotToMenuSlot(slot);
+            if (menuSlot < 0) continue;
             client.gameMode.handleContainerInput(
-                    player.inventoryMenu.containerId, slot, 0, ContainerInput.QUICK_MOVE, player
+                    player.inventoryMenu.containerId, menuSlot, 0, ContainerInput.QUICK_MOVE, player
             );
             armorDelay = 8;
             return;
@@ -272,8 +287,10 @@ public final class SkyOPInventoryManager {
         for (int slot = 9; slot < Math.min(36, inventory.getContainerSize()); slot++) {
             ItemStack candidate = inventory.getItem(slot);
             if (candidate.isEmpty() || !ItemStack.isSameItemSameComponents(candidate, current)) continue;
+            int menuSlot = SkyOPAutomationRules.playerInventorySlotToMenuSlot(slot);
+            if (menuSlot < 0) continue;
             client.gameMode.handleContainerInput(
-                    player.inventoryMenu.containerId, slot, selected, ContainerInput.SWAP, player
+                    player.inventoryMenu.containerId, menuSlot, selected, ContainerInput.SWAP, player
             );
             refillDelay = 12;
             return;
@@ -303,8 +320,10 @@ public final class SkyOPInventoryManager {
             }
 
             if (hasRoom) {
+                int menuSlot = SkyOPAutomationRules.playerInventorySlotToMenuSlot(slot);
+                if (menuSlot < 0) continue;
                 client.gameMode.handleContainerInput(
-                        player.inventoryMenu.containerId, slot, 0, ContainerInput.QUICK_MOVE, player
+                        player.inventoryMenu.containerId, menuSlot, 0, ContainerInput.QUICK_MOVE, player
                 );
                 cleanDelay = 30;
                 return;

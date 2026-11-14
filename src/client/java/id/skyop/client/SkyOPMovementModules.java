@@ -196,58 +196,105 @@ public final class SkyOPMovementModules {
 
     static void tickAutoMlg(Minecraft client) {
         if (autoMlgCooldown > 0) {
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_MLG, "cooldown", "Waiting for bucket cooldown");
             autoMlgCooldown--;
             return;
         }
         LocalPlayer player = client.player;
         var inventory = player.getInventory();
-
         if (autoMlgOriginalSlot >= 0) {
-            boolean waterUsed = autoMlgBucketSlot >= 0
+            boolean used = autoMlgBucketSlot >= 0
                     && !inventory.getItem(autoMlgBucketSlot).is(net.minecraft.world.item.Items.WATER_BUCKET);
-            if (player.onGround() || waterUsed) {
-                restoreAutoMlgSlot(client);
-                return;
-            }
+            if (player.onGround() || used) { restoreAutoMlgSlot(client); return; }
         }
-
-        if (!SkyOPAutomationRules.shouldTriggerMlg(
-                player.onGround(), player.fallDistance, player.getDeltaMovement().y,
-                SkyOPState.autoMlgFallDistance)) return;
-
-        int bucketSlot = -1;
+        if (player.isCreative() || player.isSpectator()) {
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_MLG, "creative_skipped", "Creative/spectator mode is skipped");
+            return;
+        }
+        Vec3 velocity = player.getDeltaMovement();
+        if (!SkyOPAutomationRules.shouldTriggerMlg(player.onGround(), player.fallDistance,
+                velocity.y, SkyOPState.autoMlgFallDistance)) {
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_MLG, "not_falling",
+                    "Fall distance or downward velocity has not reached the trigger");
+            return;
+        }
+        int bucket = -1;
         for (int slot = 0; slot < net.minecraft.world.entity.player.Inventory.SELECTION_SIZE; slot++) {
-            if (inventory.getItem(slot).is(net.minecraft.world.item.Items.WATER_BUCKET)) {
-                bucketSlot = slot;
-                break;
-            }
+            if (inventory.getItem(slot).is(net.minecraft.world.item.Items.WATER_BUCKET)) { bucket = slot; break; }
         }
-        if (bucketSlot < 0) return;
+        if (bucket < 0) {
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_MLG, "no_water_bucket", "No water bucket in hotbar");
+            return;
+        }
 
+        var prediction = SkyOPLandingPredictor.predict(player.getX(), player.getY(), player.getZ(),
+                velocity.x, velocity.y, velocity.z, SkyOPState.autoMlgPredictionWindow, (x, feetY, z) -> {
+                    int bx = (int) Math.floor(x), bz = (int) Math.floor(z), startY = (int) Math.floor(feetY);
+                    double lx = x - bx, lz = z - bz, top = Double.NaN;
+                    for (int by = startY; by >= startY - 3; by--) {
+                        BlockPos pos = new BlockPos(bx, by, bz);
+                        if (!client.level.hasChunkAt(pos)) return Double.NaN;
+                        var shape = client.level.getBlockState(pos).getCollisionShape(client.level, pos);
+                        if (shape.isEmpty()) continue;
+                        var bounds = shape.bounds();
+                        if (lx < bounds.minX || lx > bounds.maxX || lz < bounds.minZ || lz > bounds.maxZ) continue;
+                        double candidate = by + bounds.maxY;
+                        if (candidate <= feetY + 1.0E-4D && (!Double.isFinite(top) || candidate > top)) top = candidate;
+                    }
+                    return top;
+                });
+        if (prediction == null) {
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_MLG, "no_valid_surface",
+                    "No loaded collision surface predicted within " + SkyOPState.autoMlgPredictionWindow + " ticks");
+            return;
+        }
+
+        BlockPos predictedBlock = new BlockPos((int) Math.floor(prediction.x()),
+                (int) Math.floor(prediction.y() - 0.001D), (int) Math.floor(prediction.z()));
+        Vec3 eye = player.getEyePosition();
+        Vec3 target = new Vec3(prediction.x(), prediction.y(), prediction.z());
+        double distance = eye.distanceTo(target);
+        if (distance > 4.5D) {
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_MLG, "out_of_reach",
+                    String.format(java.util.Locale.ROOT,
+                            "Predicted surface %.2f blocks away; vanilla limit is 4.5", distance));
+            return;
+        }
+
+        var look = SkyOPLandingPredictor.lookAngles(
+                eye.x, eye.y, eye.z, target.x, target.y, target.z);
+        if (look == null) {
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_MLG, "invalid_aim_vector",
+                    "Predicted landing point produced an invalid view direction");
+            return;
+        }
+
+        float originalYaw = player.getYRot();
         float originalPitch = player.getXRot();
         try {
-            // Temporarily aim straight down, then calculate a fresh block hit from that view.
-            // This also lets the module work when the player's camera was not already looking down.
-            player.setXRot(90.0F);
-            HitResult rayHit = player.pick(4.5D, 1.0F, false);
-            if (rayHit.getType() != HitResult.Type.BLOCK
-                    || !(rayHit instanceof BlockHitResult hit)
-                    || hit.getBlockPos().getY() >= Math.floor(player.getY())) {
+            player.setYRot(look.yaw());
+            player.setXRot(look.pitch());
+            HitResult result = player.pick(4.5D, 1.0F, false);
+            if (result.getType() != HitResult.Type.BLOCK || !(result instanceof BlockHitResult hit)) {
+                SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_MLG, "aim_mismatch", "Downward vanilla pick did not hit a block");
                 return;
             }
-
-            autoMlgOriginalSlot = inventory.getSelectedSlot();
-            autoMlgBucketSlot = bucketSlot;
-            inventory.setSelectedSlot(bucketSlot);
-
-            // Block-targeted interaction is attempted first. BucketItem overrides use(...),
-            // not useOn(...), so also submit the ordinary item-use path.
+            if (!hit.getBlockPos().equals(predictedBlock)) {
+                SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_MLG, "aim_mismatch",
+                        "Current downward pick does not match the predicted landing block");
+                return;
+            }
+            autoMlgOriginalSlot = SkyOPAutomationRules.preserveOriginalSelectedSlot(autoMlgOriginalSlot, inventory.getSelectedSlot());
+            autoMlgBucketSlot = bucket;
+            inventory.setSelectedSlot(bucket);
             client.gameMode.useItemOn(player, InteractionHand.MAIN_HAND, hit);
             player.swing(InteractionHand.MAIN_HAND, SwingAnimation.DEFAULT, true);
             client.gameMode.useItem(player, InteractionHand.MAIN_HAND);
             autoMlgCooldown = 5;
+            SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_MLG, "placement_attempted",
+                    "Normal vanilla water-bucket interaction attempted");
         } finally {
-            // Pitch restoration is synchronous, including early return and exception paths.
+            player.setYRot(originalYaw);
             player.setXRot(originalPitch);
         }
     }

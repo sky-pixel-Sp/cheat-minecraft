@@ -199,7 +199,12 @@ public static void setEnabled(Minecraft client, SkyOPModuleId module, boolean en
             }
             return;
         }
-        if (enabled) SkyOPState.ENABLED.add(module); else SkyOPState.ENABLED.remove(module);
+        if (enabled) {
+            SkyOPDiagnostics.retry(module);
+            SkyOPState.ENABLED.add(module);
+        } else {
+            SkyOPState.ENABLED.remove(module);
+        }
         SkyOPModuleManager.syncAllStates(client);
 
         if ((module == SkyOPModuleId.ENTITY_ESP || module == SkyOPModuleId.ITEM_ESP) && !enabled

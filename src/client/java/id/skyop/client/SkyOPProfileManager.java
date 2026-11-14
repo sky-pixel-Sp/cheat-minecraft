@@ -129,8 +129,8 @@ public final class SkyOPProfileManager {
                 }
             }
             if (found >= 0) {
-                int menuSlot = found < 9 ? 36 + found : found;
-                client.gameMode.handleContainerInput(
+                int menuSlot = SkyOPAutomationRules.playerInventorySlotToMenuSlot(found);
+                if (menuSlot >= 0) client.gameMode.handleContainerInput(
                         client.player.inventoryMenu.containerId, menuSlot, hotbar, ContainerInput.SWAP, client.player
                 );
             }

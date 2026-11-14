@@ -58,6 +58,7 @@ public final class SkyOPState {
     public static double jumpBoostMultiplier = 1.35;
     public static double fastBreakLevel = 7.0;
     public static double autoMlgFallDistance = 6.0;
+    public static int autoMlgPredictionWindow = 2;
     public static double autoTotemHealth = 14.0;
     public static int bridgeDelayTicks = 2;
     public static int zoomFov = 20;

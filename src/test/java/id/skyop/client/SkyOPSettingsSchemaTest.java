@@ -44,6 +44,16 @@ class SkyOPSettingsSchemaTest {
     }
 
     @Test
+    void validatesAutoMlgPredictionWindow() {
+        var rule = SkyOPSettingsSchema.rule("autoMlgPredictionWindow");
+        assertNotNull(rule);
+        assertEquals(1.0, rule.validate(0.0));
+        assertEquals(3.0, rule.validate(4.0));
+        assertEquals(2.0, rule.validate(Double.NaN));
+        assertEquals(2.0, rule.defaultValue());
+    }
+
+    @Test
     void validatesNewUtilityModuleSettings() {
         var zoom = SkyOPSettingsSchema.rule("zoomFov");
         var containers = SkyOPSettingsSchema.rule("containerFinderRange");

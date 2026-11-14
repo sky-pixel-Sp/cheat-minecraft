@@ -3,15 +3,18 @@
   "id": "skyop",
   "version": "${version}",
   "name": "SkyOP Client",
-  "description": "Expanded client-side combat, movement, visual and HUD modules for Minecraft Java 26.3.",
+  "description": "SkyOP Client and dedicated-server diagnostics bootstrap for Minecraft Java 26.3.",
   "authors": [
     "SkyOP"
   ],
   "license": "MIT",
-  "environment": "client",
+  "environment": "*",
   "entrypoints": {
     "client": [
       "id.skyop.client.SkyOPClient"
+    ],
+    "server": [
+      "id.skyop.server.SkyOPServer"
     ]
   },
   "depends": {
@@ -21,6 +24,9 @@
     "fabric-api": "*"
   },
   "mixins": [
-    "skyop.mixins.json"
+    {
+      "config": "skyop.mixins.json",
+      "environment": "client"
+    }
   ]
 }
