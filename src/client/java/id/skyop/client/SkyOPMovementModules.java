@@ -284,7 +284,7 @@ public final class SkyOPMovementModules {
                         "Current downward pick does not match the predicted landing block");
                 return;
             }
-            autoMlgOriginalSlot = inventory.getSelectedSlot();
+            autoMlgOriginalSlot = SkyOPAutomationRules.preserveOriginalSelectedSlot(autoMlgOriginalSlot, inventory.getSelectedSlot());
             autoMlgBucketSlot = bucket;
             inventory.setSelectedSlot(bucket);
             client.gameMode.useItemOn(player, InteractionHand.MAIN_HAND, hit);

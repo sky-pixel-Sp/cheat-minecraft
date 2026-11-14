@@ -53,6 +53,13 @@ class SkyOPAutomationRulesTest {
     }
 
     @Test
+    void repeatedMlgAttemptsKeepTheFirstOriginalSelectedSlot() {
+        assertEquals(4, SkyOPAutomationRules.preserveOriginalSelectedSlot(-1, 4));
+        assertEquals(4, SkyOPAutomationRules.preserveOriginalSelectedSlot(4, 1));
+        assertEquals(4, SkyOPAutomationRules.preserveOriginalSelectedSlot(4, 7));
+    }
+
+    @Test
     void autoMlgRequiresFallingAndAConfiguredFallDistance() {
         assertTrue(SkyOPAutomationRules.shouldTriggerMlg(false, 7.0F, -0.8, 6));
         assertFalse(SkyOPAutomationRules.shouldTriggerMlg(true, 7.0F, -0.8, 6));

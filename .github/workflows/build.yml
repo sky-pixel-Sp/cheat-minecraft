@@ -156,6 +156,9 @@ jobs:
           grep -Fq 'number("autoMlgPredictionWindow", 2, 1, 3, true)' src/client/java/id/skyop/client/SkyOPSettingsSchema.java
           grep -Fq 'playerInventorySlotToMenuSlot(slot)' src/client/java/id/skyop/client/SkyOPInventoryManager.java
           grep -Fq 'playerInventorySlotToMenuSlot(found)' src/client/java/id/skyop/client/SkyOPProfileManager.java
+          grep -Fq 'preserveOriginalSelectedSlot(autoMlgOriginalSlot, inventory.getSelectedSlot())' src/client/java/id/skyop/client/SkyOPMovementModules.java
+          test -s src/test/java/id/skyop/client/SkyOPModuleHealthTest.java
+          test -s src/test/java/id/skyop/client/SkyOPLandingPredictorTest.java
 
           # Fast Break, Auto MLG and Auto Totem must be registered and tested.
           grep -Fq 'number("fastBreakLevel", 7, 1, 7, true)' src/client/java/id/skyop/client/SkyOPSettingsSchema.java

@@ -28,6 +28,14 @@ public final class SkyOPAutomationRules {
         return !offhandOccupied && Float.isFinite(health) && health <= threshold;
     }
 
+    /**
+     * Keep the first selected slot captured for an MLG attempt session. A retry
+     * while the bucket is still full must not replace it with the bucket slot.
+     */
+    public static int preserveOriginalSelectedSlot(int savedOriginalSlot, int currentSelectedSlot) {
+        return savedOriginalSlot >= 0 ? savedOriginalSlot : currentSelectedSlot;
+    }
+
     public static boolean shouldTriggerMlg(boolean onGround, double fallDistance,
                                            double verticalVelocity, double triggerDistance) {
         double threshold = SkyOPSettingsSchema.rule("autoMlgFallDistance").validate(triggerDistance);
