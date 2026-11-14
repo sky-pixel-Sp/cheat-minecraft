@@ -54,5 +54,7 @@
   "key.skyop.module.container_finder": "Pencari Peti",
   "key.skyop.module.auto_respawn": "Respawn Otomatis",
   "key.skyop.module.low_health_alert": "Peringatan Health Rendah",
-  "key.skyop.module.armor_alert": "Peringatan Armor"
+  "key.skyop.module.armor_alert": "Peringatan Armor",
+  "setting.auto_mlg_prediction_window": "Jendela prediksi",
+  "setting.auto_mlg_prediction_window_desc": "Jumlah tick untuk memprediksi permukaan pendaratan yang sudah dimuat (1–3)."
 }

@@ -80,11 +80,10 @@ public final class SkyOPModuleManager {
         for (SkyOPModule module : MODULES.values()) {
             SkyOPModuleId type = module.type();
             boolean enabled = SkyOPCore.isEnabled(type);
-            if (enabled && !ACTIVE.contains(type) && module.isReady(client)) {
-                ACTIVE.add(type);
-                module.onEnable(client);
+            if (enabled && !ACTIVE.contains(type) && isModuleReady(client, module)) {
+                if (invoke(client, module, "onEnable", () -> module.onEnable(client))) ACTIVE.add(type);
             } else if (!enabled && ACTIVE.remove(type)) {
-                module.onDisable(client);
+                invoke(client, module, "onDisable", () -> module.onDisable(client));
             }
         }
     }
@@ -139,36 +138,108 @@ public final class SkyOPModuleManager {
 
     private static void tickModule(Minecraft client, SkyOPModuleId type) {
         SkyOPModule module = MODULES.get(type);
-        if (module != null && SkyOPCore.isEnabled(type) && module.isReady(client)) {
-            module.onTick(client);
+        if (module != null && SkyOPCore.isEnabled(type) && isModuleReady(client, module)) {
+            invoke(client, module, "onTick", () -> module.onTick(client));
+        }
+    }
+
+    private static boolean isModuleReady(Minecraft client, SkyOPModule module) {
+        try {
+            boolean ready = module.isReady(client);
+            SkyOPDiagnostics.recordReadiness(module.type(), ready,
+                    ready ? "Ready" : SkyOPModuleDependencies.missingRequirement(client, module.type()));
+            return ready;
+        } catch (VirtualMachineError | LinkageError fatal) {
+            throw fatal;
+        } catch (Throwable error) {
+            handleModuleError(client, module, "isReady", error);
+            return false;
+        }
+    }
+
+    private static boolean invoke(Minecraft client, SkyOPModule module, String phase, Runnable callback) {
+        try {
+            callback.run();
+            SkyOPDiagnostics.recordSuccess(module.type());
+            return true;
+        } catch (VirtualMachineError | LinkageError fatal) {
+            throw fatal;
+        } catch (Throwable error) {
+            handleModuleError(client, module, phase, error);
+            return false;
+        }
+    }
+
+    private static void handleModuleError(Minecraft client, SkyOPModule module, String phase, Throwable error) {
+        SkyOPModuleId id = module.type();
+        boolean disable = SkyOPDiagnostics.recordError(id, phase, error);
+        boolean enableFailed = "onEnable".equals(phase);
+        if (enableFailed || disable) {
+            try {
+                module.onDisable(client);
+            } catch (VirtualMachineError | LinkageError fatal) {
+                throw fatal;
+            } catch (Throwable cleanupError) {
+                SkyOPDiagnostics.recordSystemError(id.name() + " / onDisable after failure", cleanupError);
+            }
+        }
+        if (disable) {
+            SkyOPState.ENABLED.remove(id);
+            ACTIVE.remove(id);
+            SkyOPDiagnostics.markAutoDisabled(id);
+            if (client != null && client.player != null) {
+                client.player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+                        "[SkyOP] " + id.name() + " auto-disabled after 3 consecutive errors."));
+            }
         }
     }
 
     public static void render2D(Minecraft client, GuiGraphicsExtractor graphics) {
         if (client == null || graphics == null || !MODULES.containsKey(SkyOPModuleId.HUD)) return;
-        SkyOPHudRenderer.render(client, graphics);
+        try {
+            SkyOPHudRenderer.render(client, graphics);
+        } catch (VirtualMachineError | LinkageError fatal) {
+            throw fatal;
+        } catch (Throwable error) {
+            SkyOPDiagnostics.recordSystemError("shared HUD renderer", error);
+        }
         for (SkyOPModule module : MODULES.values()) {
-            if (SkyOPCore.isEnabled(module.type())) module.onRender2D(client, graphics);
+            if (SkyOPCore.isEnabled(module.type()) && isModuleReady(client, module)) {
+                invoke(client, module, "onRender2D", () -> module.onRender2D(client, graphics));
+            }
         }
     }
 
     public static void render3D(Minecraft client, Object renderContext) {
+        if (client == null) return;
         for (SkyOPModule module : MODULES.values()) {
-            if (SkyOPCore.isEnabled(module.type()) && module.isReady(client)) {
-                module.onRender3D(client, renderContext);
+            if (SkyOPCore.isEnabled(module.type()) && isModuleReady(client, module)) {
+                invoke(client, module, "onRender3D", () -> module.onRender3D(client, renderContext));
             }
         }
     }
 
     public static void onWorldChange(Minecraft client) {
-        for (SkyOPModule module : MODULES.values()) module.onWorldChange(client);
-        SkyOPMovementModules.cleanup(client);
-        SkyOPVisualModules.cleanup(client);
-        SkyOPPlayerModules.cleanup();
-        SkyOPInventoryManager.stop(client);
-        SkyOPTelemetry.reset();
-        SkyOPHudRenderer.resetSessionTimer();
+        for (SkyOPModule module : MODULES.values()) {
+            invoke(client, module, "onWorldChange", () -> module.onWorldChange(client));
+        }
+        runSharedCleanup("movement cleanup", () -> SkyOPMovementModules.cleanup(client));
+        runSharedCleanup("visual cleanup", () -> SkyOPVisualModules.cleanup(client));
+        runSharedCleanup("player cleanup", SkyOPPlayerModules::cleanup);
+        runSharedCleanup("inventory cleanup", () -> SkyOPInventoryManager.stop(client));
+        runSharedCleanup("telemetry reset", SkyOPTelemetry::reset);
+        runSharedCleanup("HUD reset", SkyOPHudRenderer::resetSessionTimer);
         ACTIVE.clear();
+    }
+
+    private static void runSharedCleanup(String context, Runnable action) {
+        try {
+            action.run();
+        } catch (VirtualMachineError | LinkageError fatal) {
+            throw fatal;
+        } catch (Throwable error) {
+            SkyOPDiagnostics.recordSystemError(context, error);
+        }
     }
 
     private static SkyOPModule createModule(SkyOPModuleId module, List<SkyOPSetting<?>> settings) {
@@ -299,8 +370,14 @@ public final class SkyOPModuleManager {
                     () -> (double) SkyOPState.armorAlertPercent, value -> SkyOPState.armorAlertPercent = value.intValue()));
             case FAST_BREAK -> settings.add(number("fastBreakLevel", "setting.fast_break_level", "setting.fast_break_level_desc",
                     () -> SkyOPState.fastBreakLevel, value -> SkyOPState.fastBreakLevel = value));
-            case AUTO_MLG -> settings.add(number("autoMlgFallDistance", "setting.auto_mlg_fall", "setting.auto_mlg_fall_desc",
-                    () -> SkyOPState.autoMlgFallDistance, value -> SkyOPState.autoMlgFallDistance = value));
+            case AUTO_MLG -> {
+                settings.add(number("autoMlgFallDistance", "setting.auto_mlg_fall", "setting.auto_mlg_fall_desc",
+                        () -> SkyOPState.autoMlgFallDistance, value -> SkyOPState.autoMlgFallDistance = value));
+                settings.add(number("autoMlgPredictionWindow", "setting.auto_mlg_prediction_window",
+                        "setting.auto_mlg_prediction_window_desc",
+                        () -> (double) SkyOPState.autoMlgPredictionWindow,
+                        value -> SkyOPState.autoMlgPredictionWindow = value.intValue()));
+            }
             case AUTO_TOTEM -> settings.add(number("autoTotemHealth", "setting.auto_totem_health", "setting.auto_totem_health_desc",
                     () -> SkyOPState.autoTotemHealth, value -> SkyOPState.autoTotemHealth = value));
             case AUTO_BRIDGE -> settings.add(number("bridgeDelayTicks", "setting.placement_delay", "setting.placement_delay_desc",

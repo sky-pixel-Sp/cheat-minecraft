@@ -54,5 +54,7 @@
   "key.skyop.module.container_finder": "Container Finder",
   "key.skyop.module.auto_respawn": "Auto Respawn",
   "key.skyop.module.low_health_alert": "Low Health Alert",
-  "key.skyop.module.armor_alert": "Armor Alert"
+  "key.skyop.module.armor_alert": "Armor Alert",
+  "setting.auto_mlg_prediction_window": "Prediction window",
+  "setting.auto_mlg_prediction_window_desc": "Number of ticks used to predict the first loaded landing collision surface (1–3)."
 }

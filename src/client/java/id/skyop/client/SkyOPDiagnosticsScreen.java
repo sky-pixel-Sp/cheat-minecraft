@@ -260,19 +260,29 @@ public final class SkyOPDiagnosticsScreen extends Screen {
                             SkyOPTheme.Palette p, boolean idLanguage) {
         int y = panelY + panelHeight - FOOTER_HEIGHT + 6;
         int backX = panelX + 16;
-        String backLabel = idLanguage ? "KEMBALI KE CLICKGUI" : "BACK TO CLICKGUI";
-        drawButton(g, mouseX, mouseY, backX, y, compact() ? 126 : 174, 24,
-                backLabel, p);
-
+        String back = idLanguage ? "KEMBALI KE CLICKGUI" : "BACK TO CLICKGUI";
+        int backWidth = compact() ? 126 : 174;
+        drawButton(g, mouseX, mouseY, backX, y, backWidth, 24, back, p);
+        int[] action = footerActionLayout();
+        if (action[1] >= 28) drawButton(g, mouseX, mouseY, action[0], y, action[1], 24,
+                idLanguage ? "SALIN" : "COPY", p);
+        if (action[1] >= 58) drawButton(g, mouseX, mouseY, action[0] + action[1] + 6, y, action[1], 24, "LOG", p);
         int perPage = pageSize();
         int pageCount = Math.max(1, (SkyOPModuleId.values().length + perPage - 1) / perPage);
-        String pageLabel = (page + 1) + " / " + pageCount;
+        String label = (page + 1) + " / " + pageCount;
         int pagerX = panelX + panelWidth - 138;
-        g.text(font, Component.literal(pageLabel), pagerX + 48, y + 8, p.muted(), true);
-        drawButton(g, mouseX, mouseY, pagerX, y, 40, 24,
-                idLanguage ? "SEBLM" : "PREV", p, page == 0);
-        drawButton(g, mouseX, mouseY, pagerX + 88, y, 40, 24,
-                idLanguage ? "LANJ" : "NEXT", p, page >= pageCount - 1);
+        g.text(font, Component.literal(label), pagerX + 48, y + 8, p.muted(), true);
+        drawButton(g, mouseX, mouseY, pagerX, y, 40, 24, idLanguage ? "SEBLM" : "PREV", p, page == 0);
+        drawButton(g, mouseX, mouseY, pagerX + 88, y, 40, 24, idLanguage ? "LANJ" : "NEXT", p, page >= pageCount - 1);
+    }
+
+    private int[] footerActionLayout() {
+        int backWidth = compact() ? 126 : 174;
+        int startX = panelX + 16 + backWidth + 8;
+        int pagerX = panelX + panelWidth - 138;
+        int available = pagerX - startX - 8;
+        int width = available < 28 ? 0 : Math.min(compact() ? 64 : 84, (available - 6) / 2);
+        return new int[]{startX, width};
     }
 
     private void drawButton(GuiGraphicsExtractor g, int mouseX, int mouseY,
@@ -315,6 +325,26 @@ public final class SkyOPDiagnosticsScreen extends Screen {
                 || inside(mx, my, panelX + 16, panelY + panelHeight - FOOTER_HEIGHT + 6,
                 compact() ? 126 : 174, 24)) {
             returnToParent();
+            return true;
+        }
+
+        int actionY = panelY + panelHeight - FOOTER_HEIGHT + 6;
+        int[] action = footerActionLayout();
+        if (action[1] >= 28 && inside(mx, my, action[0], actionY, action[1], 24)) {
+            Minecraft c = Minecraft.getInstance();
+            c.keyboardHandler.setClipboard(SkyOPDiagnostics.buildReport(c));
+            if (c.player != null) c.player.sendSystemMessage(Component.literal("[SkyOP] Diagnostics report copied to clipboard."));
+            return true;
+        }
+        if (action[1] >= 58 && inside(mx, my, action[0] + action[1] + 6, actionY, action[1], 24)) {
+            Minecraft c = Minecraft.getInstance();
+            try {
+                SkyOPDiagnostics.openLogDirectory();
+                if (c.player != null) c.player.sendSystemMessage(Component.literal("[SkyOP] Opened the SkyOP log folder."));
+            } catch (java.io.IOException | UnsupportedOperationException error) {
+                if (c.player != null) c.player.sendSystemMessage(Component.literal("[SkyOP] Cannot open log folder: " + error.getMessage()));
+                else SkyOPDiagnostics.recordSystemError("open log folder", error);
+            }
             return true;
         }
 
@@ -366,6 +396,20 @@ public final class SkyOPDiagnosticsScreen extends Screen {
 
     @Override
     public boolean keyPressed(KeyEvent event) {
+        if (event.key() == InputConstants.KEY_C) {
+            Minecraft c = Minecraft.getInstance();
+            c.keyboardHandler.setClipboard(SkyOPDiagnostics.buildReport(c));
+            if (c.player != null) c.player.sendSystemMessage(Component.literal("[SkyOP] Diagnostics report copied to clipboard."));
+            return true;
+        }
+        if (event.key() == InputConstants.KEY_L) {
+            try { SkyOPDiagnostics.openLogDirectory(); }
+            catch (java.io.IOException | UnsupportedOperationException error) {
+                if (Minecraft.getInstance().player != null) Minecraft.getInstance().player.sendSystemMessage(
+                        Component.literal("[SkyOP] Cannot open log folder: " + error.getMessage()));
+            }
+            return true;
+        }
         if (event.key() == InputConstants.KEY_ESCAPE
                 || event.key() == InputConstants.KEY_BACKSPACE) {
             returnToParent();

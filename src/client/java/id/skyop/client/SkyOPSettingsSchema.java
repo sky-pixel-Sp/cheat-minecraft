@@ -36,6 +36,7 @@ public final class SkyOPSettingsSchema {
         number("jumpBoostMultiplier", 1.35, 1.0, 3.0, false);
         number("fastBreakLevel", 7, 1, 7, true);
         number("autoMlgFallDistance", 6, 3, 18, false);
+        number("autoMlgPredictionWindow", 2, 1, 3, true);
         number("autoTotemHealth", 14, 1, 20, false);
         number("bridgeDelayTicks", 2, 1, 10, true);
         number("zoomFov", 20, 10, 70, true);
