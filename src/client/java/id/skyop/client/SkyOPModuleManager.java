@@ -237,7 +237,7 @@ public final class SkyOPModuleManager {
         }
         runSharedCleanup("movement cleanup", () -> SkyOPMovementModules.cleanup(client));
         runSharedCleanup("visual cleanup", () -> SkyOPVisualModules.cleanup(client));
-        runSharedCleanup("player cleanup", SkyOPPlayerModules::cleanup);
+        runSharedCleanup("player cleanup", () -> { SkyOPPlayerModules.cleanup(); });
         runSharedCleanup("inventory cleanup", () -> SkyOPInventoryManager.stop(client));
         runSharedCleanup("telemetry reset", SkyOPTelemetry::reset);
         runSharedCleanup("HUD reset", SkyOPHudRenderer::resetSessionTimer);

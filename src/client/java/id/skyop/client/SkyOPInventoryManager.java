@@ -202,14 +202,14 @@ public final class SkyOPInventoryManager {
             return;
         }
         var inventory = player.getInventory();
-        for (int inv = 0; inv <= 35; inv++) {
-            if (!inventory.getItem(inv).is(Items.TOTEM_OF_UNDYING)) continue;
-            int menu = SkyOPAutomationRules.playerInventorySlotToMenuSlot(inv);
+        for (int inventorySlot = 0; inventorySlot <= 35; inventorySlot++) {
+            if (!inventory.getItem(inventorySlot).is(Items.TOTEM_OF_UNDYING)) continue;
+            int menu = SkyOPAutomationRules.playerInventorySlotToMenuSlot(inventorySlot);
             if (menu < 0) continue;
             client.gameMode.handleContainerInput(player.inventoryMenu.containerId, menu, 40, ContainerInput.SWAP, player);
             totemDelay = 10;
             SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_TOTEM, "swap_requested",
-                    "Requested ordinary vanilla SWAP from inventory slot " + inv + " to offhand");
+                    "Requested ordinary vanilla SWAP from inventory slot " + inventorySlot + " to offhand");
             return;
         }
         SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_TOTEM, "no_carried_totem", "No totem in main inventory or hotbar");

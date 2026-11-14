@@ -261,7 +261,7 @@ public final class SkyOPMovementModules {
             return;
         }
 
-        float oldPitch = player.getXRot();
+        float originalPitch = player.getXRot();
         try {
             player.setXRot(90.0F);
             HitResult result = player.pick(4.5D, 1.0F, false);
@@ -284,7 +284,7 @@ public final class SkyOPMovementModules {
             SkyOPDiagnostics.recordReason(SkyOPModuleId.AUTO_MLG, "placement_attempted",
                     "Normal vanilla water-bucket interaction attempted");
         } finally {
-            player.setXRot(oldPitch);
+            player.setXRot(originalPitch);
         }
     }
 
