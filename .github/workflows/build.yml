@@ -48,15 +48,16 @@ jobs:
             exit 1
           fi
 
-          # Enforce the SkyOP 4.0.0 release identity in both filename and
+          # Enforce the SkyOP 4.0.1 release identity in Gradle, filename and
           # embedded Fabric metadata. This prevents an old version from
           # being uploaded from the current feature branch.
-          EXPECTED_JAR="build/libs/skyop-client-4.0.0.jar"
+          grep -Fq 'mod_version=4.0.1' gradle.properties
+          EXPECTED_JAR="build/libs/skyop-client-4.0.1.jar"
           if [[ "$JAR_PATH" != "$EXPECTED_JAR" ]]; then
             echo "Expected $EXPECTED_JAR but produced $JAR_PATH." >&2
             exit 1
           fi
-          unzip -p "$JAR_PATH" fabric.mod.json | grep -Fq '"version": "4.0.0"'
+          unzip -p "$JAR_PATH" fabric.mod.json | grep -Fq '"version": "4.0.1"'
 
           # Minecraft 26.3 SDL keyboard-state regression guard.
           grep -Fq 'SDL_SCANCODE_COUNT = 512' src/main/java/id/skyop/client/SkyOPSdlKeyboardIndex.java
@@ -163,7 +164,26 @@ jobs:
           grep -Fq 'playerInventorySlotsMapToVanillaMenuSlots' src/test/java/id/skyop/client/SkyOPAutomationRulesTest.java
           grep -Fq 'SkyOP 3.0 review feedback' docs/TEST-PLAN.md
 
+          # Dual-side bootstrap and local diagnostic services.
+          test -s src/main/java/id/skyop/common/SkyOPDiagnostics.java
+          test -s src/main/java/id/skyop/common/SkyOPLandingPrediction.java
+          test -s src/main/java/id/skyop/server/SkyOPServer.java
+          grep -Fq '"environment": "*"' src/main/resources/fabric.mod.json
+          grep -Fq '"server": [' src/main/resources/fabric.mod.json
+          grep -Fq '"id.skyop.server.SkyOPServer"' src/main/resources/fabric.mod.json
+          grep -Fq 'SkyOPModuleManager.isReadyForDiagnostics(client, id)' src/client/java/id/skyop/client/SkyOPDiagnosticsScreen.java
+          grep -Fq 'keyboardHandler.setClipboard(SkyOPClientDiagnostics.buildReport())' src/client/java/id/skyop/client/SkyOPDiagnosticsScreen.java
+          grep -Fq 'SkyOPDiagnostics.ERROR_DISABLE_THRESHOLD' src/client/java/id/skyop/client/SkyOPModuleManager.java
+          grep -Fq 'if ("onTick".equals(callback))' src/client/java/id/skyop/client/SkyOPModuleManager.java
+          grep -Fq 'playerInventorySlotToMenuSlot(slot)' src/client/java/id/skyop/client/SkyOPInventoryManager.java
+          grep -Fq 'SkyOPLandingPrediction.predict(' src/client/java/id/skyop/client/SkyOPMovementModules.java
+          grep -Fq 'number("fastBreakLevel", 7, 1, 7, true)' src/client/java/id/skyop/client/SkyOPSettingsSchema.java
+
           JAR_ENTRIES="$(jar tf "$JAR_PATH")"
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/server/SkyOPServer.class$'
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/common/SkyOPDiagnostics.class$'
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/common/SkyOPLandingPrediction.class$'
+          printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPClientDiagnostics.class$'
           printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/client/SkyOPClient.class$'
           printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/mixin/SkyOPFishingHookAccessor.class$'
           printf '%s\n' "$JAR_ENTRIES" | grep -q '^id/skyop/mixin/InputConstantsMixin.class$'

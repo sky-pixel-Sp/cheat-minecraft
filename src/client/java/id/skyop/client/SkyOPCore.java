@@ -314,6 +314,14 @@ private static void onClientTick(Minecraft client) {
 
         SkyOPTelemetry.update(client);
         if (client.gui.screen() != null) {
+            if (isEnabled(SkyOPModuleId.AUTO_TOTEM)) {
+                SkyOPClientDiagnostics.get().recordReason("AUTO_TOTEM", "screen_open",
+                        "Layar terbuka; aksi inventory ditunda.");
+            }
+            if (isEnabled(SkyOPModuleId.AUTO_MLG)) {
+                SkyOPClientDiagnostics.get().recordReason("AUTO_MLG", "screen_open",
+                        "Layar terbuka; aksi Auto MLG ditunda.");
+            }
             SkyOPInventoryManager.stop(client);
             SkyOPMovementModules.restoreAutoWalk(client);
             return;

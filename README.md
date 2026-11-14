@@ -1,4 +1,4 @@
-# SkyOP Client 4.0.0
+# SkyOP Client 4.0.1
 
 <p align="center">
   <strong>Premium-style Minecraft Java 26.3 Fabric client</strong><br>
@@ -12,7 +12,7 @@
   <img alt="Minecraft" src="https://img.shields.io/badge/Minecraft-Java%2026.3-3C8527?logo=minecraft&logoColor=white">
   <img alt="Fabric" src="https://img.shields.io/badge/Mod%20loader-Fabric-DBD0B4?logo=fabric&logoColor=222222">
   <img alt="Java" src="https://img.shields.io/badge/Java-25-ED8B00?logo=openjdk&logoColor=white">
-  <img alt="Version" src="https://img.shields.io/badge/SkyOP-4.0.0-4BA3D9">
+  <img alt="Version" src="https://img.shields.io/badge/SkyOP-4.0.1-4BA3D9">
   <img alt="License" src="https://img.shields.io/badge/License-MIT-blue.svg">
 </p>
 
@@ -28,7 +28,7 @@
 
 ## SkyOP 4.0 expansion preview
 
-The active premium UI branch now carries the complete SkyOP 4.0.0 feature set. Gradle, the output JAR filename and the Fabric metadata all use version `4.0.0`.
+The active premium UI branch now carries the complete SkyOP 4.0.1 feature set. Gradle, the output JAR filename and the Fabric metadata all use version `4.0.1`.
 
 - **62 registered modules:** every module has a concrete runtime factory entry and a category/risk classification.
 - **ClickGUI navigation:** Combat, Movement, Visual, World, Player, Inventory, Favorites, Safe and Dangerous. Favorites and risk labels are filters over the registered modules.
@@ -212,7 +212,7 @@ Back up the config folder before experimenting with imported profiles.
 2. Confirm java -version reports Java 25 or newer.
 3. Clone or download this repository.
 4. Run BUILD-WINDOWS.bat.
-5. Find `skyop-client-4.0.0.jar` under `build/libs/`.
+5. Find `skyop-client-4.0.1.jar` under `build/libs/`.
 
 The first build needs an internet connection to download Gradle and dependencies.
 
